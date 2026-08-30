@@ -176,8 +176,8 @@ HEAD_END = "<!--SEO:END-->"
 def build_head(p, title, desc):
     url = page_url(p)
     ogtype = "article" if (p.startswith("blog/") or p.startswith("tools/")) else "website"
-    og_img = "%s/og.png" % SITE_URL.rstrip("/")
-    if os.path.exists(os.path.join(BASE, "og.png")):
+    og_img = "%s/ai-copywriting-tools-og.png" % SITE_URL.rstrip("/")
+    if os.path.exists(os.path.join(BASE, "ai-copywriting-tools-og.png")):
         og_lines = (
             '<meta property="og:image" content="%s" />\n' % og_img
             + '<meta property="og:image:width" content="1200" />\n'

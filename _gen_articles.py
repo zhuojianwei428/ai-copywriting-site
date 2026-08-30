@@ -107,7 +107,7 @@ def generate_detail(art, idx):
     excerpt = art.get("subtitle", "")
     content = art.get("content", "<p>[Content pending]</p>")
     date = art.get("date", "")
-    image = art.get("image", f"{SITE_URL}/og.png")
+    image = art.get("image", f"{SITE_URL}/ai-copywriting-tools-og.png")
 
     url = f"{SITE_URL}/blog/articles/{slug}.html"
     rel = f"blog/articles/{slug}.html"
@@ -168,7 +168,7 @@ def generate_list_snippet(articles, rel_prefix=""):
 
         items.append(
             f'<a class="article-row" href="{rel_prefix}blog/articles/{slug}.html">\n'
-            f'  <img class="article-thumb" src="{img}" alt="" loading="lazy" />\n'
+            f'  <img class="article-thumb" src="{img}" alt="AI copywriting tools tested by CopyTools — real screenshots and verdicts" loading="lazy" />\n'
             f'  <div class="article-body">\n'
             f'    <h3 class="article-title">{title}</h3>\n'
             f'    <p class="article-excerpt">{excerpt}</p>\n'

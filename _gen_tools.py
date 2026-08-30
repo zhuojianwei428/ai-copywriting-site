@@ -77,10 +77,10 @@ TPL = """<!DOCTYPE html>
 <meta property="og:title" content="{NAME} Review: Tested AI Copywriting Tools | CopyTools" />
 <meta property="og:description" content="{DESC}" />
 <meta property="og:url" content="{SITE_URL}/tools/{SLUG}" />
-<meta property="og:image" content="{SITE_URL}/og.png" />
+<meta property="og:image" content="{SITE_URL}/ai-copywriting-tools-og.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta name="twitter:image" content="{SITE_URL}/og.png" />
+<meta name="twitter:image" content="{SITE_URL}/ai-copywriting-tools-og.png" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="{NAME} Review: Tested AI Copywriting Tools | CopyTools" />
 <meta name="twitter:description" content="{DESC}" />

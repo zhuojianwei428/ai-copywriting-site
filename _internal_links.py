@@ -144,7 +144,7 @@ def build(rel):
 
     elif norm == "tools.html":
         auds = "".join(audience_card(h, s) for s in AUDIENCE)
-        parts.append(block("Not sure where to start? Pick by audience", auds, h))
+        parts.append(block("Not sure where to start? Pick the right AI copywriting tools", auds, h))
 
     elif norm.startswith("blog/"):
         picks = "".join(tool_card(h, s) for s in ["claude", "chatgpt", "hemingway", "copyai"])

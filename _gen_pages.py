@@ -11,7 +11,7 @@ PAGES = {
         "title": "Best AI Copywriting Tools for Content Creators | CopyTools",
         "desc": "Best AI copywriting tools for content creators, tested on real publishing work: blog intros, newsletters, scripts. Graded on: does it still sound like you?",
         "h1": "Content creators' AI copywriting tools — and the methods we found genuinely useful (based on real-work testing)",
-        "sub": "Bloggers, newsletter writers, and YouTube scriptwriters — you publish constantly, and your voice is the product. These are the tools and methods we actually use to scale output and found genuinely useful; feel free to use them as a reference.",
+        "sub": "Bloggers, newsletter writers, and YouTube scriptwriters — you publish constantly, and your voice is the product. We test AI copywriting tools for content creators on real publishing work; these are the tools and methods we actually use to scale output and found genuinely useful; feel free to use them as a reference.",
         "intro": "",
         "tools": [],
         "verdict": "",
@@ -38,7 +38,7 @@ PAGES = {
         "title": "Best AI Copywriting Tools for Office Workers | CopyTools",
         "desc": "Best AI copywriting tools for office workers, tested on weekly reports, emails, and slides. Graded on clear output that never invents accomplishments.",
         "h1": "AI copywriting tools we picked for office workers (weekly reports, emails, slides)",
-        "sub": "Your AI-written weekly report got rejected by your boss, or the slides just look off? Don't worry — I'll test every AI tool for you, and show each one's real use cases, exactly how to download and use it, what it costs, how it compares with other tools, which tools it pairs with, and who it's best for. We lay it all out so you never have to download and try every tool yourself.",
+        "sub": "We test AI copywriting tools for office workers on real work — your AI-written weekly report got rejected by your boss, or the slides just look off? Don't worry — I'll test every AI copywriting tool for you, and show each one's real use cases, exactly how to download and use it, what it costs, how it compares with other tools, which tools it pairs with, and who it's best for. We lay it all out so you never have to download and try every tool yourself.",
         "intro": "",
         "tools": [],
         "verdict": "",
@@ -123,12 +123,12 @@ for fname, d in PAGES.items():
 {cards}
 </div>
 <div class="method" style="margin-top:34px">
-<h2>Our verdict</h2>
+<h2>Our verdict on the best AI copywriting tools</h2>
 <p style="color:var(--text-dim)">{d["verdict"]}</p>
 </div>
 <p style="color:var(--text-faint);font-size:14px;margin-top:26px">Back to <a href="index.html" style="color:var(--accent)">all tested tools &rarr;</a></p>'''
     else:
-        tool_section = ""
+        tool_section = '<h2 class="sec-title" style="margin-top:8px">More AI copywriting tools by audience</h2><p style="color:var(--text-faint);font-size:14px;margin-top:14px">Back to <a href="index.html" style="color:var(--accent)">all tested AI copywriting tools &rarr;</a></p>'
 
     html = TPL.format(TITLE=title, DESC=desc, TAG=d["tag"], H1=d["h1"], SUB=d["sub"],
                       INTRO_BLOCK=intro_block, TOOL_SECTION=tool_section)

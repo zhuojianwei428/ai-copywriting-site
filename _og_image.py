@@ -6,7 +6,7 @@ import os
 import sys
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(BASE, "og.png")
+OUT = os.path.join(BASE, "ai-copywriting-tools-og.png")
 
 W, H = 1200, 630
 BG = (11, 14, 20)
