@@ -83,7 +83,7 @@ def build_jsonld(p):
     elif p.startswith("blog/"):
         blocks.append({
             "@context": "https://schema.org", "@type": "Article",
-            "headline": "AI文案写作工具实测博客",
+            "headline": "Blog — Real-Tested AI Copywriting Tools",
             "url": url, "author": {"@type": "Organization", "name": SITE_NAME},
             "publisher": {"@type": "Organization", "name": SITE_NAME},
         })
