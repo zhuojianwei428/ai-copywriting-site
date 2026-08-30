@@ -4,7 +4,7 @@
 # 例外：域名仍然在 _seo.py 顶部的 SITE_URL 改（那行管 canonical / sitemap / robots）。
 #
 # ★ 联系邮箱：目前是暂定邮箱，换正式邮箱时只改这一行 ★
-CONTACT_EMAIL = "zhuojianwei428@gmail.com"
+CONTACT_EMAIL = "contact@aiwritereview.com"
 
 # 站点名，页脚 / 法务页 / 结构化数据共用
 SITE_NAME = "CopyTools"

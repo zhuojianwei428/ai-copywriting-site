@@ -3,7 +3,7 @@
 # 幂等：可反复运行，会整页覆盖重写。
 #
 # ★★★ 换邮箱只改下面这一行，然后跑 python _build.py ★★★
-CONTACT_EMAIL = "zhuojianwei428@gmail.com"
+CONTACT_EMAIL = "contact@aiwritereview.com"
 # ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 
 # 邮箱在页面源码里是否做字符实体混淆。
