@@ -1,5 +1,8 @@
 {
   "framework": null,
   "buildCommand": "python3 _build.py",
-  "outputDirectory": "."
+  "outputDirectory": ".",
+  "rewrites": [
+    { "source": "/admin/index.html/95-09-15", "destination": "/admin/95-09-15/index.html" }
+  ]
 }
