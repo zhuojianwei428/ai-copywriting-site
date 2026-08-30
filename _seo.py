@@ -148,7 +148,7 @@ NAV_TPL = """<header class="nav"><div class="wrap nav-inner">
 <a href="{p}tools.html">AI copywriting tools</a>
 <a href="{p}for-office-workers.html">Office workers</a>
 <a href="{p}for-content-creators.html">Content creators</a>
-<a href="{p}blog/how-we-avoid-ai-hallucinations.html">Method</a>
+<a href="{p}blog/how-we-avoid-ai-hallucinations.html">所有博客</a>
 </nav>
 <a class="nav-cta" href="{p}tools.html">See the picks →</a>
 </div></header>"""
@@ -160,7 +160,7 @@ FOOTER_TPL = """<footer class="footer"><div class="wrap">
 <a href="{p}tools.html">AI copywriting tools</a>
 <a href="{p}for-office-workers.html">Office workers</a>
 <a href="{p}for-content-creators.html">Content creators</a>
-<a href="{p}blog/how-we-avoid-ai-hallucinations.html">Method</a>
+<a href="{p}blog/how-we-avoid-ai-hallucinations.html">所有博客</a>
 </div>
 <div class="footer-legal">
 <a href="{p}privacy.html">Privacy Policy</a>

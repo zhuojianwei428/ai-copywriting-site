@@ -56,7 +56,7 @@ PAGE_SHELL_HEAD = """<!DOCTYPE html>
 <a href="{prefix}tools.html">AI copywriting tools</a>
 <a href="{prefix}for-office-workers.html">Office workers</a>
 <a href="{prefix}for-content-creators.html">Content creators</a>
-<a href="{prefix}blog/how-we-avoid-ai-hallucinations.html">Method</a>
+<a href="{prefix}blog/how-we-avoid-ai-hallucinations.html">所有博客</a>
 </div>
 </div></nav>
 
@@ -78,7 +78,7 @@ PAGE_SHELL_HEAD = """<!DOCTYPE html>
 <a href="{prefix}tools.html">AI copywriting tools</a>
 <a href="{prefix}for-office-workers.html">Office workers</a>
 <a href="{prefix}for-content-creators.html">Content creators</a>
-<a href="{prefix}blog/how-we-avoid-ai-hallucinations.html">Method</a>
+<a href="{prefix}blog/how-we-avoid-ai-hallucinations.html">所有博客</a>
 </div>
 <div class="footer-legal">
 <a href="{prefix}privacy.html">Privacy Policy</a>
