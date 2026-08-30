@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CopyTools Admin</title>
+<title>CopyTools 后台管理</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..900&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400..700&family=Inter:wght@400..900&display=swap" />
 <style>
 :root {
   --bg: #0a0e1a; --bg2: #111827; --bg3: #1a2235; --surface: #151d2e;
@@ -17,7 +17,7 @@
   --radius: 10px; --radius-sm: 6px;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); height:100vh; overflow:hidden; }
+body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); height:100vh; overflow:hidden; }
 
 .topbar { height:56px; background:var(--bg2); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 20px; gap:12px; flex-shrink:0; }
 .topbar .logo { font-weight:700; font-size:16px; display:flex; align-items:center; gap:8px; }
@@ -54,8 +54,8 @@ body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color
 .badge-b { background:rgba(99,102,241,.15); color:#818cf8; }
 
 .editor { flex:1; overflow-y:auto; padding:28px 36px; background:var(--bg); }
-.editor-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
-.editor-header h1 { font-size:22px; font-weight:700; }
+.editor-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; gap:16px; flex-wrap:wrap; }
+.editor-header h1 { font-size:21px; font-weight:700; line-height:1.4; }
 
 .section-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:20px; overflow:hidden; }
 .section-head { padding:14px 20px; background:var(--bg3); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
@@ -68,8 +68,25 @@ body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color
 .section-hint { font-size:12px; color:var(--text3); margin-top:8px; }
 .empty-field { box-shadow:inset 0 0 0 1px var(--orange); }
 
-/* Article-specific */
-.article-content-area { min-height:300px; }
+/* Toolbar for article content */
+.toolbar { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+.toolbar button { padding:5px 10px; font-size:12px; border:1px solid var(--border2); background:var(--bg); color:var(--text2); border-radius:var(--radius-sm); cursor:pointer; font-family:inherit; }
+.toolbar button:hover { background:var(--bg3); color:var(--text); border-color:var(--accent); }
+
+/* Live preview */
+.preview-wrap { margin-top:8px; }
+.preview-label { font-size:13px; font-weight:600; color:var(--accent); margin:24px 0 12px; padding-bottom:8px; border-bottom:1px dashed var(--border2); }
+.preview-card { display:flex; gap:18px; background:var(--bg2); border:1px solid var(--border2); border-radius:var(--radius); padding:16px; margin-bottom:18px; }
+.preview-card img { width:200px; height:130px; flex-shrink:0; border-radius:var(--radius-sm); object-fit:cover; background:var(--bg3); }
+.preview-card .pc-body { flex:1; min-width:0; }
+.preview-card .pc-title { font-size:18px; font-weight:700; color:var(--text); margin-bottom:6px; line-height:1.35; }
+.preview-card .pc-excerpt { font-size:13px; color:var(--text2); line-height:1.6; }
+.preview-card .pc-date { font-size:12px; color:var(--text3); margin-top:8px; }
+.preview-content { background:var(--bg2); border:1px solid var(--border2); border-radius:var(--radius); padding:24px 28px; color:var(--text2); line-height:1.8; font-size:14px; }
+.preview-content h2 { color:var(--text); font-size:20px; margin:18px 0 10px; }
+.preview-content p { margin:10px 0; }
+.preview-content ul { margin:10px 0 10px 22px; }
+.preview-content a { color:var(--accent); }
 
 .toast-container { position:fixed; top:68px; right:20px; z-index:999; display:flex; flex-direction:column; gap:8px; }
 .toast { padding:10px 18px; border-radius:var(--radius-sm); font-size:13px; animation:slideIn .25s ease; max-width:360px; }
@@ -99,83 +116,83 @@ body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color
 <div class="toast-container" id="toasts"></div>
 
 <div class="topbar">
-  <div class="logo"><span class="dot"></span> CopyTools Admin</div>
+  <div class="logo"><span class="dot"></span> CopyTools 后台</div>
   <div class="mode-tabs">
-    <button class="mode-tab active" id="tabTools" onclick="switchMode('tools')">Tools</button>
-    <button class="mode-tab" id="tabArticles" onclick="switchMode('articles')">Articles</button>
+    <button class="mode-tab active" id="tabTools" onclick="switchMode('tools')">工具</button>
+    <button class="mode-tab" id="tabArticles" onclick="switchMode('articles')">文章</button>
   </div>
-  <span class="status" id="status">No data loaded</span>
+  <span class="status" id="status">未加载数据</span>
   <div class="spacer"></div>
-  <button class="btn btn-sm" onclick="loadFromFile()" title="Load JSON from disk">Load JSON</button>
-  <button class="btn btn-sm btn-primary" onclick="downloadJSON()" title="Download edited data">Download JSON</button>
-  <button class="btn btn-sm btn-success" onclick="showBuildModal()" title="Rebuild pages">Build Pages</button>
+  <button class="btn btn-sm" onclick="loadFromFile()" title="从本地磁盘加载 JSON">加载 JSON</button>
+  <button class="btn btn-sm btn-primary" onclick="downloadJSON()" title="下载编辑后的数据">下载 JSON</button>
+  <button class="btn btn-sm btn-success" onclick="showBuildModal()" title="重新生成页面">生成页面</button>
 </div>
 
 <div class="layout">
   <div class="sidebar">
     <div class="sidebar-header">
-      <input type="text" id="searchInput" placeholder="Search..." oninput="filterList()" />
+      <input type="text" id="searchInput" placeholder="搜索..." oninput="filterList()" />
     </div>
     <div class="sidebar-list" id="listArea"></div>
   </div>
   <div class="editor" id="editorArea">
     <div class="empty-state" id="emptyState">
       <div class="icon">&#128194;</div>
-      <p>Click <strong>Load JSON</strong> to start editing.</p>
+      <p>点击 <strong>加载 JSON</strong> 开始编辑。</p>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="buildModal">
   <div class="modal-box">
-    <h2>Build Static Pages</h2>
-    <p id="buildDesc">This will regenerate pages from current data.</p>
+    <h2>生成静态页面</h2>
+    <p id="buildDesc">将用当前数据重新生成页面。</p>
     <div id="buildLog" class="build-log"></div>
     <div class="modal-actions">
-      <button class="btn" onclick="hideBuildModal()">Cancel</button>
-      <button class="btn btn-success" onclick="runBuild()">Build Now</button>
+      <button class="btn" onclick="hideBuildModal()">取消</button>
+      <button class="btn btn-success" onclick="runBuild()">立即生成</button>
     </div>
   </div>
 </div>
 
 <script>
-// ====== State ======
+// ====== 状态 ======
 let mode = 'tools'; // 'tools' | 'articles'
 let appData = null;
 let currentItem = null;
 let currentIdx = -1;
 
 const TOOL_SECTIONS = [
-  { key:'use_case', label:'Real use case', hint:'Describe real scenarios where this tool shines.' },
-  { key:'download', label:'How to download & install', hint:'Step-by-step instructions.' },
-  { key:'how_to_use', label:'How to use it', hint:'Practical usage guide.' },
-  { key:'price', label:'Pricing', hint:'All pricing tiers.' },
-  { key:'comparison', label:'Comparison', hint:'Honest comparison with competitors.' },
-  { key:'combinations', label:'Tool combinations', hint:'Which tools pair well together?' },
-  { key:'who_for', label:'Who should use this', hint:'Target audience.' },
+  { key:'use_case', label:'真实使用场景', hint:'描述这个工具真正好用的场景。' },
+  { key:'download', label:'下载与安装', hint:'分步骤的安装说明。' },
+  { key:'how_to_use', label:'使用方法', hint:'实操使用指南。' },
+  { key:'price', label:'价格', hint:'各档位价格说明。' },
+  { key:'comparison', label:'对比', hint:'与竞品的真实对比。' },
+  { key:'combinations', label:'工具组合', hint:'哪些工具搭配使用更好？' },
+  { key:'who_for', label:'适合人群', hint:'目标用户是谁。' },
 ];
 
 const ARTICLE_SECTIONS = [
-  { key:'title', label:'Article Title', hint:'SEO-friendly title (keep under 60 chars).' },
-  { key:'subtitle', label:'Subtitle / Excerpt', hint:'Short description shown in the article list card.' },
-  { key:'image', label:'Cover Image URL', hint:'Full URL to cover image (200x130px thumbnail).' },
-  { key:'date', label:'Publish Date', hint:'Format: YYYY-MM-DD' },
-  { key:'slug', label:'URL Slug', hint:'URL-friendly name e.g. best-ai-for-reports' },
-  { key:'content', label:'Article Content (HTML)', hint:'Full article body as HTML. Use <p>, <h2>, <ul>, etc.', tall:true },
+  { key:'title', label:'文章标题', hint:'利于 SEO 的标题（建议 60 字以内）。' },
+  { key:'subtitle', label:'副标题 / 摘要', hint:'文章卡片上显示的简短描述。' },
+  { key:'image', label:'封面图 URL', hint:'封面图完整地址（缩略图约 200x130px）。' },
+  { key:'date', label:'发布日期', hint:'格式：YYYY-MM-DD' },
+  { key:'slug', label:'URL 别名', hint:'URL 友好名称，如 best-ai-for-reports' },
+  { key:'content', label:'正文内容（HTML）', hint:'文章正文，支持 <p>、<h2>、<ul> 等 HTML 标签。', tall:true },
 ];
 
-// ====== Mode Switching ======
+// ====== 模式切换 ======
 function switchMode(newMode) {
   mode = newMode;
   document.getElementById('tabTools').classList.toggle('active', newMode === 'tools');
   document.getElementById('tabArticles').classList.toggle('active', newMode === 'articles');
   appData = null; currentItem = null; currentIdx = -1;
   document.getElementById('listArea').innerHTML = '';
-  document.getElementById('editorArea').innerHTML = '<div class="empty-state"><div class="icon">&#128194;</div><p>Switched to <strong>' + newMode + '</strong>. Load JSON to begin.</p></div>';
-  updateStatus('Mode: ' + newMode);
+  document.getElementById('editorArea').innerHTML = '<div class="empty-state"><div class="icon">&#128194;</div><p>已切换到 <strong>' + (newMode==='tools'?'工具':'文章') + '</strong> 模式，加载 JSON 开始。</p></div>';
+  updateStatus('模式：' + (newMode==='tools'?'工具':'文章'));
 }
 
-// ====== File Loading ======
+// ====== 文件加载 ======
 function loadFromFile() {
   const input = document.createElement('input');
   input.type = 'file'; input.accept = '.json';
@@ -188,9 +205,9 @@ function loadFromFile() {
         renderList();
         selectItem(0);
         const count = mode === 'tools' ? appData.tools.length : (appData.articles || []).length;
-        updateStatus(`Loaded ${count} ${mode}`);
-        toast('JSON loaded', 'ok');
-      } catch(err) { toast('Invalid JSON: ' + err.message, 'err'); }
+        updateStatus(`已加载 ${count} 个${mode==='tools'?'工具':'文章'}`);
+        toast('JSON 已加载', 'ok');
+      } catch(err) { toast('无效的 JSON：' + err.message, 'err'); }
     };
     reader.readAsText(file);
   };
@@ -202,12 +219,12 @@ async function loadFromServer() {
     const res = await fetch('/api/' + mode);
     if (res.ok) {
       appData = await res.json(); renderList(); selectItem(0);
-      toast('Loaded from server', 'ok');
+      toast('已从服务器加载', 'ok');
     }
   } catch(e) {}
 }
 
-// ====== Render List ======
+// ====== 渲染列表 ======
 function renderList() {
   const container = document.getElementById('listArea');
   container.innerHTML = '';
@@ -217,7 +234,7 @@ function renderList() {
     });
   } else {
     (appData.articles || []).forEach((a, i) => {
-      container.appendChild(makeItem(i, a.title || '[Untitled]', a.date || '', 'badge-b'));
+      container.appendChild(makeItem(i, a.title || '[未命名]', a.date || '', 'badge-b'));
     });
   }
 }
@@ -237,7 +254,7 @@ function filterList() {
   });
 }
 
-// ====== Select & Edit ======
+// ====== 选中 & 编辑 ======
 function selectItem(idx) {
   const items = mode === 'tools' ? (appData?.tools || []) : (appData?.articles || []);
   if (idx < 0 || idx >= items.length) return;
@@ -252,74 +269,153 @@ function renderEditor() {
   const sections = mode === 'tools' ? TOOL_SECTIONS : ARTICLE_SECTIONS;
   let html = '<div class="editor-header">';
   if (mode === 'tools') {
-    html += `<h1>${esc(currentItem.name)} <span style="font-size:14px;color:var(--text3);font-weight:400">${esc(currentItem.slug)}</span></h1>`;
+    html += `<h1>${esc(currentItem.name)} <span style="font-size:13px;color:var(--text3);font-weight:400">${esc(currentItem.slug)}</span></h1>`;
     html += `<span class="badge ${currentItem.score_class||'score-b'}">${esc(currentItem.score||'')}</span>`;
   } else {
-    html += `<h1>${esc(currentItem.title || '[Untitled]')}</h1>`;
+    html += `<h1>${esc(currentItem.title || '[未命名]')}</h1>`;
     html += `<span style="font-size:13px;color:var(--text3)">${esc(currentItem.slug || '')}</span>`;
   }
   html += '</div>';
+
+  // 正文字段工具栏（仅文章模式）
+  const isContent = (sec) => mode === 'articles' && sec.key === 'content';
 
   sections.forEach((sec, i) => {
     const val = currentItem[sec.key] || '';
     const isEmpty = !val.trim();
     html += `<div class="section-card"><div class="section-head"><span class="section-num">${i+1}</span><h3>${esc(sec.label)}</h3></div><div class="section-body">`;
+    if (isContent(sec)) {
+      html += `<div class="toolbar">
+        <button type="button" onclick="wrapTag('b')">加粗</button>
+        <button type="button" onclick="wrapTag('i')">斜体</button>
+        <button type="button" onclick="insertBlock('h2')">标题</button>
+        <button type="button" onclick="insertList()">列表</button>
+        <button type="button" onclick="insertLink()">链接</button>
+      </div>`;
+    }
     html += `<textarea id="field_${sec.key}" class="${isEmpty ? 'empty-field' : ''}" ${sec.tall ? 'style="min-height:320px"' : ''} placeholder="${esc(sec.label)}" oninput="onFieldChange('${sec.key}',this)">${esc(val)}</textarea>`;
     html += `<div class="section-hint">${esc(sec.hint)}</div></div></div>`;
   });
 
+  // 文章模式：实时预览
+  if (mode === 'articles') {
+    html += `<div class="preview-wrap">
+      <div class="preview-label">实时预览</div>
+      <div id="previewCard"></div>
+      <div id="previewBody"></div>
+    </div>`;
+  }
+
   const oldForm = area.querySelector('.editor-form'); if (oldForm) oldForm.remove();
   const form = document.createElement('div'); form.className = 'editor-form';
   form.innerHTML = html; area.appendChild(form);
+
+  if (mode === 'articles') updatePreview();
+}
+
+// 文章格式工具栏
+function getContentArea() { return document.getElementById('field_content'); }
+function wrapTag(tag) {
+  const ta = getContentArea(); if (!ta) return;
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s, e) || '文字';
+  ta.value = ta.value.substring(0, s) + `<${tag}>` + sel + `</${tag}>` + ta.value.substring(e);
+  onFieldChange('content', ta);
+  ta.focus();
+}
+function insertBlock(tag) {
+  const ta = getContentArea(); if (!ta) return;
+  const s = ta.selectionStart;
+  ta.value = ta.value.substring(0, s) + `\n<${tag}>小标题</${tag}>\n` + ta.value.substring(ta.selectionEnd);
+  onFieldChange('content', ta); ta.focus();
+}
+function insertList() {
+  const ta = getContentArea(); if (!ta) return;
+  const s = ta.selectionStart;
+  ta.value = ta.value.substring(0, s) + `\n<ul>\n<li>项目一</li>\n<li>项目二</li>\n</ul>\n` + ta.value.substring(ta.selectionEnd);
+  onFieldChange('content', ta); ta.focus();
+}
+function insertLink() {
+  const ta = getContentArea(); if (!ta) return;
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s, e) || '链接文字';
+  ta.value = ta.value.substring(0, s) + `<a href="https://">` + sel + `</a>` + ta.value.substring(e);
+  onFieldChange('content', ta); ta.focus();
+}
+
+function updatePreview() {
+  const card = document.getElementById('previewCard');
+  const body = document.getElementById('previewBody');
+  if (!card || !body || !currentItem) return;
+  const title = esc(currentItem.title || '（未填写标题）');
+  const sub = esc(currentItem.subtitle || '（未填写副标题）');
+  const img = currentItem.image || '';
+  const date = esc(currentItem.date || '');
+  card.innerHTML = `<div class="preview-card">
+    ${img ? `<img src="${esc(img)}" alt="" />` : `<div style="width:200px;height:130px;flex-shrink:0;border-radius:var(--radius-sm);background:var(--bg3);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px">无封面图</div>`}
+    <div class="pc-body">
+      <div class="pc-title">${title}</div>
+      <div class="pc-excerpt">${sub}</div>
+      <div class="pc-date">${date}</div>
+    </div>
+  </div>`;
+  body.innerHTML = `<div class="preview-content">${(currentItem.content || '<p style="color:var(--text3)">（正文为空）</p>')}</div>`;
 }
 
 function onFieldChange(key, ta) {
   if (!currentItem) return;
   currentItem[key] = ta.value;
   ta.classList.toggle('empty-field', !ta.value.trim());
+  if (mode === 'articles' && key === 'content') updatePreview();
+  if (mode === 'articles' && (key === 'title' || key === 'subtitle' || key === 'image' || key === 'date')) {
+    // 同步侧栏与预览
+    const itm = document.querySelectorAll('.item')[currentIdx];
+    if (key === 'title' && itm) itm.querySelector('span').textContent = currentItem.title || '[未命名]';
+    updatePreview();
+  }
 }
 
-// ====== Save / Download ======
+// ====== 保存 / 下载 ======
 function downloadJSON() {
-  if (!appData) { toast('No data', 'err'); return; }
+  if (!appData) { toast('没有数据', 'err'); return; }
   appData._meta = { last_updated: new Date().toISOString(), mode };
   const fname = mode === 'tools' ? 'tools-data.json' : 'articles.json';
   const blob = new Blob([JSON.stringify(appData, null, 2)], { type:'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
   URL.revokeObjectURL(url);
-  toast(`Downloaded ${fname}`, 'ok');
+  toast(`已下载 ${fname}`, 'ok');
 }
 
-// ====== Build ======
+// ====== 生成 ======
 function showBuildModal() {
   document.getElementById('buildModal').classList.add('show');
   document.getElementById('buildLog').classList.remove('show');
   document.getElementById('buildLog').textContent = '';
   document.getElementById('buildDesc').textContent =
     mode === 'tools'
-      ? 'Run _gen_tools.py to regenerate all 11 tool detail pages.'
-      : 'Run _gen_articles.py to regenerate all article pages.';
+      ? '将运行 _gen_tools.py 重新生成全部 11 个工具详情页。'
+      : '将运行 _gen_articles.py 重新生成全部文章页。';
 }
 function hideBuildModal() { document.getElementById('buildModal').classList.remove('show'); }
 
 async function runBuild() {
   const logEl = document.getElementById('buildLog');
-  logEl.classList.add('show'); logEl.textContent = 'Starting build...\n';
+  logEl.classList.add('show'); logEl.textContent = '正在开始生成...\n';
   try {
     const api = mode === 'tools' ? '/api/build-tools' : '/api/build-articles';
     const res = await fetch(api, { method:'POST' });
     const result = await res.json();
-    if (result.ok) { logEl.textContent += '\n' + (result.output || 'Done!'); toast('Built!', 'ok'); }
-    else { logEl.textContent += '\nError: ' + (result.error || '?'); toast('Failed', 'err'); }
+    if (result.ok) { logEl.textContent += '\n' + (result.output || '完成！'); toast('生成成功！', 'ok'); }
+    else { logEl.textContent += '\n错误：' + (result.error || '未知错误'); toast('生成失败', 'err'); }
   } catch(e) {
     const script = mode === 'tools' ? '_gen_tools.py' : '_gen_articles.py';
-    logEl.textContent += `\nServer offline.\nManual:\n  1. Download JSON\n  2. Place in project root\n  3. Run: python ${script}`;
-    toast('Server offline — see manual steps', 'info');
+    logEl.textContent += `\n服务器未连接。\n手动步骤：\n  1. 下载 JSON\n  2. 放到项目根目录\n  3. 运行：python ${script}`;
+    toast('服务器未连接 — 请按手动步骤操作', 'info');
   }
 }
 
-// ====== Utils ======
+// ====== 工具 ======
 function esc(s) { if(!s) return ''; const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 function updateStatus(t) { document.getElementById('status').textContent = t; }
 function toast(msg, type='info') {
@@ -328,7 +424,7 @@ function toast(msg, type='info') {
   setTimeout(()=>t.remove(),3500);
 }
 
-// ====== Init ======
+// ====== 初始化 ======
 loadFromServer();
 document.addEventListener('keydown', (e) => { if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();downloadJSON()} });
 </script>
