@@ -150,9 +150,11 @@ def generate_list_snippet(articles, rel_prefix=""):
     if not articles:
         return (
             '<!--ARTICLES:START-->\n'
+            '<section class="section"><div class="wrap">\n'
             '<div class="article-list">\n'
             '<p style="color:var(--text-faint);padding:20px;text-align:center">No articles yet. Check back soon!</p>\n'
             '</div>\n'
+            '</div></section>\n'
             '<!--ARTICLES:END-->'
         )
 
@@ -177,9 +179,11 @@ def generate_list_snippet(articles, rel_prefix=""):
 
     return (
         '<!--ARTICLES:START-->\n'
+        '<section class="section"><div class="wrap">\n'
         '<div class="article-list">\n'
         + "\n".join(items) + "\n"
         '</div>\n'
+        '</div></section>\n'
         '<!--ARTICLES:END-->'
     )
 
