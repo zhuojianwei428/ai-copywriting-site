@@ -44,8 +44,8 @@ PAGES = {
         "tag": "For Office Workers",
         "title": "Best AI Copywriting Tools for Office Workers | CopyTools",
         "desc": "Best AI copywriting tools for office workers, tested on weekly reports, emails, and slides. Graded on clear output that never invents accomplishments.",
-        "h1": "Best AI Copywriting Tools for Office Workers (Weekly Reports, Emails, Slides)",
-        "sub": "You did the work, now it needs to sound clear and professional without inventing accomplishments. These tools help, ranked by real tasks.",
+        "h1": "AI copywriting tools we picked for office workers (weekly reports, emails, slides)",
+        "sub": "Your AI-written weekly report got rejected by your boss, or the slides just look off? Don't worry — I'll test every AI tool for you, and show each one's real use cases, exactly how to download and use it, what it costs, how it compares with other tools, which tools it pairs with, and who it's best for. We lay it all out so you never have to download and try every tool yourself.",
         "intro": "The Friday report. The follow-up email. The slide bullets. You're not a 'writer', you just need the real work to land. The danger: tools that polish your facts into fluff or fabricate wins. We tested for factual, clear output.",
         "tools": [
             ("Claude", "score-a", "Best report draft", "Give it your bullet notes, get a clean report that keeps your facts. Best 'human pass' too.", ["reports", "factual"]),
