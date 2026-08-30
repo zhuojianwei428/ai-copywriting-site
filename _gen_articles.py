@@ -44,7 +44,7 @@ PAGE_SHELL_HEAD = """<!DOCTYPE html>
 <meta name="twitter:title" content="{title}" />
 <meta name="twitter:description" content="{desc}" />
 <meta name="twitter:image" content="{image}" />
-<script type="application/ld+json">{{"@context":"https://schema.org","@type":"Article","headline":{title_json},"url":{url_json},"datePublished":{date_json},"publisher":{{"@type":"Organization","name":{site_json}}}}</script>
+<script type="application/ld+json">__ARTICLE_JSONLD__</script>
 <!--SEO:END-->
 <link rel="stylesheet" href="{prefix}style.css" />
 </head>
@@ -121,11 +121,17 @@ def generate_detail(art, idx):
         image=image,
         prefix=pfx,
         content=content,
-        title_json=json.dumps(title),
-        url_json=json.dumps(url),
-        date_json=json.dumps(date),
-        site_name=json.dumps(SITE_NAME),
     )
+    # JSON-LD 用 replace 注入，避免 .format 花括号冲突
+    jsonld = json.dumps({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": title,
+        "url": url,
+        "datePublished": date,
+        "publisher": {"@type": "Organization", "name": SITE_NAME},
+    }, ensure_ascii=False)
+    html = html.replace("__ARTICLE_JSONLD__", jsonld)
 
     out_dir = ARTICLE_DIR
     os.makedirs(out_dir, exist_ok=True)
@@ -135,8 +141,12 @@ def generate_detail(art, idx):
     print(f"wrote {rel}")
 
 
-def generate_list_snippet(articles):
-    """生成文章列表 HTML 片段（用于注入到人群页等）"""
+def generate_list_snippet(articles, rel_prefix=""):
+    """生成文章列表 HTML 片段（用于注入到人群页 / 所有博客页等）
+    rel_prefix: 当前页面相对站点根的前缀，用于修正文章链接。
+               根目录页用 ""，blog/ 下页用 "../"
+    无论文章自带什么标签，这里都显示全部文章（聚合页逻辑）。
+    """
     if not articles:
         return (
             '<!--ARTICLES:START-->\n'
@@ -155,7 +165,7 @@ def generate_list_snippet(articles):
         img = art.get("image", "")
 
         items.append(
-            f'<a class="article-row" href="blog/articles/{slug}.html">\n'
+            f'<a class="article-row" href="{rel_prefix}blog/articles/{slug}.html">\n'
             f'  <img class="article-thumb" src="{img}" alt="" loading="lazy" />\n'
             f'  <div class="article-body">\n'
             f'    <h3 class="article-title">{title}</h3>\n'
@@ -174,16 +184,19 @@ def generate_list_snippet(articles):
     )
 
 
-def inject_into_audience_pages(snippet):
-    """将文章列表注入到人群页（替换 RELATED 区域）"""
+def inject_into_pages():
+    """将文章列表注入到人群页 + 所有博客页（无论标签，全部显示）"""
     import re
-    audience_pages = [
+    articles = load_articles()
+    target_pages = [
         "for-office-workers.html",
         "for-content-creators.html",
+        "blog/how-we-avoid-ai-hallucinations.html",
     ]
-    mark_start = "<!--RELATED:START-->"
-    mark_end = "<!--RELATED:END-->"
-    for page in audience_pages:
+    for page in target_pages:
+        # 按页面相对根目录的深度，修正文章链接前缀
+        rel_prefix = "../" if page.startswith("blog/") else ""
+        snippet = generate_list_snippet(articles, rel_prefix)
         path = os.path.join(BASE, page)
         if not os.path.exists(path):
             continue
@@ -212,14 +225,14 @@ def main():
     for i, art in enumerate(articles):
         generate_detail(art, i)
 
-    # 2. 生成列表片段
+    # 2. 生成根目录版列表片段（调试用）
     snippet = generate_list_snippet(articles)
     snippet_path = os.path.join(BASE, "_article_list_snippet.html")
     with open(snippet_path, "w", encoding="utf-8") as f:
         f.write(snippet)
 
-    # 3. 注入到人群页
-    inject_into_audience_pages(snippet)
+    # 3. 注入到人群页 + 所有博客页（按页面深度修正链接）
+    inject_into_pages()
 
     print(f"\nDONE: {len(articles)} article pages generated")
 
