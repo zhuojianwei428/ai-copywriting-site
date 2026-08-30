@@ -1,0 +1,19 @@
+# ---- 不上 Vercel 公开部署的文件（仍保留在 GitHub 源码里）----
+
+# Python 生成脚本：站点源，但线上是纯静态，无需部署
+_*.py
+__pycache__/
+*.pyc
+
+# 本地后台编辑面板：依赖本地 Node 服务，Vercel 静态托管下不可用，且不应公开暴露
+admin/
+
+# 本地数据文件
+tools-data.json
+
+# 旧备份 / 无关目录
+_bak_legal/
+*.bak
+*.bak_centered
+index.html.bak_centered
+style.css.bak_centered

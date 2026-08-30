@@ -5,7 +5,7 @@
 # ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 # ★ 上线前只改这一行：换成你的真实域名（结尾不要带斜杠） ★
 #   改完后跑一次 python _build.py 即可全站替换 canonical/sitemap/robots/og
-SITE_URL = "https://example.com"
+SITE_URL = "https://aiwritereview.com"
 # ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 # 站点名和联系邮箱在 _config.py 里改（页脚、法务页、结构化数据共用）
 from _config import SITE_NAME
@@ -125,7 +125,10 @@ def build_jsonld(p):
         out.append('<script type="application/ld+json">' + json.dumps(b, ensure_ascii=False) + "</script>")
     return "\n".join(out) + "\n"
 
-pages = sorted([p.replace("\\", "/") for p in glob.glob("**/*.html", recursive=True)])
+pages = sorted([
+    p.replace("\\", "/") for p in glob.glob("**/*.html", recursive=True)
+    if not p.replace("\\", "/").startswith(("_bak_legal/", "admin/"))
+])
 
 
 def depth_prefix(p):

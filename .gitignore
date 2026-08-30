@@ -5,3 +5,10 @@ node_modules
 *.log
 .DS_Store
 tools-data.json
+
+# 不上线/不部署的本地文件
+_bak_legal/
+*.bak
+*.bak_centered
+index.html.bak_centered
+style.css.bak_centered
