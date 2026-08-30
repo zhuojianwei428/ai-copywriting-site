@@ -46,7 +46,7 @@ PAGES = {
         "desc": "Best AI copywriting tools for office workers, tested on weekly reports, emails, and slides. Graded on clear output that never invents accomplishments.",
         "h1": "AI copywriting tools we picked for office workers (weekly reports, emails, slides)",
         "sub": "Your AI-written weekly report got rejected by your boss, or the slides just look off? Don't worry — I'll test every AI tool for you, and show each one's real use cases, exactly how to download and use it, what it costs, how it compares with other tools, which tools it pairs with, and who it's best for. We lay it all out so you never have to download and try every tool yourself.",
-        "intro": "The Friday report. The follow-up email. The slide bullets. You're not a 'writer', you just need the real work to land. The danger: tools that polish your facts into fluff or fabricate wins. We tested for factual, clear output.",
+        "intro": "",
         "tools": [],
         "verdict": "",
     },
@@ -93,9 +93,7 @@ TPL = """<!DOCTYPE html>
 </div></section>
 
 <section class="section"><div class="wrap">
-<div class="prose" style="max-width:1080px">
-<p>{INTRO}</p>
-</div>
+{INTRO_BLOCK}
 {TOOL_SECTION}
 </div></section>
 
@@ -121,6 +119,11 @@ for fname, d in PAGES.items():
     # h1 stays long-form for the page itself.
     title = d.get("title") or d["h1"]
     desc = d.get("desc") or d["sub"]
+    # Build intro block only if intro exists
+    intro_block = f'''<div class="prose" style="max-width:1080px">
+<p>{d["intro"]}</p>
+</div>''' if d.get("intro") else ""
+
     # Build tool section only if tools exist
     if d["tools"]:
         tool_section = f'''<div class="tools" style="margin-top:28px">
@@ -135,7 +138,7 @@ for fname, d in PAGES.items():
         tool_section = ""
 
     html = TPL.format(TITLE=title, DESC=desc, TAG=d["tag"], H1=d["h1"], SUB=d["sub"],
-                      INTRO=d["intro"], TOOL_SECTION=tool_section)
+                      INTRO_BLOCK=intro_block, TOOL_SECTION=tool_section)
     with open(os.path.join(BASE, fname), "w", encoding="utf-8") as f:
         f.write(html)
     print("wrote", fname)
