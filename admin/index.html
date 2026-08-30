@@ -134,6 +134,7 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
   <div class="sidebar">
     <div class="sidebar-header">
       <input type="text" id="searchInput" placeholder="搜索..." oninput="filterList()" />
+      <button class="btn btn-sm btn-primary" id="newBtn" style="width:100%;margin-top:8px;display:none" onclick="newArticle()">+ 新建文章</button>
     </div>
     <div class="sidebar-list" id="listArea"></div>
   </div>
@@ -196,6 +197,7 @@ function switchMode(newMode) {
   mode = newMode;
   document.getElementById('tabTools').classList.toggle('active', newMode === 'tools');
   document.getElementById('tabArticles').classList.toggle('active', newMode === 'articles');
+  document.getElementById('newBtn').style.display = newMode === 'articles' ? '' : 'none';
   appData = null; currentItem = null; currentIdx = -1;
   document.getElementById('listArea').innerHTML = '';
   document.getElementById('editorArea').innerHTML = '<div class="empty-state"><div class="icon">&#128194;</div><p>已切换到 <strong>' + (newMode==='tools'?'工具':'文章') + '</strong> 模式，加载 JSON 开始。</p></div>';
@@ -262,6 +264,29 @@ function filterList() {
   document.querySelectorAll('.item').forEach(el => {
     el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none';
   });
+}
+
+// ====== 新建文章 ======
+function newArticle() {
+  if (mode !== 'articles') switchMode('articles');
+  // 必须先加载现有数据，否则发布时会把线上 articles.json 整体覆盖掉
+  if (!appData || !appData.articles || appData.articles.length === 0) {
+    toast('请先「加载 JSON」或「从网站加载」现有文章，再点新建', 'info');
+    return;
+  }
+  const tpl = {
+    title: '',
+    subtitle: '',
+    image: '',
+    date: new Date().toISOString().slice(0, 10),
+    slug: 'new-article-' + Date.now().toString(36),
+    content: ''
+  };
+  appData.articles.push(tpl);
+  renderList();
+  selectItem(appData.articles.length - 1);
+  updateStatus('已新建文章 — 填写字段后点「发布到网站」');
+  toast('已新建一篇文章', 'ok');
 }
 
 // ====== 选中 & 编辑 ======
