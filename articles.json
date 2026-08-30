@@ -1,12 +1,1 @@
-{
-  "articles": [
-    {
-      "title": "用 Claude 写出不像机器人的周报：我们的实测方法",
-      "subtitle": "一份真实工作流，从原始数据到成稿，每一步都配上截图与思路。",
-      "image": "https://aiwritereview.com/og.png",
-      "date": "2026-08-30",
-      "slug": "claude-weekly-report-workflow",
-      "content": "<p>这是一篇示例文章，用于验证文章系统与“所有博客”聚合页。</p><p>正文支持 HTML：<strong>加粗</strong>、<em>斜体</em>、列表等。</p><h2>小节标题</h2><p>点击进来能看到完整详情页。</p>"
-    }
-  ]
-}
+{"articles": [{"title": "How to Write Weekly Reports That Don't Sound Like AI (Our Real Workflow)", "subtitle": "A real workflow from raw data to final draft — every step with screenshots and thinking.", "image": "https://aiwritereview.com/og.png", "date": "2026-08-30", "slug": "claude-weekly-report-workflow", "content": "<p>This is a sample article to verify the article system and Blog aggregation page.</p><p>Content supports HTML: <strong>bold</strong>, <em>italic</em>, lists, and more.</p><h2>Section heading</h2><p>Click through to see the full detail page.</p>"}]}

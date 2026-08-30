@@ -98,7 +98,7 @@ TPL = """<!DOCTYPE html>
 <a href="../tools.html">AI copywriting tools</a>
 <a href="../for-office-workers.html">Office workers</a>
 <a href="../for-content-creators.html">Content creators</a>
-<a href="../blog/how-we-avoid-ai-hallucinations.html">所有博客</a>
+<a href="../blog/how-we-avoid-ai-hallucinations.html">Blog</a>
 </nav>
 <a class="nav-cta" href="../tools.html">See the picks &rarr;</a>
 </div></header>
@@ -136,7 +136,7 @@ Every review on this site follows
 <a href="../tools.html">AI copywriting tools</a>
 <a href="../for-office-workers.html">Office workers</a>
 <a href="../for-content-creators.html">Content creators</a>
-<a href="../blog/how-we-avoid-ai-hallucinations.html">所有博客</a>
+<a href="../blog/how-we-avoid-ai-hallucinations.html">Blog</a>
 </div>
 <div class="footer-legal">
 <a href="../privacy.html">Privacy Policy</a>

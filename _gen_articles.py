@@ -56,7 +56,7 @@ PAGE_SHELL_HEAD = """<!DOCTYPE html>
 <a href="{prefix}tools.html">AI copywriting tools</a>
 <a href="{prefix}for-office-workers.html">Office workers</a>
 <a href="{prefix}for-content-creators.html">Content creators</a>
-<a href="{prefix}blog/how-we-avoid-ai-hallucinations.html">所有博客</a>
+<a href="{prefix}blog/how-we-avoid-ai-hallucinations.html">Blog</a>
 </div>
 </div></nav>
 
@@ -78,7 +78,7 @@ PAGE_SHELL_HEAD = """<!DOCTYPE html>
 <a href="{prefix}tools.html">AI copywriting tools</a>
 <a href="{prefix}for-office-workers.html">Office workers</a>
 <a href="{prefix}for-content-creators.html">Content creators</a>
-<a href="{prefix}blog/how-we-avoid-ai-hallucinations.html">所有博客</a>
+<a href="{prefix}blog/how-we-avoid-ai-hallucinations.html">Blog</a>
 </div>
 <div class="footer-legal">
 <a href="{prefix}privacy.html">Privacy Policy</a>
@@ -142,7 +142,7 @@ def generate_detail(art, idx):
 
 
 def generate_list_snippet(articles, rel_prefix=""):
-    """生成文章列表 HTML 片段（用于注入到人群页 / 所有博客页等）
+    """生成文章列表 HTML 片段（用于注入到人群页 / Blog页等）
     rel_prefix: 当前页面相对站点根的前缀，用于修正文章链接。
                根目录页用 ""，blog/ 下页用 "../"
     无论文章自带什么标签，这里都显示全部文章（聚合页逻辑）。
@@ -189,7 +189,7 @@ def generate_list_snippet(articles, rel_prefix=""):
 
 
 def inject_into_pages():
-    """将文章列表注入到人群页 + 所有博客页（无论标签，全部显示）"""
+    """将文章列表注入到人群页 + Blog页（无论标签，全部显示）"""
     import re
     articles = load_articles()
     target_pages = [
@@ -241,7 +241,7 @@ def main():
     with open(snippet_path, "w", encoding="utf-8") as f:
         f.write(snippet)
 
-    # 3. 注入到人群页 + 所有博客页（按页面深度修正链接）
+    # 3. 注入到人群页 + Blog页（按页面深度修正链接）
     inject_into_pages()
 
     print(f"\nDONE: {len(articles)} article pages generated")
