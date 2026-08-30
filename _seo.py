@@ -238,6 +238,9 @@ for p in pages:
         r"<header class=\"nav\">.*?</header>",
         lambda m: NAV_TPL.format(p=prefix, SITE=SITE_NAME),
         src, count=1, flags=re.S)
+    # 博客聚合页不需要 CTA 按钮
+    if "how-we-avoid-ai-hallucinations" in p:
+        src = re.sub(r'\n?<a class="nav-cta"[^>]*>.*?</a>', '', src, count=1)
 
     # 4. 统一页脚
     src = re.sub(
