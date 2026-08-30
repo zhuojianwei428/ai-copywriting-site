@@ -58,23 +58,21 @@ TOOL_PEERS = {
 # 每个工具详情页推荐哪几个人群页
 TOOL_AUDIENCES = {
     "claude": ["for-office-workers", "for-content-creators"],
-    "chatgpt": ["for-beginners", "for-office-workers"],
-    "jasper": ["for-content-creators", "for-self-media"],
-    "copyai": ["for-self-media", "for-beginners"],
-    "writesonic": ["for-content-creators", "for-self-media"],
-    "rytr": ["for-beginners", "for-self-media"],
+    "chatgpt": ["for-office-workers", "for-content-creators"],
+    "jasper": ["for-content-creators", "for-office-workers"],
+    "copyai": ["for-content-creators", "for-office-workers"],
+    "writesonic": ["for-content-creators", "for-office-workers"],
+    "rytr": ["for-office-workers", "for-content-creators"],
     "sudowrite": ["for-content-creators"],
     "lex": ["for-content-creators", "for-office-workers"],
-    "notion-ai": ["for-office-workers", "for-beginners"],
-    "grammarlygo": ["for-office-workers", "for-beginners"],
-    "hemingway": ["for-beginners", "for-office-workers"],
+    "notion-ai": ["for-office-workers", "for-content-creators"],
+    "grammarlygo": ["for-office-workers", "for-content-creators"],
+    "hemingway": ["for-office-workers", "for-content-creators"],
 }
 
 AUDIENCE = {
     "for-office-workers": ("Office workers", "Weekly reports, emails and slides, without inventing wins."),
     "for-content-creators": ("Content creators", "Blog posts and newsletters that still sound like you."),
-    "for-self-media": ("Self-media", "Hooks and captions that don't read like an ad bot."),
-    "for-beginners": ("Beginners", "Start here. No jargon, cheapest learning curve."),
 }
 
 METHOD_PAGE = "blog/how-we-avoid-ai-hallucinations.html"
