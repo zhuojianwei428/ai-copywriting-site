@@ -494,10 +494,10 @@ a.tagchip:hover { border-color: var(--accent); color: var(--accent); }
 .footer-legal { width: 100%; display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 13px; }
 
 /* ---------- Inner page ---------- */
-.page-head { padding: 56px 0 20px; }
+.page-head { padding: 40px 0 12px; }
 .page-head .tag { color: var(--accent); font-weight: 700; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; }
-.page-head h1 { font-size: clamp(30px, 4vw, 44px); margin-top: 12px; }
-.page-head p { color: var(--text-dim); margin-top: 14px; max-width: 720px; font-size: 18px; }
+.page-head h1 { font-size: clamp(30px, 4vw, 44px); margin-top: 12px; max-width: var(--maxw); }
+.page-head p { color: var(--text-dim); margin-top: 14px; max-width: var(--maxw); font-size: 18px; }
 .breadcrumb { font-size: 13px; color: var(--text-faint); margin-bottom: 16px; }
 .breadcrumb a:hover { color: var(--accent); }
 .prose { max-width: var(--maxw); }
@@ -658,6 +658,6 @@ a.tagchip:hover { border-color: var(--accent); color: var(--accent); }
 }
 
 /* 博客聚合页：缩小标题→正文间距，文章紧跟正文 */
-.page-head + .section { padding-top: 24px; }
+.page-head + .section { padding-top: 12px; }
 /* 文章列表区也紧凑 */
 .section:has(.article-list) { padding-top: 32px; padding-bottom: 48px; }
