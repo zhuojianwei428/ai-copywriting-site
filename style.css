@@ -500,7 +500,7 @@ a.tagchip:hover { border-color: var(--accent); color: var(--accent); }
 .page-head p { color: var(--text-dim); margin-top: 14px; max-width: 720px; font-size: 18px; }
 .breadcrumb { font-size: 13px; color: var(--text-faint); margin-bottom: 16px; }
 .breadcrumb a:hover { color: var(--accent); }
-.prose { max-width: 760px; }
+.prose { max-width: var(--maxw); }
 .prose h2 { font-size: 27px; letter-spacing: -0.02em; margin: 40px 0 14px; font-weight: 800; }
 .prose h3 { font-size: 21px; margin: 28px 0 10px; font-weight: 750; }
 .prose p { color: var(--text-dim); margin: 12px 0; }
@@ -622,7 +622,7 @@ a.tagchip:hover { border-color: var(--accent); color: var(--accent); }
 }
 
 /* ---------- Article list (row-based, image left + text right) ---------- */
-.article-list { display: flex; flex-direction: column; gap: 18px; margin-top: 28px; max-width: 760px; }
+.article-list { display: flex; flex-direction: column; gap: 18px; margin-top: 28px; max-width: var(--maxw); }
 .article-row {
   display: flex; gap: 22px; align-items: flex-start;
   background: var(--card); border: 1px solid var(--border);
