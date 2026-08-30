@@ -47,15 +47,8 @@ PAGES = {
         "h1": "AI copywriting tools we picked for office workers (weekly reports, emails, slides)",
         "sub": "Your AI-written weekly report got rejected by your boss, or the slides just look off? Don't worry — I'll test every AI tool for you, and show each one's real use cases, exactly how to download and use it, what it costs, how it compares with other tools, which tools it pairs with, and who it's best for. We lay it all out so you never have to download and try every tool yourself.",
         "intro": "The Friday report. The follow-up email. The slide bullets. You're not a 'writer', you just need the real work to land. The danger: tools that polish your facts into fluff or fabricate wins. We tested for factual, clear output.",
-        "tools": [
-            ("Claude", "score-a", "Best report draft", "Give it your bullet notes, get a clean report that keeps your facts. Best 'human pass' too.", ["reports", "factual"]),
-            ("Notion AI", "score-b", "Best in-doc", "Write the report in Notion, AI cleans as you go. No app-switch.", ["docs", "workflow"]),
-            ("GrammarlyGO", "score-b", "Best email replies", "One-click tone fixes in your inbox. Stays grounded.", ["email", "tone"]),
-            ("Microsoft Copilot", "score-b", "Best in Office", "If your company is on 365, it's already there.", ["365", "slides"]),
-            ("Hemingway Editor", "score-b", "Best de-fluffer", "Strip the corporate bloat from any draft.", ["clarity", "$10/mo"]),
-            ("ChatGPT", "score-b", "Flexible", "Great with a fact-list prompt. Verify it didn't add wins you didn't do.", ["prompt-dependent"]),
-        ],
-        "verdict": "Claude for the draft + Hemingway for the clean. Never let it invent metrics, paste your real numbers in.",
+        "tools": [],
+        "verdict": "",
     },
     "for-beginners.html": {
         "tag": "For Beginners",
@@ -103,14 +96,7 @@ TPL = """<!DOCTYPE html>
 <div class="prose" style="max-width:1080px">
 <p>{INTRO}</p>
 </div>
-<div class="tools" style="margin-top:28px">
-{TOOLCARDS}
-</div>
-<div class="method" style="margin-top:34px">
-<h2>Our verdict</h2>
-<p style="color:var(--text-dim)">{VERDICT}</p>
-</div>
-<p style="color:var(--text-faint);font-size:14px;margin-top:26px">Back to <a href="index.html" style="color:var(--accent)">all tested tools →</a></p>
+{TOOL_SECTION}
 </div></section>
 
 <footer class="footer"><div class="wrap">
@@ -135,8 +121,21 @@ for fname, d in PAGES.items():
     # h1 stays long-form for the page itself.
     title = d.get("title") or d["h1"]
     desc = d.get("desc") or d["sub"]
+    # Build tool section only if tools exist
+    if d["tools"]:
+        tool_section = f'''<div class="tools" style="margin-top:28px">
+{cards}
+</div>
+<div class="method" style="margin-top:34px">
+<h2>Our verdict</h2>
+<p style="color:var(--text-dim)">{d["verdict"]}</p>
+</div>
+<p style="color:var(--text-faint);font-size:14px;margin-top:26px">Back to <a href="index.html" style="color:var(--accent)">all tested tools &rarr;</a></p>'''
+    else:
+        tool_section = ""
+
     html = TPL.format(TITLE=title, DESC=desc, TAG=d["tag"], H1=d["h1"], SUB=d["sub"],
-                      INTRO=d["intro"], TOOLCARDS=cards, VERDICT=d["verdict"])
+                      INTRO=d["intro"], TOOL_SECTION=tool_section)
     with open(os.path.join(BASE, fname), "w", encoding="utf-8") as f:
         f.write(html)
     print("wrote", fname)
