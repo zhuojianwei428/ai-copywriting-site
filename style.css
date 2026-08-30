@@ -57,6 +57,7 @@ img { max-width: 100%; display: block; }
 .logo small { color: var(--text-faint); font-weight: 500; font-size: 13px; }
 .nav-links { display: flex; gap: 26px; font-size: 15px; color: var(--text-dim); }
 .nav-links a:hover { color: var(--text); }
+.nav-links a.active { color: var(--text); font-weight: 600; }
 .nav-cta { font-size: 14px; padding: 9px 16px; border: 1px solid var(--border); border-radius: 999px; color: var(--text); }
 .nav-cta:hover { border-color: var(--accent); color: var(--accent); }
 

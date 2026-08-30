@@ -74,7 +74,7 @@ TPL = """<!DOCTYPE html>
 <body>
 <header class="nav"><div class="wrap nav-inner">
 <a class="logo" href="index.html"><span class="dot"></span>CopyTools<small>&nbsp;Real-Tested AI Writing</small></a>
-<nav class="nav-links"><a href="index.html">Home</a><a href="tools.html">AI copywriting tools</a><a href="for-office-workers.html">Office workers</a><a href="for-content-creators.html">Content creators</a><a href="blog/how-we-avoid-ai-hallucinations.html">Blog</a></nav>
+<nav class="nav-links"><a href="index.html">Home</a><a href="tools.html">AI copywriting tools</a><a href="for-office-workers.html"{NAV_OFFICE}>Office workers</a><a href="for-content-creators.html"{NAV_CONTENT}>Content creators</a><a href="blog/how-we-avoid-ai-hallucinations.html">Blog</a></nav>
 <a class="nav-cta" href="tools.html">See the picks →</a>
 </div></header>
 
@@ -130,8 +130,13 @@ for fname, d in PAGES.items():
     else:
         tool_section = '<h2 class="sec-title" style="margin-top:8px">More AI copywriting tools by audience</h2><p style="color:var(--text-faint);font-size:14px;margin-top:14px">Back to <a href="index.html" style="color:var(--accent)">all tested AI copywriting tools &rarr;</a></p>'
 
+    # Nav active state: highlight the current page link
+    nav_office = ' class="active"' if fname == "for-office-workers.html" else ""
+    nav_content = ' class="active"' if fname == "for-content-creators.html" else ""
+
     html = TPL.format(TITLE=title, DESC=desc, TAG=d["tag"], H1=d["h1"], SUB=d["sub"],
-                      INTRO_BLOCK=intro_block, TOOL_SECTION=tool_section)
+                      INTRO_BLOCK=intro_block, TOOL_SECTION=tool_section,
+                      NAV_OFFICE=nav_office, NAV_CONTENT=nav_content)
     with open(os.path.join(BASE, fname), "w", encoding="utf-8") as f:
         f.write(html)
     print("wrote", fname)

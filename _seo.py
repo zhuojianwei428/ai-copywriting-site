@@ -144,11 +144,11 @@ def page_url(p):
 NAV_TPL = """<header class="nav"><div class="wrap nav-inner">
 <a class="logo" href="{p}index.html"><span class="dot"></span>{SITE}<small>&nbsp;Real-Tested AI Writing</small></a>
 <nav class="nav-links">
-<a href="{p}index.html">Home</a>
-<a href="{p}tools.html">AI copywriting tools</a>
-<a href="{p}for-office-workers.html">Office workers</a>
-<a href="{p}for-content-creators.html">Content creators</a>
-<a href="{p}blog/how-we-avoid-ai-hallucinations.html">Blog</a>
+<a href="{p}index.html"{ah}>Home</a>
+<a href="{p}tools.html"{at}>AI copywriting tools</a>
+<a href="{p}for-office-workers.html"{ao}>Office workers</a>
+<a href="{p}for-content-creators.html"{ac}>Content creators</a>
+<a href="{p}blog/how-we-avoid-ai-hallucinations.html"{ab}>Blog</a>
 </nav>
 <a class="nav-cta" href="{p}tools.html">See the picks →</a>
 </div></header>"""
@@ -232,11 +232,17 @@ for p in pages:
     src = re.sub(re.escape(HEAD_START) + r".*?" + re.escape(HEAD_END) + r"\n?", "", src, flags=re.S)
     src = src.replace("</title>", "</title>\n" + build_head(p, title, desc), 1)
 
-    # 3. 统一导航
+    # 3. 统一导航（含当前页高亮）
     prefix = depth_prefix(p)
+    # Determine which nav link should be active based on page path
+    ah = ' class="active"' if p == "index.html" else ""
+    at = ' class="active"' if (p == "tools.html" or p.startswith("tools/")) else ""
+    ao = ' class="active"' if p == "for-office-workers.html" else ""
+    ac = ' class="active"' if p == "for-content-creators.html" else ""
+    ab = ' class="active"' if p.startswith("blog/") else ""
     src = re.sub(
         r"<header class=\"nav\">.*?</header>",
-        lambda m: NAV_TPL.format(p=prefix, SITE=SITE_NAME),
+        lambda m: NAV_TPL.format(p=prefix, SITE=SITE_NAME, ah=ah, at=at, ao=ao, ac=ac, ab=ab),
         src, count=1, flags=re.S)
     # 博客聚合页不需要 CTA 按钮
     if "how-we-avoid-ai-hallucinations" in p:

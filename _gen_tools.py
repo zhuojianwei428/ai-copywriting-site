@@ -95,7 +95,7 @@ TPL = """<!DOCTYPE html>
 <a class="logo" href="../index.html"><span class="dot"></span>CopyTools<small>&nbsp;Real-Tested AI Writing</small></a>
 <nav class="nav-links">
 <a href="../index.html">Home</a>
-<a href="../tools.html">AI copywriting tools</a>
+<a href="../tools.html" class="active">AI copywriting tools</a>
 <a href="../for-office-workers.html">Office workers</a>
 <a href="../for-content-creators.html">Content creators</a>
 <a href="../blog/how-we-avoid-ai-hallucinations.html">Blog</a>
