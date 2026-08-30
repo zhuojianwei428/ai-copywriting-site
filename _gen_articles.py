@@ -210,7 +210,7 @@ def inject_into_pages():
             "\n", html, flags=re.S,
         )
         chunk = "\n" + snippet + "\n"
-        # 博客聚合页：文章紧跟正文下方（prose section 之后）
+        # 博客聚合页：紧跟正文 prose section 之后
         if "how-we-avoid-ai-hallucinations" in page:
             html = re.sub(
                 r'(</div>\s*</div>\s*</section>)',
@@ -218,11 +218,15 @@ def inject_into_pages():
                 html, count=1,
             )
         else:
-            # 人群页：footer 前插入
-            if "<footer" in html:
-                html = html.replace("<footer", chunk + "\n<footer", 1)
-            elif "</body>" in html:
-                html = html.replace("</body>", chunk + "\n</body>", 1)
+            # 人群页：插入到 RELATED 区块之前（正文和推荐内容之间）
+            if "<!--RELATED:START-->" in html:
+                html = html.replace("<!--RELATED:START-->", chunk + "\n<!--RELATED:START-->", 1)
+            else:
+                # 兜底：footer 前
+                if "<footer" in html:
+                    html = html.replace("<footer", chunk + "\n<footer", 1)
+                elif "</body>" in html:
+                    html = html.replace("</body>", chunk + "\n</body>", 1)
         with open(path, "w", encoding="utf-8") as f:
             f.write(html)
         print(f"injected articles into {page}")
