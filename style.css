@@ -622,7 +622,7 @@ a.tagchip:hover { border-color: var(--accent); color: var(--accent); }
 }
 
 /* ---------- Article list (row-based, image left + text right) ---------- */
-.article-list { display: flex; flex-direction: column; gap: 18px; margin-top: 28px; max-width: var(--maxw); }
+.article-list { display: flex; flex-direction: column; gap: 18px; margin-top: 16px; max-width: var(--maxw); }
 .article-row {
   display: flex; gap: 22px; align-items: flex-start;
   background: var(--card); border: 1px solid var(--border);
@@ -658,6 +658,6 @@ a.tagchip:hover { border-color: var(--accent); color: var(--accent); }
 }
 
 /* 博客聚合页：缩小标题→正文间距，文章紧跟正文 */
-.page-head + .section { padding-top: 12px; }
+.page-head + .section { padding-top: 12px; padding-bottom: 16px; }
 /* 文章列表区也紧凑 */
-.section:has(.article-list) { padding-top: 32px; padding-bottom: 48px; }
+.section:has(.article-list) { padding-top: 16px; padding-bottom: 48px; }
