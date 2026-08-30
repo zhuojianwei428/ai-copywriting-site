@@ -124,8 +124,10 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
   <span class="status" id="status">未加载数据</span>
   <div class="spacer"></div>
   <button class="btn btn-sm" onclick="loadFromFile()" title="从本地磁盘加载 JSON">加载 JSON</button>
-  <button class="btn btn-sm btn-primary" onclick="downloadJSON()" title="下载编辑后的数据">下载 JSON</button>
-  <button class="btn btn-sm btn-success" onclick="showBuildModal()" title="重新生成页面">生成页面</button>
+  <button class="btn btn-sm" onclick="loadFromGitHub()" title="从 GitHub 仓库加载最新数据">从网站加载</button>
+  <button class="btn btn-sm" onclick="downloadJSON()" title="下载编辑后的数据到本地">下载 JSON</button>
+  <button class="btn btn-sm" onclick="openSettings()" title="GitHub 发布设置">⚙ 设置</button>
+  <button class="btn btn-sm btn-success" onclick="publishToGitHub()" title="提交到 GitHub 并触发重新部署">发布到网站</button>
 </div>
 
 <div class="layout">
@@ -143,14 +145,22 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
   </div>
 </div>
 
-<div class="modal-overlay" id="buildModal">
+<div class="modal-overlay" id="settingsModal">
   <div class="modal-box">
-    <h2>生成静态页面</h2>
-    <p id="buildDesc">将用当前数据重新生成页面。</p>
-    <div id="buildLog" class="build-log"></div>
+    <h2>GitHub 发布设置</h2>
+    <p>填写一次即可（仅保存在本浏览器）。点"发布到网站"会把当前编辑的数据提交到你的仓库，Vercel 自动重新部署。</p>
+    <div style="margin-top:8px">
+      <label style="display:block;font-size:13px;color:var(--text2);margin-bottom:6px">GitHub 令牌 Token（需 <code>repo</code> 权限）</label>
+      <input type="password" id="setToken" placeholder="ghp_..." style="width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;outline:none;font-family:inherit" />
+      <label style="display:block;font-size:13px;color:var(--text2);margin:14px 0 6px">仓库 owner/name</label>
+      <input type="text" id="setRepo" placeholder="zhuojianwei428/ai-copywriting-site" style="width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;outline:none;font-family:inherit" />
+      <label style="display:block;font-size:13px;color:var(--text2);margin:14px 0 6px">分支</label>
+      <input type="text" id="setBranch" placeholder="main" style="width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;outline:none;font-family:inherit" />
+      <div class="section-hint" style="margin-top:12px">获取 Token：GitHub → 右上角头像 → Settings → Developer settings → Personal access tokens → 勾选 <code>repo</code> → 生成。令牌只存在你本机浏览器，不会上传到任何服务器。</div>
+    </div>
     <div class="modal-actions">
-      <button class="btn" onclick="hideBuildModal()">取消</button>
-      <button class="btn btn-success" onclick="runBuild()">立即生成</button>
+      <button class="btn" onclick="closeSettings()">取消</button>
+      <button class="btn btn-primary" onclick="saveSettings()">保存</button>
     </div>
   </div>
 </div>
@@ -424,8 +434,102 @@ function toast(msg, type='info') {
   setTimeout(()=>t.remove(),3500);
 }
 
+// ====== GitHub 在线发布 ======
+function ghSettings(){
+  try { return JSON.parse(localStorage.getItem('ghSettings') || '{}'); }
+  catch(e){ return {}; }
+}
+function openSettings(){
+  const s = ghSettings();
+  document.getElementById('setToken').value = s.token || '';
+  document.getElementById('setRepo').value = s.repo || 'zhuojianwei428/ai-copywriting-site';
+  document.getElementById('setBranch').value = s.branch || 'main';
+  document.getElementById('settingsModal').classList.add('show');
+}
+function closeSettings(){ document.getElementById('settingsModal').classList.remove('show'); }
+function saveSettings(){
+  const s = {
+    token: (document.getElementById('setToken').value || '').trim(),
+    repo: (document.getElementById('setRepo').value || '').trim(),
+    branch: (document.getElementById('setBranch').value || '').trim() || 'main'
+  };
+  if(!s.token || !s.repo){ toast('请填写 Token 和仓库','err'); return; }
+  localStorage.setItem('ghSettings', JSON.stringify(s));
+  closeSettings();
+  toast('设置已保存','ok');
+}
+function b64ToUtf8(b64){
+  const bin = atob(b64.replace(/\s/g,''));
+  const bytes = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+function utf8ToBase64(str){
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  bytes.forEach(b => bin += String.fromCharCode(b));
+  return btoa(bin);
+}
+function ghHeaders(token, extra){
+  return Object.assign({
+    'Authorization': 'Bearer ' + token,
+    'Accept': 'application/vnd.github+json',
+    'User-Agent': 'aiwritereview-admin'
+  }, extra || {});
+}
+async function loadFromGitHub(){
+  const s = ghSettings();
+  if(!s.token || !s.repo){ toast('请先点 ⚙ 设置 填写 GitHub 信息','err'); openSettings(); return; }
+  const path = mode==='tools' ? 'tools-data.json' : 'articles.json';
+  try{
+    updateStatus('正在从 GitHub 加载…');
+    const res = await fetch(`https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(s.branch)}`, { headers: ghHeaders(s.token) });
+    if(!res.ok){ toast('加载失败：'+res.status,'err'); updateStatus('未加载数据'); return; }
+    const data = await res.json();
+    appData = JSON.parse(b64ToUtf8(data.content));
+    renderList(); selectItem(0);
+    const count = mode==='tools' ? (appData.tools||[]).length : (appData.articles||[]).length;
+    updateStatus(`已从网站加载 ${count} 个${mode==='tools'?'工具':'文章'}`);
+    toast('已从 GitHub 加载','ok');
+  }catch(e){ toast('加载出错：'+e.message,'err'); updateStatus('未加载数据'); }
+}
+async function publishToGitHub(){
+  const s = ghSettings();
+  if(!s.token || !s.repo){ toast('请先点 ⚙ 设置 填写 GitHub 信息','err'); openSettings(); return; }
+  if(!appData){ toast('没有数据，请先加载','err'); return; }
+  const arrayKey = mode==='tools' ? 'tools' : 'articles';
+  const path = mode==='tools' ? 'tools-data.json' : 'articles.json';
+  try{
+    updateStatus('正在提交到 GitHub…');
+    const getRes = await fetch(`https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(s.branch)}`, { headers: ghHeaders(s.token) });
+    let base = {}; let sha = null;
+    if(getRes.ok){
+      const gd = await getRes.json();
+      sha = gd.sha || null;
+      try { base = JSON.parse(b64ToUtf8(gd.content)); } catch(_){ base = {}; }
+    } else if(getRes.status !== 404){
+      toast('读取仓库失败：'+getRes.status,'err'); updateStatus('未加载数据'); return;
+    }
+    base[arrayKey] = appData[arrayKey];
+    const content = utf8ToBase64(JSON.stringify(base, null, 2));
+    const putRes = await fetch(`https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent(path)}`, {
+      method: 'PUT',
+      headers: ghHeaders(s.token, { 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ message: `[admin] 更新 ${path}`, content: content, sha: sha || undefined, branch: s.branch })
+    });
+    if(!putRes.ok){
+      const err = await putRes.json().catch(()=>({}));
+      toast('发布失败：'+(err.message||putRes.status),'err');
+      updateStatus('发布失败');
+      return;
+    }
+    updateStatus('已提交，Vercel 正在重新部署…');
+    toast('已发布！约 1 分钟内网站更新','ok');
+  }catch(e){ toast('发布出错：'+e.message,'err'); updateStatus('发布出错'); }
+}
+
 // ====== 初始化 ======
-loadFromServer();
+// 在线模式：后台为纯静态页面，不再依赖本地 server.js
 document.addEventListener('keydown', (e) => { if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();downloadJSON()} });
 </script>
 </body>

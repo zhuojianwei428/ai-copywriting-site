@@ -1,0 +1,8 @@
+{
+  "framework": null,
+  "buildCommand": "python3 _build.py",
+  "outputDirectory": ".",
+  "github": {
+    "silent": true
+  }
+}
