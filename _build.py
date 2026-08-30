@@ -18,7 +18,7 @@ import sys
 import subprocess
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-STEPS = ["_gen_pages.py", "_gen_tools.py", "_gen_legal.py", "_og_image.py", "_seo.py", "_internal_links.py"]
+STEPS = ["_gen_pages.py", "_gen_tools.py", "_gen_legal.py", "_og_image.py", "_seo.py", "_internal_links.py", "_gen_articles.py"]
 
 for s in STEPS:
     print("=== " + s)
