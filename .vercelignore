@@ -1,15 +1,9 @@
-# ---- 不上 Vercel 公开部署的文件（仍保留在 GitHub 源码里）----
+# ---- 仅排除真正不需要的文件（缓存 / 备份）----
+# 注意：构建脚本(_*.py)和数据文件(tools-data.json/articles.json)必须参与部署，
+# 因为 vercel.json 的 buildCommand 要在 Vercel 上运行 python3 _build.py
 
-# Python 生成脚本：仅用于构建，不对外公开（构建时仍可从仓库检出读取）
-_*.py
 __pycache__/
 *.pyc
-
-# 本地数据文件：仅用于构建，不对外公开
-tools-data.json
-
-# 后台管理面板：需要对外可访问，已从忽略中移除
-# admin/
 
 # 旧备份 / 无关目录
 _bak_legal/
