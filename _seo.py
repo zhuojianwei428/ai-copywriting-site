@@ -83,11 +83,11 @@ def build_jsonld(p):
     elif p.startswith("blog/"):
         blocks.append({
             "@context": "https://schema.org", "@type": "Article",
-            "headline": "How we test AI copywriting tools without publishing hallucinations",
+            "headline": "AI文案写作工具实测博客",
             "url": url, "author": {"@type": "Organization", "name": SITE_NAME},
             "publisher": {"@type": "Organization", "name": SITE_NAME},
         })
-        blocks.append(breadcrumb([("Method", url)]))
+        blocks.append(breadcrumb([("所有博客", url)]))
 
     elif p == "privacy.html" or p == "terms.html":
         nm = "Privacy Policy" if p == "privacy.html" else "Terms of Service"
