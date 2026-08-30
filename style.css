@@ -656,3 +656,6 @@ a.tagchip:hover { border-color: var(--accent); color: var(--accent); }
   .article-row { flex-direction: column; gap: 14px; }
   .article-thumb { width: 100%; height: 180px; }
 }
+
+/* 博客聚合页：缩小标题→正文间距，文章紧跟正文 */
+.page-head + .section { padding-top: 24px; }

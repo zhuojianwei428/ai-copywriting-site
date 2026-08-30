@@ -189,13 +189,11 @@ def inject_into_pages():
     import re
     articles = load_articles()
     target_pages = [
-        "for-office-workers.html",
-        "for-content-creators.html",
-        "blog/how-we-avoid-ai-hallucinations.html",
+        ("for-office-workers.html", ""),
+        ("for-content-creators.html", ""),
+        ("blog/how-we-avoid-ai-hallucinations.html", "../"),
     ]
-    for page in target_pages:
-        # 按页面相对根目录的深度，修正文章链接前缀
-        rel_prefix = "../" if page.startswith("blog/") else ""
+    for page, rel_prefix in target_pages:
         snippet = generate_list_snippet(articles, rel_prefix)
         path = os.path.join(BASE, page)
         if not os.path.exists(path):
@@ -207,12 +205,20 @@ def inject_into_pages():
             r"\n?" + re.escape("<!--ARTICLES:START-->") + r".*?" + re.escape("<!--ARTICLES:END-->") + r"\n?",
             "\n", html, flags=re.S,
         )
-        # 在 footer 前插入文章列表
         chunk = "\n" + snippet + "\n"
-        if "<footer" in html:
-            html = html.replace("<footer", chunk + "\n<footer", 1)
-        elif "</body>" in html:
-            html = html.replace("</body>", chunk + "\n</body>", 1)
+        # 博客聚合页：文章紧跟正文下方（prose section 之后）
+        if "how-we-avoid-ai-hallucinations" in page:
+            html = re.sub(
+                r'(</div>\s*</div>\s*</section>)',
+                r'\1' + chunk,
+                html, count=1,
+            )
+        else:
+            # 人群页：footer 前插入
+            if "<footer" in html:
+                html = html.replace("<footer", chunk + "\n<footer", 1)
+            elif "</body>" in html:
+                html = html.replace("</body>", chunk + "\n</body>", 1)
         with open(path, "w", encoding="utf-8") as f:
             f.write(html)
         print(f"injected articles into {page}")
