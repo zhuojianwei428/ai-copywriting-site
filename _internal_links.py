@@ -30,14 +30,14 @@ TOOL_BLURB = {
     "claude": "Most human long-form and rewrite passes in the whole test.",
     "chatgpt": "The flexible baseline every other tool gets compared against.",
     "jasper": "Templates and brand voice, built for content teams.",
-    "copyai": "Fast hook and ad variants, shallow once you go long.",
+    "copyai": "Fast hook and ad variants, shallow once you go long-form.",
     "writesonic": "Speedy SEO drafts. Verify every stat before you publish.",
     "rytr": "$9/mo budget pick, fine for short copy only.",
     "sudowrite": "Trained on fiction. Unmatched for story, wrong for reports.",
-    "lex": "AI lives in the document, no copy-paste loop.",
-    "notion-ai": "Write in Notion, it cleans as you go.",
-    "grammarlygo": "One-click tone fixes inside your inbox.",
-    "hemingway": "Strips the AI smell out of any draft, instantly.",
+    "lex": "AI lives in the document, so there's nothing to copy and paste.",
+    "notion-ai": "Write in Notion and it cleans up as you go.",
+    "grammarlygo": "One-click tone fixes wherever you already write.",
+    "hemingway": "Strips the robot voice out of any draft, instantly.",
 }
 
 # 每个工具详情页推荐哪几个同类工具
@@ -71,7 +71,7 @@ TOOL_AUDIENCES = {
 }
 
 AUDIENCE = {
-    "for-office-workers": ("Office workers", "Weekly reports, emails, and slides — without inventing results."),
+    "for-office-workers": ("Office workers", "Weekly reports, emails, and slides — without making things up."),
     "for-content-creators": ("Content creators", "Blog posts and newsletters that still sound like you."),
 }
 
@@ -124,12 +124,12 @@ def build(rel):
         parts.append(block("Compare with these tools", peers, h))
 
         auds = "".join(audience_card(h, s) for s in TOOL_AUDIENCES[slug])
-        parts.append(block("Who is it best for", auds, h))
+        parts.append(block("Who it's best for", auds, h))
 
         cta = (
             '<a class="btn-primary" href="{h}tools.html">All 11 tested tools &rarr;</a>'
         ).format(h=h)
-        parts.append(block("Not settled yet", "", h, cta=cta).replace(
+        parts.append(block("Still deciding?", "", h, cta=cta).replace(
             '<div class="tools" style="margin-top:24px">\n</div>\n', ""))
 
     elif norm.startswith("for-") and norm.endswith(".html"):
@@ -144,7 +144,7 @@ def build(rel):
 
     elif norm == "tools.html":
         auds = "".join(audience_card(h, s) for s in AUDIENCE)
-        parts.append(block("Not sure where to start? Pick the right AI copywriting tools", auds, h))
+        parts.append(block("Not sure where to start? Pick AI copywriting tools that fit how you work", auds, h))
 
     elif norm.startswith("blog/"):
         picks = "".join(tool_card(h, s) for s in ["claude", "chatgpt", "hemingway", "copyai"])

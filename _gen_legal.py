@@ -230,7 +230,7 @@ CONTACT_BODY = """<p>CopyTools is a small, independent review site for AI copywr
 PAGES = [
     (
         "privacy.html",
-        "Privacy Policy | CopyTools — Real-Tested AI Copywriting Tool Reviews",
+        "Privacy Policy | CopyTools Reviews",
         "CopyTools is a review site for AI copywriting tools. Here is exactly what we collect, how advertising cookies work, and how to opt out.",
         "Legal",
         "Privacy Policy",
@@ -239,7 +239,7 @@ PAGES = [
     ),
     (
         "terms.html",
-        "Terms of Service | CopyTools — Real-Tested AI Copywriting Tool Reviews",
+        "Terms of Service | CopyTools Reviews",
         "The terms for using CopyTools, an independent AI copywriting tool review site. What our reviews are, what they are not, and how our content may be used.",
         "Legal",
         "Terms of Service",
@@ -248,7 +248,7 @@ PAGES = [
     ),
     (
         "contact.html",
-        "Contact Us | CopyTools — Real-Tested AI Copywriting Tool Reviews",
+        "Contact Us | CopyTools Reviews",
         "Contact CopyTools about a factual error, a tool you want tested, partnerships, or a privacy request. Email {mail} — a real person reads it.".format(mail=CONTACT_EMAIL),
         "Get in touch",
         "Contact",

@@ -29,7 +29,7 @@ TOOL_SLUGS = [
 AUDIENCE_PAGES = [
     ("for-office-workers.html", "Best AI Copywriting Tools for Office Workers"),
     ("for-content-creators.html", "Best AI Copywriting Tools for Content Creators"),
-    ("for-self-media.html", "Best AI Copywriting Tools for Social-Media Creators"),
+    ("for-self-media.html", "Best AI Copywriting Tools for Social Media Creators"),
     ("for-beginners.html", "Best AI Copywriting Tools for Beginners"),
 ]
 
@@ -127,7 +127,9 @@ def build_jsonld(p):
 
 pages = sorted([
     p.replace("\\", "/") for p in glob.glob("**/*.html", recursive=True)
+    # 排除：备份目录、后台、以及构建产物（下划线开头的 html 片段，如 _article_list_snippet.html）
     if not p.replace("\\", "/").startswith(("_bak_legal/", "admin/"))
+    and not os.path.basename(p).startswith("_")
 ])
 
 
@@ -154,7 +156,7 @@ NAV_TPL = """<header class="nav"><div class="wrap nav-inner">
 </div></header>"""
 
 FOOTER_TPL = """<footer class="footer"><div class="wrap">
-<div>© 2026 {SITE}, Real-tested AI copywriting reviews.</div>
+<div>© 2026 {SITE} &mdash; real-tested reviews of AI copywriting tools.</div>
 <div class="footer-links">
 <a href="{p}index.html">Home</a>
 <a href="{p}tools.html">AI copywriting tools</a>

@@ -25,6 +25,7 @@ PAGE_SHELL_HEAD = """<!DOCTYPE html>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>{title} | {site}</title>
+<meta name="description" content="{desc}" />
 <!--SEO:START-->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -72,7 +73,7 @@ PAGE_SHELL_HEAD = """<!DOCTYPE html>
 </div></section>
 
 <footer class="footer"><div class="wrap">
-<div>&copy; 2026 {site}, Real-tested AI copywriting reviews.</div>
+<div>&copy; 2026 {site} &mdash; real-tested reviews of AI copywriting tools.</div>
 <div class="footer-links">
 <a href="{prefix}index.html">Home</a>
 <a href="{prefix}tools.html">AI copywriting tools</a>

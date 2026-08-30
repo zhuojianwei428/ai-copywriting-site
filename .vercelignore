@@ -5,6 +5,10 @@
 __pycache__/
 *.pyc
 
+# 构建产物：下划线开头的 html 片段（如 _article_list_snippet.html），
+# 不是真页面，不要部署也不要被收录
+_*.html
+
 # 旧备份 / 无关目录
 _bak_legal/
 *.bak

@@ -6,9 +6,13 @@
 #   1. _gen_pages.py      生成 4 个人群落地页
 #   2. _gen_tools.py      生成 11 个工具详情页（自带 tags 形式内链）
 #   3. _gen_legal.py      生成 privacy / terms / contact 三页
-#   4. _og_image.py       生成 og.png
-#   5. _seo.py            注入 canonical / OG / JSON-LD + 统一导航页脚 + sitemap
-#   6. _internal_links.py 补齐内链（工具页已自带，自动跳过）
+#   4. _gen_articles.py   生成文章详情页 + 博客聚合页的文章列表
+#   5. _og_image.py       生成 og.png
+#   6. _seo.py            注入 canonical / OG / JSON-LD + 统一导航页脚 + sitemap
+#   7. _internal_links.py 补齐内链（工具页已自带，自动跳过）
+#
+# 顺序要点：_gen_articles.py 必须在 _seo.py / _internal_links.py 之前跑，
+# 否则文章详情页会带着自己的旧版页脚覆盖掉统一注入，且拿不到内链块。
 #
 # 上线前要改的两处：
 #   域名  → _seo.py 顶部的 SITE_URL
@@ -18,7 +22,7 @@ import sys
 import subprocess
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-STEPS = ["_gen_pages.py", "_gen_tools.py", "_gen_legal.py", "_og_image.py", "_seo.py", "_internal_links.py", "_gen_articles.py"]
+STEPS = ["_gen_pages.py", "_gen_tools.py", "_gen_legal.py", "_gen_articles.py", "_og_image.py", "_seo.py", "_internal_links.py"]
 
 for s in STEPS:
     print("=== " + s)

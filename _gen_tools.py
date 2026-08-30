@@ -21,12 +21,13 @@ def esc(s):
 def render_section(title, content, section_id="", css_class=""):
     """渲染一个内容板块。content 为空时显示占位提示"""
     if not content or not content.strip():
+        # 访客可见，因此不暴露后台/文件名等内部信息；后台提示走 HTML 注释
         placeholder = (
+            '<!-- Admin: empty field "%s" in tools-data.json -->'
             '<p class="empty-hint">'
-            f'[Content pending: {esc(title)}] '
-            'Edit in admin panel or tools-data.json to add content here.'
+            'We haven\'t written this section yet — check back soon.'
             '</p>'
-        )
+        ) % esc(title)
     else:
         # 支持简单 HTML（<p>、<ul><li>、<strong>、<em>、<a>、<br>）
         placeholder = f'<div class="prose">{content}</div>'
@@ -64,7 +65,7 @@ TPL = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>{NAME} Review: Tested AI Copywriting Tools | CopyTools</title>
+<title>{TITLE}</title>
 <!--SEO:START-->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -74,7 +75,7 @@ TPL = """<!DOCTYPE html>
 <meta name="robots" content="index,follow" />
 <meta property="og:type" content="article" />
 <meta property="og:site_name" content="CopyTools" />
-<meta property="og:title" content="{NAME} Review: Tested AI Copywriting Tools | CopyTools" />
+<meta property="og:title" content="{TITLE}" />
 <meta property="og:description" content="{DESC}" />
 <meta property="og:url" content="{SITE_URL}/tools/{SLUG}" />
 <meta property="og:image" content="{SITE_URL}/ai-copywriting-tools-og.png" />
@@ -82,7 +83,7 @@ TPL = """<!DOCTYPE html>
 <meta property="og:image:height" content="630" />
 <meta name="twitter:image" content="{SITE_URL}/ai-copywriting-tools-og.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="{NAME} Review: Tested AI Copywriting Tools | CopyTools" />
+<meta name="twitter:title" content="{TITLE}" />
 <meta name="twitter:description" content="{DESC}" />
 <script type="application/ld+json">{{"@context":"https://schema.org","@type":"SoftwareApplication","name":"{NAME}","applicationCategory":"BusinessApplication","operatingSystem":"Web","url":"{SITE_URL}/tools/{SLUG}"}}</script>
 <script type="application/ld+json">{{"@type":"BreadcrumbList","itemListElement":[{{"@type":"ListItem","position":1,"name":"Home","item":"{SITE_URL}/"}},{{"@type":"ListItem","position":2,"name":"Tested tools","item":"{SITE_URL}/tools.html"}},{{"@type":"ListItem","position":3,"name":"{NAME}","item":"{SITE_URL}/tools/{SLUG}"}}],"@context":"https://schema.org"}}</script>
@@ -106,7 +107,7 @@ TPL = """<!DOCTYPE html>
 <section class="page-head"><div class="wrap">
 <div class="breadcrumb"><a href="../index.html">Home</a> / <a href="../tools.html">Tested tools</a> / {NAME}</div>
 <span class="tag">Real-test review</span>
-<h1>{NAME} Review: One of the AI Copywriting Tools We Tested</h1>
+<h1>{NAME} review: one of the AI copywriting tools we tested</h1>
 <div style="margin-top:18px"><span class="tool-score {SCORE_CLASS}" style="font-size:14px">{SCORE}</span></div>
 </div></section>
 
@@ -130,7 +131,7 @@ Every review on this site follows
 </div></section>
 
 <footer class="footer"><div class="wrap">
-<div>&copy; 2026 CopyTools, Real-tested AI copywriting reviews.</div>
+<div>&copy; 2026 CopyTools &mdash; real-tested reviews of AI copywriting tools.</div>
 <div class="footer-links">
 <a href="../index.html">Home</a>
 <a href="../tools.html">AI copywriting tools</a>
@@ -148,11 +149,19 @@ Every review on this site follows
 </html>"""
 
 
+def make_title(name):
+    """SEO 标题：核心词前置，总长控制在 60 字符内。
+    工具名较长时（如 Hemingway Editor）自动省掉品牌后缀，避免被搜索结果截断。"""
+    base = f"{name} Review: Tested AI Copywriting Tools"
+    full = f"{base} | CopyTools"
+    return full if len(full) <= 60 else base
+
+
 def make_desc(name):
     """Meta description with keyword"""
     return (
         f"{name} is one of the AI copywriting tools we tested on real writing tasks. "
-        f"See real use cases, pricing, how it compares, and who should use it."
+        f"Real use cases, pricing, comparisons, and who should use it."
     )
 
 
@@ -179,6 +188,7 @@ def main():
             NAME=esc(name),
             SLUG=slug.replace(".html", ""),
             SITE_URL=site_url,
+            TITLE=make_title(name),
             DESC=make_desc(name),
             SCORE_CLASS=score_class,
             SCORE=esc(score),
@@ -195,7 +205,7 @@ def main():
                 "Pricing", t.get("price", ""), "sec-price"
             ),
             SECTION_COMPARISON=render_section(
-                "How it compares with other tools", t.get("comparison", ""), "sec-comparison"
+                "How it compares with other AI copywriting tools", t.get("comparison", ""), "sec-comparison"
             ),
             SECTION_COMBINATIONS=render_section(
                 "Tool combinations that work well together", t.get("combinations", ""), "sec-combinations"
