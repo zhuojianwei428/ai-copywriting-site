@@ -71,7 +71,7 @@ TOOL_AUDIENCES = {
 }
 
 AUDIENCE = {
-    "for-office-workers": ("Office workers", "Weekly reports, emails and slides, without inventing wins."),
+    "for-office-workers": ("Office workers", "Weekly reports, emails, and slides — without inventing results."),
     "for-content-creators": ("Content creators", "Blog posts and newsletters that still sound like you."),
 }
 

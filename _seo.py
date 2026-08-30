@@ -29,7 +29,7 @@ TOOL_SLUGS = [
 AUDIENCE_PAGES = [
     ("for-office-workers.html", "Best AI Copywriting Tools for Office Workers"),
     ("for-content-creators.html", "Best AI Copywriting Tools for Content Creators"),
-    ("for-self-media.html", "Best AI Copywriting Tools for Self-Media"),
+    ("for-self-media.html", "Best AI Copywriting Tools for Social-Media Creators"),
     ("for-beginners.html", "Best AI Copywriting Tools for Beginners"),
 ]
 
