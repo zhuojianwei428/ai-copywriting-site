@@ -10,11 +10,9 @@ import os
 import json
 import glob
 import re
-from _config import HIDE_TOOLS
+from _config import HIDE_TOOLS, SITE_URL, SITE_NAME, prefix
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-SITE_URL = "https://aiwritereview.com"
-SITE_NAME = "CopyTools"
 
 DATA_FILE = os.path.join(BASE, "articles.json")
 ARTICLE_DIR = os.path.join(BASE, "blog", "articles")
@@ -94,10 +92,6 @@ PAGE_SHELL_HEAD = """<!DOCTYPE html>
 
 if HIDE_TOOLS:
     PAGE_SHELL_HEAD = PAGE_SHELL_HEAD.replace('<a href="{prefix}tools.html">AI copywriting tools</a>', '')
-
-
-def prefix(rel):
-    return "../" * rel.count("/")
 
 
 def load_articles():

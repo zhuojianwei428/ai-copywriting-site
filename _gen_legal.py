@@ -2,18 +2,8 @@
 # 生成法律 / 联系三页：privacy.html  terms.html  contact.html
 # 幂等：可反复运行，会整页覆盖重写。
 #
-# ★★★ 换邮箱只改下面这一行，然后跑 python _build.py ★★★
-CONTACT_EMAIL = "contact@aiwritereview.com"
-# ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-
-# 邮箱在页面源码里是否做字符实体混淆。
-#   True  = 源码里是 &#122;&#104;... 这种数字实体，肉眼看不出邮箱，但浏览器和邮件客户端照常识别成正常地址。
-#           目的是防爬虫抓走公开邮箱后发垃圾邮件。
-#   False = 源码里直接是明文邮箱（排查问题时更直观）。
-OBFUSCATE_EMAIL = True
-
-LAST_UPDATED = "August 30, 2026"
-SITE_NAME = "CopyTools"
+# 邮箱 / 站点名 / 更新日期等全站常量统一在 _config.py 改，本文件直接复用。
+from _config import CONTACT_EMAIL, SITE_NAME, LEGAL_UPDATED, OBFUSCATE_EMAIL
 
 import os
 
@@ -131,7 +121,7 @@ PRIVACY_BODY = """
 <p>Questions about any of the above: <a href="mailto:{mail}">{mail}</a>.</p>
 
 <p style="color:var(--text-faint);font-size:14px;margin-top:36px">Last updated: {updated}</p>
-""".format(mail=MAIL, updated=LAST_UPDATED)
+""".format(mail=MAIL, updated=LEGAL_UPDATED)
 
 
 # ------------------------------------------------------------------ Terms
@@ -182,7 +172,7 @@ TERMS_BODY = """
 <p>Questions about these terms: <a href="mailto:{mail}">{mail}</a>, or use the <a href="contact.html">contact page</a>.</p>
 
 <p style="color:var(--text-faint);font-size:14px;margin-top:36px">Last updated: {updated}</p>
-""".format(mail=MAIL, updated=LAST_UPDATED)
+""".format(mail=MAIL, updated=LEGAL_UPDATED)
 
 
 # ---------------------------------------------------------------- Contact
@@ -224,7 +214,7 @@ CONTACT_BODY = """<p>CopyTools is a small, independent review site for AI copywr
 <p>We cannot support the tools we review — billing problems, bugs, and account issues belong to the vendor's own support team, and they can actually fix them. We also cannot write your copy for you, though the reviews are a decent guide to which tool should.</p>
 
 <p style="color:var(--text-faint);font-size:14px;margin-top:36px">Last updated: {updated}</p>
-""".format(mail=MAIL, updated=LAST_UPDATED)
+""".format(mail=MAIL, updated=LEGAL_UPDATED)
 
 
 PAGES = [

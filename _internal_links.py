@@ -14,7 +14,7 @@
 import os
 import re
 import glob
-from _config import HIDE_TOOLS
+from _config import HIDE_TOOLS, prefix
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 MARK_START = "<!--RELATED:START-->"
@@ -77,11 +77,6 @@ AUDIENCE = {
 }
 
 METHOD_PAGE = "blog/how-we-avoid-ai-hallucinations.html"
-
-
-def prefix(rel):
-    """相对路径 -> 回到站点根需要的前缀"""
-    return "../" * rel.count("/")
 
 
 def block(title, cards, h, cta=None):

@@ -2,13 +2,10 @@
 # 全站 SEO 基建注入 + 组件统一（导航 / logo / 页脚）
 # 幂等：可反复运行，重复运行不会叠加标记块。
 #
-# ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-# ★ 上线前只改这一行：换成你的真实域名（结尾不要带斜杠） ★
-#   改完后跑一次 python _build.py 即可全站替换 canonical/sitemap/robots/og
-SITE_URL = "https://aiwritereview.com"
-# ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-# 站点名和联系邮箱在 _config.py 里改（页脚、法务页、结构化数据共用）
-from _config import SITE_NAME
+# 域名 / 站点名 / 邮箱等全站常量统一在 _config.py 改（此文件从 _config import 复用）
+# ★ 上线前：把 _config.py 的 SITE_URL 换成真实域名（结尾不要带斜杠），再跑 python _build.py
+#   即可全站替换 canonical / sitemap / robots / og
+from _config import SITE_NAME, SITE_URL
 from _config import HIDE_TOOLS
 # ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 

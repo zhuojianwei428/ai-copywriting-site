@@ -15,7 +15,7 @@
 # 否则文章详情页会带着自己的旧版页脚覆盖掉统一注入，且拿不到内链块。
 #
 # 上线前要改的两处：
-#   域名  → _seo.py 顶部的 SITE_URL
+#   域名  → _config.py 顶部的 SITE_URL
 #   邮箱  → _config.py 顶部的 CONTACT_EMAIL
 import os
 import sys
@@ -32,4 +32,4 @@ for s in STEPS:
         sys.exit(1)
 
 print("\nBUILD OK")
-print("上线前：把 _seo.py 顶部的 SITE_URL 换成真实域名，再跑一次本脚本。")
+print("上线前：把 _config.py 顶部的 SITE_URL 换成真实域名，再跑一次本脚本。")
