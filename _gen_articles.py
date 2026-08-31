@@ -101,12 +101,12 @@ def load_articles():
 
 # 结构化栏目定义（与 admin 后台一致）
 BODY_SECTIONS = [
-    ("verdict", "✦ 结论"),
-    ("getting_started", "① 如何入门"),
-    ("pricing", "💰 费用"),
-    ("comparison", "⚖ 与其他工具的比较"),
-    ("best_tools", "🎯 适合哪些工具"),
-    ("scenarios", "📋 适合什么样的场景"),
+    ("verdict", "Verdict"),
+    ("getting_started", "Real Use Cases"),
+    ("pricing", "Pricing"),
+    ("comparison", "Comparison with Other Tools"),
+    ("best_tools", "Best Tools for This"),
+    ("scenarios", "Best For What Scenarios"),
 ]
 
 
@@ -128,7 +128,7 @@ def render_article_body(art):
             if not para:
                 continue
             # 如果段落本身已经是 HTML 块级标签，原样保留
-            if para.startswith("<") and any(para.startswith(f"<{t}") for t in ["p","h2","h3","ul","ol","div","blockquote"]):
+            if para.startswith("<") and any(para.startswith(f"<{t}") for t in ["p","h2","h3","ul","ol","div","blockquote","img"]):
                 body_html += para + "\n"
             else:
                 body_html += f"<p>{para}</p>\n"
@@ -137,7 +137,7 @@ def render_article_body(art):
     # 可选的自由补充内容
     extra = (art.get("content") or "").strip()
     if extra:
-        parts.append('<h2 class="article-section-head">✏ 补充内容</h2>\n' + extra)
+        parts.append('<h2 class="article-section-head">Extra content</h2>\n' + extra)
 
     if not parts:
         return "<p>[Content pending]</p>"

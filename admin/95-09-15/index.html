@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CopyTools 后台, 文章管理</title>
+<title>CopyTools Admin, 文章管理</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400..700&family=Inter:wght@400..900&display=swap" />
@@ -98,10 +98,27 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
 .img-preview { max-width:280px; border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; background:var(--bg3); }
 .img-preview img { display:block; width:100%; height:auto; }
 
-/* Toolbar for content areas */
-.toolbar { display:flex; gap:5px; margin-bottom:8px; flex-wrap:wrap; }
-.toolbar button { padding:4px 9px; font-size:12px; border:1px solid var(--border2); background:var(--bg); color:var(--text2); border-radius:var(--radius-sm); cursor:pointer; font-family:inherit; }
-.toolbar button:hover { background:var(--bg3); color:var(--text); border-color:var(--accent); }
+/* ---- Shared formatting toolbar (one bar, applies to focused field) ---- */
+.shared-toolbar { position: sticky; top: 0; z-index: 20; display:flex; gap:4px; flex-wrap:wrap; align-items:center;
+  background:var(--bg2); border:1px solid var(--border2); border-radius:var(--radius-sm); padding:7px 10px; margin-bottom:14px; }
+.shared-toolbar button { padding:5px 9px; font-size:13px; min-width:30px; border:1px solid var(--border2); background:var(--surface);
+  color:var(--text); border-radius:var(--radius-sm); cursor:pointer; font-family:inherit; line-height:1; }
+.shared-toolbar button:hover { background:var(--bg3); border-color:var(--accent); }
+.shared-toolbar button.active { background:var(--accent-dim); border-color:var(--accent); color:var(--accent); }
+.shared-toolbar .sep { width:1px; height:20px; background:var(--border2); margin:0 4px; }
+.shared-toolbar .tb-img { background:rgba(45,212,191,.12); border-color:rgba(45,212,191,.35); color:var(--accent); font-weight:600; }
+.shared-toolbar .tb-img:hover { background:rgba(45,212,191,.22); }
+
+/* ---- Content-editable fields ---- */
+.content-field { min-height:120px; border:1px solid var(--border2); border-radius:var(--radius-sm); background:var(--surface);
+  padding:12px 14px; font-size:14px; line-height:1.7; color:var(--text); outline:none; overflow-y:auto; }
+.content-field:focus { border-color:var(--accent); }
+.content-field:empty:before { content: attr(data-placeholder); color:var(--text3); }
+.content-field img { max-width:100%; height:auto; border-radius:6px; margin:6px 0; }
+.content-field a { color:var(--accent); }
+.content-field h2 { font-size:18px; margin:8px 0 6px; }
+.content-field ul, .content-field ol { padding-left:22px; margin:6px 0; }
+.content-field blockquote { border-left:3px solid var(--accent); padding-left:12px; margin:8px 0; color:var(--text2); }
 
 /* Preview */
 .preview-toggle { display:flex; align-items:center; gap:10px; margin:20px 0 12px; }
@@ -118,6 +135,7 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
 .preview-content ul, .preview-content ol { margin:8px 0 8px 20px; }
 .preview-content li { margin:3px 0; }
 .preview-content a { color:var(--accent); }
+.preview-content img { max-width:100%; border-radius:8px; margin:10px 0; display:block; }
 .preview-section-block { margin:16px 0; }
 .preview-section-block .ps-head { font-size:15px; font-weight:700; color:var(--accent); margin-bottom:8px; display:flex; align-items:center; gap:8px; }
 .preview-section-block .ps-head::before { content:''; width:3px;height:16px;background:var(--accent); border-radius:2px; display:inline-block; }
@@ -152,19 +170,19 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
 
 <!-- Top bar -->
 <div class="topbar">
-  <div class="logo"><span class="dot"></span> CopyTools 后台</div>
-  <span class="status" id="status">未加载数据</span>
+  <div class="logo"><span class="dot"></span> CopyTools Admin</div>
+  <span class="status" id="status">No data loaded</span>
   <div class="spacer"></div>
-  <button class="btn btn-sm btn-primary" onclick="newArticle()">+ 新建文章</button>
-  <button class="btn btn-sm" onclick="previewArticle()" id="previewBtn" style="display:none" title="在新窗口预览文章在网站上的显示效果">👁 预览</button>
+  <button class="btn btn-sm btn-primary" onclick="newArticle()">+ New article</button>
+  <button class="btn btn-sm" onclick="previewArticle()" id="previewBtn" style="display:none" title="Preview how the article looks on the site">👁 Preview</button>
   <div class="actions">
     <button class="menu-btn" onclick="toggleMenu()">⋮</button>
     <div class="dropdown" id="actionMenu">
-      <a href="#" onclick="loadFromFile();toggleMenu();return false">📂 加载 JSON</a>
-      <a href="#" onclick="downloadJSON();toggleMenu();return false">💾 下载 JSON</a>
-      <a href="#" onclick="loadFromGitHub();toggleMenu();return false">🌐 从网站加载</a>
-      <a href="#" onclick="publishToGitHub();toggleMenu();return false">🚀 发布到网站</a>
-      <a href="#" onclick="openSettings();toggleMenu();return false">⚙ GitHub 设置</a>
+      <a href="#" onclick="loadFromFile();toggleMenu();return false">📂 Load JSON</a>
+      <a href="#" onclick="downloadJSON();toggleMenu();return false">💾 Download JSON</a>
+      <a href="#" onclick="loadFromGitHub();toggleMenu();return false">🌐 Load from site</a>
+      <a href="#" onclick="publishToGitHub();toggleMenu();return false">🚀 Publish to site</a>
+      <a href="#" onclick="openSettings();toggleMenu();return false">⚙ GitHub settings</a>
     </div>
   </div>
 </div>
@@ -173,8 +191,8 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-header">
-      <input type="text" id="searchInput" placeholder="搜索文章..." oninput="filterList()" />
-      <button class="btn btn-sm btn-primary sidebar-new-btn" onclick="newArticle()">+ 新建文章</button>
+      <input type="text" id="searchInput" placeholder="Search articles..." oninput="filterList()" />
+      <button class="btn btn-sm btn-primary sidebar-new-btn" onclick="newArticle()">+ New article</button>
     </div>
     <div class="sidebar-list" id="listArea"></div>
   </div>
@@ -183,7 +201,7 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
   <div class="editor" id="editorArea">
     <div class="empty-state" id="emptyState">
       <div class="icon">📝</div>
-      <p>点击右上角 <strong>⋮ → 加载 JSON</strong> 开始编辑文章。</p>
+      <p>Click <strong>⋮ → Load JSON</strong> in the top right to start editing.</p>
     </div>
   </div>
 </div>
@@ -191,18 +209,18 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
 <!-- Settings modal -->
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-box">
-    <h2>GitHub 发布设置</h2>
-    <p>填写一次即可（仅保存在本浏览器）。点「发布到网站」会把当前数据提交到仓库，Vercel 自动重新部署。</p>
-    <label style="display:block;font-size:13px;color:var(--text2);margin-bottom:6px">GitHub Token（需 repo 权限）</label>
+    <h2>GitHub publishing settings</h2>
+    <p>Fill once (saved in this browser only). Clicking "Publish to site" commits the data to the repo and Vercel redeploys automatically.</p>
+    <label style="display:block;font-size:13px;color:var(--text2);margin-bottom:6px">GitHub Token (needs repo scope)</label>
     <input type="password" id="setToken" placeholder="ghp_..." style="width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;outline:none;font-family:inherit" />
-    <label style="display:block;font-size:13px;color:var(--text2);margin:14px 0 6px">仓库 owner/name</label>
+    <label style="display:block;font-size:13px;color:var(--text2);margin:14px 0 6px">Repo owner/name</label>
     <input type="text" id="setRepo" placeholder="zhuojianwei428/ai-copywriting-site" style="width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;outline:none;font-family:inherit" />
-    <label style="display:block;font-size:13px;color:var(--text2);margin:14px 0 6px">分支</label>
+    <label style="display:block;font-size:13px;color:var(--text2);margin:14px 0 6px">Branch</label>
     <input type="text" id="setBranch" placeholder="main" style="width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;outline:none;font-family:inherit" />
-    <div class="section-hint" style="margin-top:12px">获取 Token：GitHub → 头像 → Settings → Developer settings → Personal access tokens → 勾选 repo → 生成。令牌只存浏览器，不上传服务器。</div>
+    <div class="section-hint" style="margin-top:12px">Get a token: GitHub -> avatar -> Settings -> Developer settings -> Personal access tokens -> check repo -> Generate. Token is stored only in this browser.</div>
     <div class="modal-actions">
-      <button class="btn" onclick="closeSettings()">取消</button>
-      <button class="btn btn-primary" onclick="saveSettings()">保存</button>
+      <button class="btn" onclick="closeSettings()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSettings()">Save</button>
     </div>
   </div>
 </div>
@@ -213,25 +231,26 @@ let appData = null;
 let currentItem = null;
 let currentIdx = -1;
 let pendingImages = {}; // currentIdx -> { filename, base64, dataUrl }
+let pendingBodyImages = {}; // currentIdx -> [ { filename, base64 } ]  (inline body images)
 
 // ====== 结构化栏目定义 ======
 const META_FIELDS = [
-  { key:'title', label:'文章标题', hint:'利于 SEO 的标题（建议含关键词，60 字以内）', full:true },
-  { key:'subtitle', label:'副标题 / 摘要', hint:'文章卡片上显示的简短描述', full:true },
-  { key:'slug', label:'URL 别名', hint:'URL 友好名称，如 best-free-ai-copywriting-tools' },
-  { key:'date', label:'发布日期', hint:'格式：YYYY-MM-DD' },
-  { key:'image', label:'封面图', hint:'支持本地上传：选图后发布时自动传到网站并生成 URL（建议 1200×630）', isImage:true },
-  { key:'category', label:'分类', hint:'', isSelect:true,
-    options:[{v:'',t:' 选择分类 '},{v:'office-workers',t:'Office workers'},{v:'content-creators',t:'Content creators'}] },
+  { key:'title', label:'Article title', hint:'SEO-friendly title (include keywords, under 60 chars)', full:true },
+  { key:'subtitle', label:'Subtitle / summary', hint:'Short description shown on article cards', full:true },
+  { key:'slug', label:'URL slug', hint:'URL-friendly name, e.g. best-free-ai-copywriting-tools' },
+  { key:'date', label:'Publish date', hint:'Format: YYYY-MM-DD' },
+  { key:'image', label:'Cover image', hint:'Local upload supported: pick an image and it is uploaded on publish (recommended 1200x630)', isImage:true },
+  { key:'category', label:'Category', hint:'', isSelect:true,
+    options:[{v:'',t:' Select category '},{v:'office-workers',t:'Office workers'},{v:'content-creators',t:'Content creators'}] },
 ];
 
 const BODY_SECTIONS = [
-  { key:'verdict', icon:'✦', label:'结论', hint:'一句话总结：这个工具/方案好不好、值不值得用。读者最先看这里。' },
-  { key:'getting_started', icon:'①', label:'如何入门', hint:'从零开始怎么上手：注册步骤、首次使用流程、注意事项。' },
-  { key:'pricing', icon:'💰', label:'费用', hint:'价格详情：免费额度、付费档位、跟竞品比贵还是便宜。' },
-  { key:'comparison', icon:'⚖', label:'与其他工具的比较', hint:'和主流工具（ChatGPT/Jasper/Copy.ai 等）的真实对比：谁强谁弱。' },
-  { key:'best_tools', icon:'🎯', label:'适合哪些工具', hint:'列出最适合的工具名称，以及为什么适合。' },
-  { key:'scenarios', icon:'📋', label:'适合什么样的场景', hint:'具体使用场景：产品文案、商务邮件、博客 SEO、社媒帖子等。' },
+  { key:'verdict', icon:'✦', label:'Verdict', hint:'One-line verdict: is this tool/solution good and worth using? Readers see this first.' },
+  { key:'getting_started', icon:'①', label:'Real use cases', hint:'Concrete situations people use it for: sample prompts, workflows, before/after examples.' },
+  { key:'pricing', icon:'💰', label:'Pricing', hint:'Price details: free tier, paid plans, cheaper or pricier than rivals.' },
+  { key:'comparison', icon:'⚖', label:'Comparison with other tools', hint:'Real comparison with mainstream tools (ChatGPT, Jasper, Copy.ai, etc.): strengths and weaknesses.' },
+  { key:'best_tools', icon:'🎯', label:'Best tools for this', hint:'List the best-fitting tools and why they fit.' },
+  { key:'scenarios', icon:'📋', label:'Best for what scenarios', hint:'Concrete use cases: product copy, business email, blog SEO, social posts, etc.' },
 ];
 
 // ====== 菜单开关 ======
@@ -255,11 +274,11 @@ async function loadFromServer() {
     if (!appData.articles) appData.articles = [];
     renderList();
     selectItem(appData.articles.length > 0 ? 0 : -1);
-    updateStatus(`已加载 ${appData.articles.length} 篇文章`);
+    updateStatus(`Loaded ${appData.articles.length} article(s)`);
   } catch(err) {
     // 离线或本地预览：提示手动加载
-    updateStatus('未连接，请手动加载 JSON');
-    console.warn('自动加载失败:', err.message);
+    updateStatus('Not connected. Please load JSON manually.');
+    console.warn('Auto-load failed:', err.message);
   }
 }
 
@@ -276,9 +295,9 @@ function loadFromFile() {
         if (!appData.articles) appData.articles = [];
         renderList();
         selectItem(appData.articles.length > 0 ? 0 : -1);
-        updateStatus(`已加载 ${appData.articles.length} 篇文章`);
-        toast('JSON 已加载', 'ok');
-      } catch(err) { toast('无效的 JSON：' + err.message, 'err'); }
+        updateStatus(`Loaded ${appData.articles.length} article(s)`);
+        toast('JSON loaded', 'ok');
+      } catch(err) { toast('Invalid JSON: ' + err.message, 'err'); }
     };
     reader.readAsText(file);
   };
@@ -295,7 +314,7 @@ function renderList() {
     const catClass = cat === 'office-workers' ? 'cat-ow' : (cat === 'content-creators' ? 'cat-cc' : '');
     const catLabel = cat === 'office-workers' ? 'OW' : (cat === 'content-creators' ? 'CC' : '');
     el.className = 'item' + (i === currentIdx ? ' active' : '');
-    el.innerHTML = `<span class="item-title">${esc(a.title || '[未命名]')}</span><span class="cat-tag ${catClass}">${esc(catLabel)}</span>`;
+    el.innerHTML = `<span class="item-title">${esc(a.title || '[Untitled]')}</span><span class="cat-tag ${catClass}">${esc(catLabel)}</span>`;
     el.onclick = () => selectItem(i);
     container.appendChild(el);
   });
@@ -310,7 +329,7 @@ function filterList() {
 
 // ====== 新建文章 ======
 function newArticle() {
-  if (!appData) { toast('请先加载 JSON 数据', 'info'); return; }
+  if (!appData) { toast('Load JSON data first', 'info'); return; }
   if (!appData.articles) appData.articles = [];
   const tpl = {
     title: '', subtitle: '', image: '',
@@ -324,8 +343,8 @@ function newArticle() {
   appData.articles.push(tpl);
   renderList();
   selectItem(appData.articles.length - 1);
-  updateStatus('已新建文章');
-  toast('已新建一篇文章', 'ok');
+  updateStatus('Article created');
+  toast('Article created', 'ok');
 }
 
 // ====== 选中 & 编辑 ======
@@ -342,12 +361,12 @@ function selectItem(idx) {
 function renderEditor() {
   const area = document.getElementById('editorArea');
   let html = '<div class="editor-top">';
-  html += `<h1>${esc(currentItem.title || '[未命名文章]')}</h1>`;
+  html += `<h1>${esc(currentItem.title || '[Untitled article]')}</h1>`;
   html += `<div class="editor-meta"><span>${esc(currentItem.slug || '')}</span> ${currentItem.date ? '<span>' + esc(currentItem.date) + '</span>' : ''}</div>`;
   html += '</div>';
 
   // --- 元信息区 ---
-  html += '<div class="section-card"><div class="section-head"><h3>📋 基本信息</h3></div><div class="section-body"><div class="meta-grid">';
+  html += '<div class="section-card"><div class="section-head"><h3>📋 Basic info</h3></div><div class="section-body"><div class="meta-grid">';
   META_FIELDS.forEach(f => {
     const val = currentItem[f.key] || '';
     const cls = f.full ? 'full' : '';
@@ -368,30 +387,42 @@ function renderEditor() {
   });
   html += '</div></div></div>';
 
-  // --- 结构化正文区 ---
+  // --- Shared toolbar (top, acts on whichever field is focused/selected) ---
+  html += `<div class="shared-toolbar" id="sharedToolbar" onmousedown="event.preventDefault()">
+    <button type="button" title="Bold" onclick="docCmd('bold')"><b>B</b></button>
+    <button type="button" title="Italic" onclick="docCmd('italic')"><i>I</i></button>
+    <button type="button" title="Underline" onclick="docCmd('underline')"><u>U</u></button>
+    <button type="button" title="Strikethrough" onclick="docCmd('strikeThrough')"><s>S</s></button>
+    <span class="sep"></span>
+    <button type="button" title="Heading" onclick="docCmd('formatBlock','h3')">H</button>
+    <button type="button" title="Paragraph" onclick="docCmd('formatBlock','p')">¶</button>
+    <button type="button" title="Bullet list" onclick="docCmd('insertUnorderedList')">• List</button>
+    <button type="button" title="Numbered list" onclick="docCmd('insertOrderedList')">1. List</button>
+    <span class="sep"></span>
+    <button type="button" title="Link" onclick="insertRichLink()">🔗 Link</button>
+    <button type="button" title="Quote" onclick="docCmd('formatBlock','blockquote')">❝</button>
+    <button type="button" title="Code" onclick="docCmd('formatBlock','pre')">&lt;/&gt;</button>
+    <span class="sep"></span>
+    <button type="button" class="tb-img" title="Insert image" onclick="insertBodyImage()">🖼 Image</button>
+  </div>`;
+
+  // --- Structured body sections (contenteditable, shared toolbar) ---
   BODY_SECTIONS.forEach((sec, i) => {
     const val = currentItem[sec.key] || '';
     const isEmpty = !val.trim();
     html += `<div class="section-card"><div class="section-head"><span class="section-icon">${sec.icon}</span><h3>${sec.label}</h3></div><div class="section-body">`;
-    html += `<textarea id="field_${sec.key}" class="${isEmpty ? 'empty-field' : ''}" placeholder="${esc(sec.label)}" oninput="onFieldChange('${sec.key}',this)">${esc(val)}</textarea>`;
+    html += `<div id="editor_${sec.key}" class="content-field" contenteditable="true" data-field="${sec.key}" data-fallback="${esc(val)}" data-placeholder="Write ${sec.label} here..." oninput="onRichInput('${sec.key}')" onfocus="activeRichField='${sec.key}'" onclick="activeRichField='${sec.key}'">${val}</div>`;
     html += `<div class="section-hint">${esc(sec.hint)}</div></div></div>`;
   });
 
-  // --- 自由补充区（可选） ---
+  // --- Extra content (optional, contenteditable, shared toolbar) ---
   const extraContent = currentItem.content || '';
-  html += `<div class="section-card"><div class="section-head"><h3>✏ 补充内容（可选）</h3></div><div class="section-body">`;
-  html += `<div class="toolbar">
-    <button type="button" onclick="wrapTag('b')">加粗</button>
-    <button type="button" onclick="wrapTag('i')">斜体</button>
-    <button type="button" onclick="insertBlock('h2')">标题</button>
-    <button type="button" onclick="insertList()">列表</button>
-    <button type="button" onclick="insertLink()">链接</button>
-  </div>`;
-  html += `<textarea id="field_content" class="tall" placeholder="额外的自由格式内容（HTML）" oninput="onFieldChange('content',this)">${esc(extraContent)}</textarea>`;
-  html += `<div class="section-hint">可选。用于添加结构化栏目之外的内容（支持 HTML）。</div></div></div>`;
+  html += `<div class="section-card"><div class="section-head"><h3>✏ Extra content (optional)</h3></div><div class="section-body">`;
+  html += `<div id="editor_content" class="content-field" contenteditable="true" data-field="content" data-fallback="${esc(extraContent)}" data-placeholder="Optional. For content outside the structured sections." oninput="onRichInput('content')" onfocus="activeRichField='content'" onclick="activeRichField='content'">${extraContent}</div>`;
+  html += `<div class="section-hint">Optional. For content outside the structured sections.</div></div></div>`;
 
   // --- 实时预览 ---
-  html += `<div class="preview-toggle"><span class="preview-label">实时预览</span><button class="btn btn-sm" onclick="previewArticle()">👁 在新窗口打开预览</button></div>`;
+  html += `<div class="preview-toggle"><span class="preview-label">Live preview</span><button class="btn btn-sm" onclick="previewArticle()">👁 Open preview in new tab</button></div>`;
   html += `<div id="previewCard"></div>`;
   html += `<div id="previewBody"></div>`;
 
@@ -399,36 +430,117 @@ function renderEditor() {
   const form = document.createElement('div'); form.className = 'editor-form';
   form.innerHTML = html; area.appendChild(form);
 
+  // Track which rich field is active (for the shared toolbar)
+  activeRichField = null;
+
   updatePreview();
 }
 
-// 工具栏
-function getContentArea() { return document.getElementById('field_content'); }
-function wrapTag(tag) {
-  const ta = getContentArea(); if (!ta) return;
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const sel = ta.value.substring(s, e) || '文字';
-  ta.value = ta.value.substring(0, s) + `<${tag}>` + sel + `</${tag}>` + ta.value.substring(e);
-  onFieldChange('content', ta); ta.focus();
+// ====== Shared toolbar + contenteditable editors ======
+let activeRichField = null; // key of the rich editor currently focused/selected
+
+// Get the active contenteditable element
+function activeEditorEl() {
+  if (!activeRichField) {
+    // fall back to first structured section if none focused
+    if (BODY_SECTIONS.length) activeRichField = BODY_SECTIONS[0].key;
+  }
+  return activeRichField ? document.getElementById(`editor_${activeRichField}`) : null;
 }
-function insertBlock(tag) {
-  const ta = getContentArea(); if (!ta) return;
-  const s = ta.selectionStart;
-  ta.value = ta.value.substring(0, s) + `\n<${tag}>小标题</${tag}>\n` + ta.value.substring(ta.selectionEnd);
-  onFieldChange('content', ta); ta.focus();
+
+// Ensure the browser selection is inside the active editor (restore focus)
+function ensureSelection() {
+  const el = activeEditorEl();
+  if (!el) return;
+  el.focus();
 }
-function insertList() {
-  const ta = getContentArea(); if (!ta) return;
-  const s = ta.selectionStart;
-  ta.value = ta.value.substring(0, s) + `\n<ul>\n<li>项目一</li>\n<li>项目二</li>\n</ul>\n` + ta.value.substring(ta.selectionEnd);
-  onFieldChange('content', ta); ta.focus();
+
+// Run a document.execCommand against the active editor
+function docCmd(cmd, value) {
+  ensureSelection();
+  try { document.execCommand(cmd, false, value); } catch (e) { console.warn('execCommand failed:', cmd, e); }
+  if (activeRichField) { onRichInput(activeRichField); }
+  // keep toolbar sticky focus on the editor button that was clicked
+  return false;
 }
-function insertLink() {
-  const ta = getContentArea(); if (!ta) return;
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const sel = ta.value.substring(s, e) || '链接文字';
-  ta.value = ta.value.substring(0, s) + `<a href="https://">` + sel + `</a>` + ta.value.substring(e);
-  onFieldChange('content', ta); ta.focus();
+
+// Content changed in a rich editor → save to currentItem + refresh preview
+function onRichInput(fieldKey) {
+  if (!currentItem) return;
+  const el = document.getElementById(`editor_${fieldKey}`);
+  currentItem[fieldKey] = el ? el.innerHTML : '';
+  updatePreview();
+}
+
+// Helper: get content from a rich editor (fallback to data-fallback / stored value)
+function getEditorContent(fieldKey) {
+  const el = document.getElementById(`editor_${fieldKey}`);
+  if (el && el.hasChildNodes()) return el.innerHTML;
+  const fb = el && el.getAttribute('data-fallback');
+  if (fb != null && fb !== '') return fb;
+  return (currentItem && currentItem[fieldKey]) || '';
+}
+
+// ====== Body Image Insertion (into the active contenteditable editor) ======
+function insertBodyImage() {
+  ensureSelection();
+  const el = activeEditorEl();
+  if (!el) { toast('Click into an article section first', 'err'); return; }
+  const fieldKey = activeRichField || el.dataset.field;
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*';
+  input.onchange = (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    if (!file.type.startsWith('image/')) { toast('Please choose an image', 'err'); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target.result, base64 = dataUrl.split(',')[1];
+      const ext = (file.name.split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '') || 'png';
+      const slug = (currentItem.slug || ('article-' + Date.now().toString(36))).replace(/[^a-z0-9-]/gi, '');
+      const arr = pendingBodyImages[currentIdx] || (pendingBodyImages[currentIdx] = []);
+      const filename = `${slug}-img${arr.length + 1}.${ext}`;
+      arr.push({ filename, base64 });
+      const url = `https://aiwritereview.com/images/${filename}`;
+      // Insert <img> at the current caret position
+      ensureSelection();
+      document.execCommand('insertHTML', false, `<img src="${url}" alt="" />`);
+      onRichInput(fieldKey);
+      toast('Image added, publish to upload', 'ok');
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+// Insert a hyperlink around selected text
+function insertRichLink() {
+  ensureSelection();
+  const url = prompt('Link URL', 'https://');
+  if (!url) return;
+  document.execCommand('createLink', false, url);
+  if (activeRichField) onRichInput(activeRichField);
+}
+
+// 有限 HTML 渲染（后台预览用，过滤危险标签/属性）
+function safeInline(html) {
+  const tpl = document.createElement('template');
+  tpl.innerHTML = html;
+  tpl.content.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach(n => n.remove());
+  tpl.content.querySelectorAll('*').forEach(n => {
+    [...n.attributes].forEach(a => { if (/^on/i.test(a.name)) n.removeAttribute(a.name); });
+  });
+  return tpl.innerHTML;
+}
+function renderBodyVal(val) {
+  const paras = (val || '').split('\n');
+  let out = '';
+  for (let para of paras) {
+    para = para.trim(); if (!para) continue;
+    const blockStart = /^<(p|h2|h3|ul|ol|div|blockquote|img)\b/i.test(para);
+    if (blockStart) out += safeInline(para) + '\n';
+    else out += '<p>' + safeInline(para) + '</p>\n';
+  }
+  return out;
 }
 
 // 预览渲染
@@ -437,13 +549,13 @@ function updatePreview() {
   const body = document.getElementById('previewBody');
   if (!card || !body || !currentItem) return;
 
-  const title = esc(currentItem.title || '（未填写标题）');
-  const sub = esc(currentItem.subtitle || '（未填写副标题）');
+  const title = esc(currentItem.title || '(no title)');
+  const sub = esc(currentItem.subtitle || '(no subtitle)');
   const img = currentItem.image || '';
   const date = esc(currentItem.date || '');
 
   card.innerHTML = `<div class="preview-card">
-    ${img ? `<img src="${esc(img)}" alt="" />` : `<div style="width:180px;height:120px;flex-shrink:0;border-radius:var(--radius-sm);background:var(--bg3);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px">无封面图</div>`}
+    ${img ? `<img src="${esc(img)}" alt="" />` : `<div style="width:180px;height:120px;flex-shrink:0;border-radius:var(--radius-sm);background:var(--bg3);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px">No cover image</div>`}
     <div class="pc-body">
       <div class="pc-title">${title}</div>
       <div class="pc-excerpt">${sub}</div>
@@ -457,48 +569,55 @@ function updatePreview() {
     const val = currentItem[sec.key] || '';
     if (!val.trim()) return;
     bodyHtml += `<div class="preview-section-block"><div class="ps-head">${esc(sec.label)}</div>`;
-    bodyHtml += `<p>${esc(val).replace(/\n/g,'<br/>')}</p></div>`;
+    bodyHtml += renderBodyVal(val) + '</div>';
   });
 
-  // 补充内容预览（escaped 防 XSS）
+  // 补充内容预览
   const extra = currentItem.content || '';
   if (extra.trim()) {
-    bodyHtml += `<div class="preview-section-block"><div class="ps-head">补充内容</div>`;
-    bodyHtml += `<p>${esc(extra.replace(/<[^>]+>/g,'')).replace(/\n/g,'<br/>')}</p></div>`;
+    bodyHtml += `<div class="preview-section-block"><div class="ps-head">Extra content</div>`;
+    bodyHtml += renderBodyVal(extra) + '</div>';
   }
-  if (!bodyHtml.includes('ps-head')) bodyHtml += '<p style="color:var(--text3)">（尚未填写任何内容）</p>';
+  if (!bodyHtml.includes('ps-head')) bodyHtml += '<p style="color:var(--text3)">(nothing filled in yet)</p>';
   bodyHtml += '</div>';
   body.innerHTML = bodyHtml;
 }
 
 function previewArticle() {
-  if (!currentItem || !currentItem.slug) { toast('请先填写 URL 别名', 'err'); return; }
+  if (!currentItem || !currentItem.slug) { toast('Fill in the URL slug first', 'err'); return; }
   window.open(`https://aiwritereview.com/blog/articles/${encodeURIComponent(currentItem.slug)}.html`, '_blank');
 }
 
 function onFieldChange(key, el) {
   if (!currentItem) return;
-  // select 元素取 value，其他取 innerText/value
-  currentItem[key] = el.tagName === 'SELECT' ? el.value : el.value;
-  if (el.tagName !== 'SELECT') el.classList.toggle('empty-field', !el.value.trim());
+  // If el is null, change came from a rich editor, get content from editor
+  if (!el) {
+    currentItem[key] = getEditorContent(key);
+  } else {
+    currentItem[key] = el.tagName === 'SELECT' ? el.value : el.value;
+    if (el.tagName !== 'SELECT') el.classList.toggle('empty-field', !el.value.trim());
+  }
 
-  // 同步侧栏标题
+  // Sync sidebar title
   if (key === 'title') {
     const itm = document.querySelectorAll('.item')[currentIdx];
-    if (itm) itm.querySelector('.item-title').textContent = currentItem.title || '[未命名]';
+    if (itm) itm.querySelector('.item-title').textContent = currentItem.title || '[Untitled]';
   }
   updatePreview();
 }
 
 // ====== 下载 ======
 function downloadJSON() {
-  if (!appData) { toast('没有数据', 'err'); return; }
+  if (!appData) { toast('No data', 'err'); return; }
+  // Sync rich-editor content before download
+  BODY_SECTIONS.forEach(sec => { if (currentItem) currentItem[sec.key] = getEditorContent(sec.key); });
+  if (currentItem) currentItem.content = getEditorContent('content');
   appData._meta = { last_updated: new Date().toISOString(), mode: 'articles' };
   const blob = new Blob([JSON.stringify(appData, null, 2)], { type:'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = 'articles.json'; a.click();
   URL.revokeObjectURL(url);
-  toast('已下载 articles.json', 'ok');
+  toast('Downloaded articles.json', 'ok');
 }
 
 // ====== GitHub ======
@@ -519,9 +638,9 @@ function saveSettings(){
     repo: (document.getElementById('setRepo').value || '').trim(),
     branch: (document.getElementById('setBranch').value || '').trim() || 'main'
   };
-  if(!s.token || !s.repo){ toast('请填写 Token 和仓库','err'); return; }
+  if(!s.token || !s.repo){ toast('Enter token and repo','err'); return; }
   localStorage.setItem('ghSettings', JSON.stringify(s));
-  closeSettings(); toast('设置已保存','ok');
+  closeSettings(); toast('Settings saved','ok');
 }
 function b64ToUtf8(b64){
   const bin = atob(b64.replace(/\s/g,''));
@@ -543,25 +662,25 @@ function ghHeaders(token, extra){
 }
 async function loadFromGitHub(){
   const s = ghSettings();
-  if(!s.token || !s.repo){ toast('请先设置 GitHub 信息','err'); openSettings(); return; }
+  if(!s.token || !s.repo){ toast('Set GitHub info first','err'); openSettings(); return; }
   try{
-    updateStatus('正在从 GitHub 加载…');
+    updateStatus('Loading from GitHub…');
     const res = await fetch(`https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent('articles.json')}?ref=${encodeURIComponent(s.branch)}`, { headers: ghHeaders(s.token) });
-    if(!res.ok){ toast('加载失败：'+res.status,'err'); updateStatus('未加载数据'); return; }
+    if(!res.ok){ toast('Load failed: '+res.status,'err'); updateStatus('No data loaded'); return; }
     const data = await res.json();
     appData = JSON.parse(b64ToUtf8(data.content));
     if (!appData.articles) appData.articles = [];
     renderList();
     selectItem(appData.articles.length > 0 ? 0 : -1);
-    updateStatus(`已从网站加载 ${appData.articles.length} 篇文章`);
-    toast('已从 GitHub 加载','ok');
-  }catch(e){ toast('加载出错：'+e.message,'err'); updateStatus('未加载数据'); }
+    updateStatus(`Loaded ${appData.articles.length} article(s) from site`);
+    toast('Loaded from GitHub','ok');
+  }catch(e){ toast('Load error: '+e.message,'err'); updateStatus('No data loaded'); }
 }
 // ====== 封面图：本地选图 + 发布时上传到 GitHub ======
 function onImageSelected(input) {
   const file = input.files[0];
   if (!file) return;
-  if (!file.type.startsWith('image/')) { toast('请选择图片文件', 'err'); return; }
+  if (!file.type.startsWith('image/')) { toast('Please choose an image', 'err'); return; }
   const reader = new FileReader();
   reader.onload = (e) => {
     const dataUrl = e.target.result;
@@ -575,7 +694,7 @@ function onImageSelected(input) {
     const inp = document.getElementById('field_image');
     if (inp) inp.value = url;
     renderEditor();
-    toast('封面图已就绪，点发布即可上传', 'ok');
+    toast('Cover image ready, publish to upload', 'ok');
   };
   reader.readAsDataURL(file);
 }
@@ -589,40 +708,51 @@ async function uploadImageToGitHub(s, img) {
   const putRes = await fetch(`https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent(path)}`, {
     method: 'PUT',
     headers: ghHeaders(s.token, { 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ message: `[admin] 上传封面图 ${img.filename}`, content: img.base64, sha: sha, branch: s.branch })
+    body: JSON.stringify({ message: `[admin] upload cover image ${img.filename}`, content: img.base64, sha: sha, branch: s.branch })
   });
-  if (!putRes.ok) { const err = await putRes.json().catch(() => ({})); throw new Error('图片上传失败：' + (err.message || putRes.status)); }
+  if (!putRes.ok) { const err = await putRes.json().catch(() => ({})); throw new Error('Image upload failed：' + (err.message || putRes.status)); }
 }
 
 async function publishToGitHub(){
   const s = ghSettings();
-  if(!s.token || !s.repo){ toast('请先设置 GitHub 信息','err'); openSettings(); return; }
-  if(!appData){ toast('没有数据','err'); return; }
+  if(!s.token || !s.repo){ toast('Set GitHub info first','err'); openSettings(); return; }
+  if(!appData){ toast('No data','err'); return; }
+  // Sync all rich-editor content into currentItem before publishing
+  BODY_SECTIONS.forEach(sec => { if (currentItem) currentItem[sec.key] = getEditorContent(sec.key); });
+  if (currentItem) currentItem.content = getEditorContent('content');
   try{
-    updateStatus('正在提交到 GitHub…');
+    updateStatus('Committing to GitHub…');
     // 1. 先上传待发布的封面图
     const imgs = Object.values(pendingImages);
     for (const img of imgs) {
-      updateStatus('正在上传封面图 ' + img.filename + ' …');
+      updateStatus('Uploading cover image ' + img.filename + ' …');
       try { await uploadImageToGitHub(s, img); }
-      catch (err) { toast(err.message, 'err'); updateStatus('图片上传失败'); return; }
+      catch (err) { toast(err.message, 'err'); updateStatus('Image upload failed'); return; }
+    }
+    // 1b. 上传正文内联图片
+    for (const idx in pendingBodyImages) {
+      for (const img of pendingBodyImages[idx]) {
+        updateStatus('Uploading image ' + img.filename + ' …');
+        try { await uploadImageToGitHub(s, img); }
+        catch (err) { toast(err.message, 'err'); updateStatus('Image upload failed'); return; }
+      }
     }
     // 2. 再提交 articles.json
     const getRes = await fetch(`https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent('articles.json')}?ref=${encodeURIComponent(s.branch)}`, { headers: ghHeaders(s.token) });
     let sha = null;
     if(getRes.ok) sha = (await getRes.json()).sha || null;
-    else if(getRes.status !== 404){ toast('读取失败：'+getRes.status,'err'); return; }
+    else if(getRes.status !== 404){ toast('Read failed: '+getRes.status,'err'); return; }
     const content = utf8ToBase64(JSON.stringify({ _meta:{last_updated:new Date().toISOString(),mode:'articles'}, articles:appData.articles }, null, 2));
     const putRes = await fetch(`https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent('articles.json')}`, {
       method:'PUT',
       headers: ghHeaders(s.token, { 'Content-Type':'application/json' }),
       body: JSON.stringify({ message:'[admin] 更新 articles.json', content: content, sha: sha, branch: s.branch })
     });
-    if(!putRes.ok){ const err = await putRes.json().catch(()=>({})); toast('发布失败：'+(err.message||putRes.status),'err'); return; }
-    updateStatus('已提交，Vercel 正在重新部署…');
-    pendingImages = {};
-    toast('已发布！约 1 分钟内更新','ok');
-  }catch(e){ toast('发布出错：'+e.message,'err'); }
+    if(!putRes.ok){ const err = await putRes.json().catch(()=>({})); toast('Publish failed: '+(err.message||putRes.status),'err'); return; }
+    updateStatus('Committed, Vercel is redeploying…');
+    pendingImages = {}; pendingBodyImages = {};
+    toast('Published! Live within ~1 min','ok');
+  }catch(e){ toast('Publish error: '+e.message,'err'); }
 }
 
 // ====== 工具函数 ======

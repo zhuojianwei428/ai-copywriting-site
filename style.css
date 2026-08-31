@@ -68,25 +68,24 @@ img { max-width: 100%; display: block; }
 .nav-cta { font-size: 14px; padding: 9px 16px; border: 1px solid var(--border); border-radius: 999px; color: var(--text); transition: border-color .15s ease, color .15s ease; }
 .nav-cta:hover { border-color: var(--accent); color: var(--accent); }
 
-/* ---------- Hero (asymmetric, left-aligned) ---------- */
+/* ---------- Hero (centered, single column) ---------- */
 .hero {
   position: relative; overflow: hidden;
-  padding: clamp(56px, 8vw, 104px) 0 clamp(36px, 4.5vw, 60px);
-  text-align: left;
+  padding: clamp(64px, 10vw, 120px) 0 clamp(48px, 6vw, 80px);
+  text-align: center;
 }
 .hero::before {
-  content: ""; position: absolute; right: -200px; top: -220px;
-  width: 760px; max-width: 120%; height: 560px;
-  background: radial-gradient(46% 50% at 62% 40%, rgba(45,212,191,0.10), transparent 72%);
+  content: ""; position: absolute; left: 50%; top: -200px;
+  transform: translateX(-50%);
+  width: 800px; max-width: 140%; height: 600px;
+  background: radial-gradient(46% 50% at 50% 40%, rgba(45,212,191,0.08), transparent 72%);
   pointer-events: none;
 }
-.hero-grid {
+.hero-center {
   position: relative;
-  display: grid; grid-template-columns: 1.1fr 0.9fr; gap: clamp(32px, 5vw, 64px);
-  align-items: center;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center;
 }
-.hero-copy { position: relative; display: flex; flex-direction: column; align-items: flex-start; }
-.hero-side { position: relative; }
 
 /* ---------- Hero entrance handled by js/animations.js (GSAP) ---------- */
 
@@ -211,10 +210,10 @@ img { max-width: 100%; display: block; }
   padding: 7px 15px; border-radius: 999px; margin-bottom: 26px;
 }
 .eyebrow .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--good); }
-h1 { font-size: clamp(36px, 5.8vw, 62px); line-height: 1.08; letter-spacing: -0.038em; font-weight: 850; max-width: 900px; }
+h1 { font-size: clamp(36px, 5.8vw, 64px); line-height: 1.08; letter-spacing: -0.038em; font-weight: 850; max-width: 860px; margin-left: auto; margin-right: auto; }
 h1 .grad { color: var(--accent); }
-.sub { margin: 22px 0 0; font-size: clamp(16px, 1.35vw, 18px); line-height: 1.85; color: var(--text-dim); max-width: 640px; }
-.companion-note { color: var(--text); font-size: clamp(17px, 1.6vw, 20px); font-weight: 600; letter-spacing: -0.01em; margin: 26px 0 0; max-width: 640px; }
+.sub { margin: 22px auto 0; font-size: clamp(16px, 1.35vw, 18px); line-height: 1.85; color: var(--text-dim); max-width: 680px; }
+.companion-note { color: var(--text); font-size: clamp(17px, 1.6vw, 20px); font-weight: 600; letter-spacing: -0.01em; margin: 26px auto 0; max-width: 520px; }
 .btn-primary {
   background: var(--accent); color: var(--accent-ink); font-weight: 700;
   padding: 15px 30px; border-radius: 999px; font-size: 16px; border: none; cursor: pointer;
@@ -319,7 +318,6 @@ a.tagchip:hover { border-color: var(--accent); color: var(--accent); }
 /* ---------- responsive ---------- */
 @media (max-width: 860px) {
   .pains, .dirs, .tools { grid-template-columns: 1fr; }
-  .hero-grid { grid-template-columns: 1fr; gap: 28px; }
   .tool-grid { grid-template-columns: 1fr 1fr; }
   .stat-bar { grid-template-columns: repeat(2, 1fr); gap: 22px; }
   .method .steps { grid-template-columns: 1fr 1fr; }
@@ -334,17 +332,8 @@ a.tagchip:hover { border-color: var(--accent); color: var(--accent); }
   .nav-cta { display: none; }
   .logo small { display: none; }
   body { font-size: 16px; }
-  .hero-grid { grid-template-columns: 1fr; gap: 28px; }
-  .hero-side { min-height: 260px; order: -1; }
-  .carousel-slide { padding: 18px; }
-  .sc-compare { gap: 8px; }
-  .sc-text { font-size: 12px; }
-  .sc-big-num { font-size: 42px; }
-  .sc-a { font-size: 22px; }
-  .anim-hero-words { animation-duration: 0.42s; }
-  .anim-hero-words-light,
-  .hero-copy .companion-note,
-  .hero-copy .hero-actions { animation-duration: 0.46s; }
+  h1 { font-size: 34px; }
+  .sub { font-size: 15px; }
 }
 
 /* ---------- Pros / Cons (tool detail pages) ---------- */

@@ -90,6 +90,9 @@
 
 
 
+
+
+
   <meta name="description" content="Writers' real problem with AI copywriting tools: the output reads like a robot. We tested 11 tools on real writing tasks to find the ones that sound human." />
   <script>document.documentElement.className += " js";</script>
   <link rel="stylesheet" href="style.css" />
@@ -108,46 +111,13 @@
 </div></header>
 
 <section class="hero">
-  <div class="wrap hero-grid">
-    <div class="hero-copy">
-      <span class="eyebrow"><span class="pulse"></span> Real-tested, not another "top 50" list</span>
-      <h1 class="anim-hero-words">The <span class="grad">AI copywriting tools</span> we tested ourselves, and the ones that sound human</h1>
-      <p class="sub anim-hero-words-light">We help office workers and freelancers find AI copywriting tools that genuinely boost their productivity. We test and compare the best AI writing assistants so you can stop guessing and get on with the work. Every review comes from real hands-on use: what each tool does well, where it falls short, and whether it's actually worth your time. Whether you're writing emails, reports, or marketing copy, we cut through the hype and show you only what delivers. With so many AI tools out there, it's easy to feel overwhelmed and unsure which one to pick.</p>
-      <p class="companion-note">That's where this site comes in.</p>
-      <div class="hero-actions">
-        <a class="btn-primary" href="blog/how-we-avoid-ai-hallucinations.html">See how we test AI writing tools →</a>
-      </div>
-    </div>
-    <div class="hero-side">
-      <div class="carousel" id="heroCarousel">
-        <div class="carousel-track">
-          <!-- Slide 1: Human vs AI -->
-          <div class="carousel-slide active">
-            <div class="slide-content sc-compare">
-              <div class="sc-col sc-good">
-                <span class="sc-label">✓ Human-like</span>
-                <p class="sc-text">"The report needs more analysis on Q3 margins."</p>
-              </div>
-              <div class="sc-col sc-bad">
-                <span class="sc-label">✗ AI-smell</span>
-                <p class="sc-text">"In conclusion, it is important to note that..."</p>
-              </div>
-            </div>
-          </div>
-          <!-- Slide 2: The one question -->
-          <div class="carousel-slide">
-            <div class="slide-content sc-metric">
-              <span class="sc-q">One question</span>
-              <span class="sc-a">Overwhelmed by all the<br>AI writing tools out there?</span>
-              <p class="sc-foot">That's why this site exists</p>
-            </div>
-          </div>
-        </div>
-        <div class="carousel-dots">
-          <button class="dot active" data-i="0"></button>
-          <button class="dot" data-i="1"></button>
-        </div>
-      </div>
+  <div class="wrap hero-center">
+    <span class="eyebrow"><span class="pulse"></span> Real-tested, not another "top 50" list</span>
+    <h1 class="anim-hero-words">The <span class="grad">AI copywriting tools</span> we tested ourselves &mdash; and the ones that sound human</h1>
+    <p class="sub anim-hero-words-light">We help office workers and freelancers find AI copywriting tools that genuinely boost their productivity. We test and compare the best AI writing assistants so you can stop guessing and get on with the work. Every review comes from real hands-on use: what each tool does well, where it falls short, and whether it's actually worth your time. Whether you're writing emails, reports, or marketing copy, we cut through the hype and show you only what delivers. With so many AI tools out there, it's easy to feel overwhelmed and unsure which one to pick.</p>
+    <p class="companion-note">That's where this site comes in.</p>
+    <div class="hero-actions center">
+      <a class="btn-primary" href="blog/how-we-avoid-ai-hallucinations.html">See how we test AI writing tools &rarr;</a>
     </div>
   </div>
 </section>
@@ -209,25 +179,5 @@
 </div>
 </div></footer>
 
-<script>
-/* ---- Carousel (entrance + scroll reveals handled by js/animations.js) ---- */
-(function(){
-  var c=document.getElementById('heroCarousel');
-  if(!c)return;
-  var slides=c.querySelectorAll('.carousel-slide');
-  var dots=c.querySelectorAll('.carousel-dots .dot');
-  var cur=0,total=slides.length,timer;
-  function go(i){
-    slides[cur].classList.remove('active');
-    dots[cur].classList.remove('active');
-    cur=(i+total)%total;
-    slides[cur].classList.add('active');
-    dots[cur].classList.add('active');
-  }
-  dots.forEach(function(d){d.addEventListener('click',function(){go(+this.dataset.i);reset()})});
-  function reset(){clearInterval(timer);timer=setInterval(function(){go(cur+1)},4500)}
-  reset();
-})();
-</script>
 </body>
 </html>
