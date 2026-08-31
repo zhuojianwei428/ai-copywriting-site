@@ -242,7 +242,8 @@ document.addEventListener('click', function(e) {
 // ====== 文件加载 ======
 async function loadFromServer() {
   try {
-    const resp = await fetch('../articles.json');
+    // admin 在 /admin/95-09-15/，需回两级到根目录找 articles.json
+    const resp = await fetch('../../articles.json');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     appData = await resp.json();
     if (!appData.articles) appData.articles = [];
