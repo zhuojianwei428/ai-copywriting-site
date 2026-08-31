@@ -216,7 +216,7 @@ def build_head(p, title, desc):
         HEAD_START + "\n"
         + '<link rel="preconnect" href="https://fonts.googleapis.com" />\n'
         + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\n'
-        + '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..900&display=swap" />\n'
+        + '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" />\n'
         + '<link rel="icon" type="image/svg+xml" href="%sfavicon.svg" />\n' % depth_prefix(p)
         + '<link rel="canonical" href="%s" />\n' % url
         + '<meta name="robots" content="%s" />\n' % ("noindex,follow" if (HIDE_TOOLS and (p == "tools.html" or p.startswith("tools/"))) else "index,follow")
