@@ -394,7 +394,9 @@ function updatePreview() {
       <div class="pc-date">${date}</div>
     </div>
   </div>`;
-  body.innerHTML = `<div class="preview-content">${(currentItem.content || '<p style="color:var(--text3)">（正文为空）</p>')}</div>`;
+  // Escaped so article body (which may contain raw HTML/markup typed by the owner)
+  // renders as text in the preview instead of being parsed & executed (self-XSS guard).
+  body.innerHTML = `<div class="preview-content">${esc(currentItem.content || '<p style="color:var(--text3)">（正文为空）</p>')}</div>`;
 }
 
 function onFieldChange(key, ta) {
