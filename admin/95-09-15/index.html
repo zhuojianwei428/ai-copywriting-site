@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CopyTools Admin, 文章管理</title>
+<title>CopyTools Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400..700&family=Inter:wght@400..900&display=swap" />
@@ -379,7 +379,7 @@ function renderEditor() {
       html += `<div class="${cls}"><div class="img-upload-wrap">`;
       html += `<input type="file" id="field_${f.key}_file" accept="image/*" onchange="onImageSelected(this)" />`;
       if (pv) html += `<div class="img-preview"><img src="${esc(pv)}" alt="cover" /></div>`;
-      html += `<input type="text" id="field_${f.key}" value="${esc(val)}" placeholder="上传后自动生成 URL" oninput="onFieldChange('${f.key}',this)" />`;
+      html += `<input type="text" id="field_${f.key}" value="${esc(val)}" placeholder="URL generated on publish" oninput="onFieldChange('${f.key}',this)" />`;
       html += `</div></div>`;
     } else {
       html += `<div class="${cls}"><input type="text" id="field_${f.key}" value="${esc(val)}" placeholder="${esc(f.label)}" oninput="onFieldChange('${f.key}',this)" /></div>`;
@@ -704,7 +704,7 @@ async function uploadImageToGitHub(s, img) {
   const getRes = await fetch(`https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(s.branch)}`, { headers: ghHeaders(s.token) });
   let sha = null;
   if (getRes.ok) sha = (await getRes.json()).sha || null;
-  else if (getRes.status !== 404) throw new Error('读取图片失败：' + getRes.status);
+  else if (getRes.status !== 404) throw new Error('Failed to read image: ' + getRes.status);
   const putRes = await fetch(`https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent(path)}`, {
     method: 'PUT',
     headers: ghHeaders(s.token, { 'Content-Type': 'application/json' }),
@@ -746,7 +746,7 @@ async function publishToGitHub(){
     const putRes = await fetch(`https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent('articles.json')}`, {
       method:'PUT',
       headers: ghHeaders(s.token, { 'Content-Type':'application/json' }),
-      body: JSON.stringify({ message:'[admin] 更新 articles.json', content: content, sha: sha, branch: s.branch })
+      body: JSON.stringify({ message:'[admin] update articles.json', content: content, sha: sha, branch: s.branch })
     });
     if(!putRes.ok){ const err = await putRes.json().catch(()=>({})); toast('Publish failed: '+(err.message||putRes.status),'err'); return; }
     updateStatus('Committed, Vercel is redeploying…');
