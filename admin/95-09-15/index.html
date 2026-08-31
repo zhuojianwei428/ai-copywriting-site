@@ -92,6 +92,11 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
 /* Meta row (title/slug/date etc) */
 .meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .meta-grid .full { grid-column:1/-1; }
+.img-upload-wrap { display:flex; flex-direction:column; gap:8px; }
+.img-upload-wrap input[type=file] { font-size:13px; color:var(--text2); padding:8px; border:1px dashed var(--border2); border-radius:var(--radius-sm); background:var(--bg); cursor:pointer; }
+.img-upload-wrap input[type=file]:hover { border-color:var(--accent); }
+.img-preview { max-width:280px; border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; background:var(--bg3); }
+.img-preview img { display:block; width:100%; height:auto; }
 
 /* Toolbar for content areas */
 .toolbar { display:flex; gap:5px; margin-bottom:8px; flex-wrap:wrap; }
@@ -207,6 +212,7 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
 let appData = null;
 let currentItem = null;
 let currentIdx = -1;
+let pendingImages = {}; // currentIdx -> { filename, base64, dataUrl }
 
 // ====== 结构化栏目定义 ======
 const META_FIELDS = [
@@ -214,7 +220,7 @@ const META_FIELDS = [
   { key:'subtitle', label:'副标题 / 摘要', hint:'文章卡片上显示的简短描述', full:true },
   { key:'slug', label:'URL 别名', hint:'URL 友好名称，如 best-free-ai-copywriting-tools' },
   { key:'date', label:'发布日期', hint:'格式：YYYY-MM-DD' },
-  { key:'image', label:'封面图 URL', hint:'封面图完整地址（建议 1200x630）' },
+  { key:'image', label:'封面图', hint:'支持本地上传：选图后发布时自动传到网站并生成 URL（建议 1200×630）', isImage:true },
   { key:'category', label:'分类', hint:'', isSelect:true,
     options:[{v:'',t:'— 选择分类 —'},{v:'office-workers',t:'Office workers'},{v:'content-creators',t:'Content creators'}] },
 ];
@@ -349,6 +355,13 @@ function renderEditor() {
       html += `<div class="${cls}"><select id="field_${f.key}" onchange="onFieldChange('${f.key}',this)">`;
       f.options.forEach(o => html += `<option value="${o.v}"${val===o.v?' selected':''}>${o.t}</option>`);
       html += `</select></div>`;
+    } else if (f.isImage) {
+      const pv = (pendingImages[currentIdx] && pendingImages[currentIdx].dataUrl) ? pendingImages[currentIdx].dataUrl : val;
+      html += `<div class="${cls}"><div class="img-upload-wrap">`;
+      html += `<input type="file" id="field_${f.key}_file" accept="image/*" onchange="onImageSelected(this)" />`;
+      if (pv) html += `<div class="img-preview"><img src="${esc(pv)}" alt="cover" /></div>`;
+      html += `<input type="text" id="field_${f.key}" value="${esc(val)}" placeholder="上传后自动生成 URL" oninput="onFieldChange('${f.key}',this)" />`;
+      html += `</div></div>`;
     } else {
       html += `<div class="${cls}"><input type="text" id="field_${f.key}" value="${esc(val)}" placeholder="${esc(f.label)}" oninput="onFieldChange('${f.key}',this)" /></div>`;
     }
@@ -544,12 +557,57 @@ async function loadFromGitHub(){
     toast('已从 GitHub 加载','ok');
   }catch(e){ toast('加载出错：'+e.message,'err'); updateStatus('未加载数据'); }
 }
+// ====== 封面图：本地选图 + 发布时上传到 GitHub ======
+function onImageSelected(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { toast('请选择图片文件', 'err'); return; }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    const base64 = dataUrl.split(',')[1];
+    const ext = (file.name.split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '') || 'png';
+    const slug = (currentItem.slug || ('article-' + Date.now().toString(36))).replace(/[^a-z0-9-]/gi, '');
+    const filename = `${slug}-cover.${ext}`;
+    pendingImages[currentIdx] = { filename, base64, dataUrl };
+    const url = `https://aiwritereview.com/images/${filename}`;
+    currentItem.image = url;
+    const inp = document.getElementById('field_image');
+    if (inp) inp.value = url;
+    renderEditor();
+    toast('封面图已就绪，点发布即可上传', 'ok');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function uploadImageToGitHub(s, img) {
+  const path = `images/${img.filename}`;
+  const getRes = await fetch(`https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(s.branch)}`, { headers: ghHeaders(s.token) });
+  let sha = null;
+  if (getRes.ok) sha = (await getRes.json()).sha || null;
+  else if (getRes.status !== 404) throw new Error('读取图片失败：' + getRes.status);
+  const putRes = await fetch(`https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent(path)}`, {
+    method: 'PUT',
+    headers: ghHeaders(s.token, { 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ message: `[admin] 上传封面图 ${img.filename}`, content: img.base64, sha: sha, branch: s.branch })
+  });
+  if (!putRes.ok) { const err = await putRes.json().catch(() => ({})); throw new Error('图片上传失败：' + (err.message || putRes.status)); }
+}
+
 async function publishToGitHub(){
   const s = ghSettings();
   if(!s.token || !s.repo){ toast('请先设置 GitHub 信息','err'); openSettings(); return; }
   if(!appData){ toast('没有数据','err'); return; }
   try{
     updateStatus('正在提交到 GitHub…');
+    // 1. 先上传待发布的封面图
+    const imgs = Object.values(pendingImages);
+    for (const img of imgs) {
+      updateStatus('正在上传封面图 ' + img.filename + ' …');
+      try { await uploadImageToGitHub(s, img); }
+      catch (err) { toast(err.message, 'err'); updateStatus('图片上传失败'); return; }
+    }
+    // 2. 再提交 articles.json
     const getRes = await fetch(`https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent('articles.json')}?ref=${encodeURIComponent(s.branch)}`, { headers: ghHeaders(s.token) });
     let sha = null;
     if(getRes.ok) sha = (await getRes.json()).sha || null;
@@ -562,6 +620,7 @@ async function publishToGitHub(){
     });
     if(!putRes.ok){ const err = await putRes.json().catch(()=>({})); toast('发布失败：'+(err.message||putRes.status),'err'); return; }
     updateStatus('已提交，Vercel 正在重新部署…');
+    pendingImages = {};
     toast('已发布！约 1 分钟内更新','ok');
   }catch(e){ toast('发布出错：'+e.message,'err'); }
 }
