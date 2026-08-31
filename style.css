@@ -503,6 +503,16 @@ a.tagchip:hover { border-color: var(--accent); color: var(--accent); }
 .breadcrumb a:hover { color: var(--accent); }
 .prose { max-width: var(--maxw); }
 .prose h2 { font-size: 27px; letter-spacing: -0.02em; margin: 40px 0 14px; font-weight: 800; }
+/* 结构化文章栏目标题 */
+.prose .article-section-head {
+  font-size: 20px;
+  margin: 32px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--accent);
+  display: inline-block;
+  font-weight: 700;
+  color: var(--text);
+}
 .prose h3 { font-size: 21px; margin: 28px 0 10px; font-weight: 750; }
 .prose p { color: var(--text-dim); margin: 12px 0; }
 .prose ul { color: var(--text-dim); margin: 12px 0 12px 22px; }

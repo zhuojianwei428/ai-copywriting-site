@@ -105,18 +105,65 @@ def load_articles():
         return json.load(f).get("articles", [])
 
 
+# 结构化栏目定义（与 admin 后台一致）
+BODY_SECTIONS = [
+    ("verdict", "✦ 结论"),
+    ("getting_started", "① 如何入门"),
+    ("pricing", "💰 费用"),
+    ("comparison", "⚖ 与其他工具的比较"),
+    ("best_tools", "🎯 适合哪些工具"),
+    ("scenarios", "📋 适合什么样的场景"),
+]
+
+
+def render_article_body(art):
+    """将结构化栏目渲染为 HTML 正文。
+    每个非空栏目输出为 <h2>标题</h2><p>内容</p>，
+    最后追加可选的自由格式 content 字段。
+    """
+    parts = []
+    for key, label in BODY_SECTIONS:
+        text = (art.get(key) or "").strip()
+        if not text:
+            continue
+        # 将换行转为 <p> 段落，保留基本 HTML 标签
+        paragraphs = text.split("\n")
+        body_html = ""
+        for para in paragraphs:
+            para = para.strip()
+            if not para:
+                continue
+            # 如果段落本身已经是 HTML 块级标签，原样保留
+            if para.startswith("<") and any(para.startswith(f"<{t}") for t in ["p","h2","h3","ul","ol","div","blockquote"]):
+                body_html += para + "\n"
+            else:
+                body_html += f"<p>{para}</p>\n"
+        parts.append(f'<h2 class="article-section-head">{label}</h2>\n{body_html}')
+
+    # 可选的自由补充内容
+    extra = (art.get("content") or "").strip()
+    if extra:
+        parts.append('<h2 class="article-section-head">✏ 补充内容</h2>\n' + extra)
+
+    if not parts:
+        return "<p>[Content pending]</p>"
+    return "\n".join(parts)
+
+
 def generate_detail(art, idx):
     """生成单篇文章详情页 HTML"""
     slug = art.get("slug", f"article-{idx}")
     title = art.get("title", "[Untitled]")
     excerpt = art.get("subtitle", "")
-    content = art.get("content", "<p>[Content pending]</p>")
     date = art.get("date", "")
     image = art.get("image", f"{SITE_URL}/ai-copywriting-tools-og.png")
 
     url = f"{SITE_URL}/blog/articles/{slug}.html"
     rel = f"blog/articles/{slug}.html"
     pfx = prefix(rel)
+
+    # 用结构化渲染替代旧的单一 content 字段
+    content = render_article_body(art)
 
     html = PAGE_SHELL_HEAD.format(
         title=title,
