@@ -229,6 +229,9 @@ def build_head(p, title, desc):
         + '<meta name="twitter:title" content="%s" />\n' % title
         + '<meta name="twitter:description" content="%s" />\n' % desc
         + build_jsonld(p)
+        + '<script defer src="%sjs/gsap.min.js"></script>\n' % depth_prefix(p)
+        + '<script defer src="%sjs/ScrollTrigger.min.js"></script>\n' % depth_prefix(p)
+        + '<script defer src="%sjs/animations.js"></script>\n' % depth_prefix(p)
         + HEAD_END + "\n"
     )
 

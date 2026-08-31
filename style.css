@@ -88,28 +88,7 @@ img { max-width: 100%; display: block; }
 .hero-copy { position: relative; display: flex; flex-direction: column; align-items: flex-start; }
 .hero-side { position: relative; }
 
-/* ---------- Two-stage entrance: title first, then body ---------- */
-.anim-hero-words {
-  opacity: 0;
-  transform: translate3d(0, 16px, 0);
-  animation: slideUp 0.52s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: 0.08s;
-}
-.anim-hero-words-light,
-.hero-copy .companion-note,
-.hero-copy .hero-actions {
-  opacity: 0;
-  transform: translate3d(0, 14px, 0);
-  animation: slideUp 0.56s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: 0.62s;
-}
-@keyframes slideUp { to { opacity: 1; transform: translate3d(0, 0, 0); } }
-.no-motion,
-.no-motion span { opacity: 1 !important; transform: none !important; animation: none !important; }
-html:not(.js) .anim-hero-words,
-html:not(.js) .anim-hero-words-light,
-html:not(.js) .hero-copy .companion-note,
-html:not(.js) .hero-copy .hero-actions { opacity: 1 !important; transform: none !important; animation: none !important; }
+/* ---------- Hero entrance handled by js/animations.js (GSAP) ---------- */
 
 /* ---------- Hero Carousel ---------- */
 .showcase { padding: 4px 0 clamp(28px, 4vw, 48px); }
@@ -438,5 +417,4 @@ a.tagchip:hover { border-color: var(--accent); color: var(--accent); }
 /* ---------- Reduced motion: honor user preference ---------- */
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-  .anim-hero-words, .anim-hero-words-light, .hero-copy .companion-note, .hero-copy .hero-actions { opacity: 1 !important; transform: none !important; }
 }

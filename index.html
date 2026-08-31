@@ -24,7 +24,11 @@
 <meta name="twitter:title" content="AI Copywriting Tools That Sound Human | CopyTools" />
 <meta name="twitter:description" content="Writers' real problem with AI copywriting tools: the output reads like a robot. We tested 11 tools on real writing tasks to find the ones that sound human." />
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "CopyTools", "url": "https://aiwritereview.com/", "description": "Real-tested AI copywriting tool reviews, graded on one thing: does the output sound human?"}</script>
+<script defer src="js/gsap.min.js"></script>
+<script defer src="js/ScrollTrigger.min.js"></script>
+<script defer src="js/animations.js"></script>
 <!--SEO:END-->
+
 
 
 
@@ -205,22 +209,7 @@
 </div></footer>
 
 <script>
-/* ---- Two-stage entrance: title block first, then body block (reduced-motion safe) ---- */
-(function(){
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) {
-    document.querySelectorAll('.anim-hero-words,.anim-hero-words-light,.hero-copy .companion-note,.hero-copy .hero-actions')
-      .forEach(function(el){ el.classList.add('no-motion'); });
-    return;
-  }
-  /* Fallback: force visible after 1.8s (longer than the 1.18s animation) */
-  setTimeout(function(){
-    document.querySelectorAll('.anim-hero-words,.anim-hero-words-light,.hero-copy .companion-note,.hero-copy .hero-actions')
-      .forEach(function(el){ el.classList.add('no-motion'); });
-  }, 1800);
-})();
-
-/* ---- Carousel ---- */
+/* ---- Carousel (entrance + scroll reveals handled by js/animations.js) ---- */
 (function(){
   var c=document.getElementById('heroCarousel');
   if(!c)return;
