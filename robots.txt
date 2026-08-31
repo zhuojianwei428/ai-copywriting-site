@@ -1,4 +1,5 @@
 User-agent: *
-Allow: /
+Disallow: /tools.html
+Disallow: /tools/
 
 Sitemap: https://aiwritereview.com/sitemap.xml

@@ -14,6 +14,7 @@
 import os
 import re
 import glob
+from _config import HIDE_TOOLS
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 MARK_START = "<!--RELATED:START-->"
@@ -120,17 +121,17 @@ def build(rel):
         slug = os.path.splitext(os.path.basename(norm))[0]
         if slug not in TOOL_PEERS:
             return ""
-        peers = "".join(tool_card(h, s) for s in TOOL_PEERS[slug])
-        parts.append(block("Compare with these tools", peers, h))
-
+        # HIDE_TOOLS: 工具页之间的互链 + 回 tools.html 的入口一并隐藏
+        if not HIDE_TOOLS:
+            peers = "".join(tool_card(h, s) for s in TOOL_PEERS[slug])
+            parts.append(block("Compare with these tools", peers, h))
+            cta = (
+                '<a class="btn-primary" href="{h}tools.html">All 11 tested tools &rarr;</a>'
+            ).format(h=h)
+            parts.append(block("Still deciding?", "", h, cta=cta).replace(
+                '<div class="tools" style="margin-top:24px">\n</div>\n', ""))
         auds = "".join(audience_card(h, s) for s in TOOL_AUDIENCES[slug])
         parts.append(block("Who it's best for", auds, h))
-
-        cta = (
-            '<a class="btn-primary" href="{h}tools.html">All 11 tested tools &rarr;</a>'
-        ).format(h=h)
-        parts.append(block("Still deciding?", "", h, cta=cta).replace(
-            '<div class="tools" style="margin-top:24px">\n</div>\n', ""))
 
     elif norm.startswith("for-") and norm.endswith(".html"):
         slug = os.path.splitext(os.path.basename(norm))[0]
@@ -138,17 +139,20 @@ def build(rel):
             audience_card(h, s) for s in AUDIENCE if s != slug
         )
         parts.append(block("Other audiences", others, h))
-
-        picks = "".join(tool_card(h, s) for s in ["claude", "chatgpt", "copyai", "hemingway"])
-        parts.append(block("Dive into a single tool", picks, h))
+        # HIDE_TOOLS: 不引导到工具详情页
+        if not HIDE_TOOLS:
+            picks = "".join(tool_card(h, s) for s in ["claude", "chatgpt", "copyai", "hemingway"])
+            parts.append(block("Dive into a single tool", picks, h))
 
     elif norm == "tools.html":
         auds = "".join(audience_card(h, s) for s in AUDIENCE)
         parts.append(block("Not sure where to start? Pick AI copywriting tools that fit how you work", auds, h))
 
     elif norm.startswith("blog/"):
-        picks = "".join(tool_card(h, s) for s in ["claude", "chatgpt", "hemingway", "copyai"])
-        parts.append(block("The tools we tested", picks, h))
+        # HIDE_TOOLS: 博客页不再展示指向 tools/ 的工具网格
+        if not HIDE_TOOLS:
+            picks = "".join(tool_card(h, s) for s in ["claude", "chatgpt", "hemingway", "copyai"])
+            parts.append(block("The tools we tested", picks, h))
         auds = "".join(audience_card(h, s) for s in AUDIENCE)
         parts.append(block("Pick by audience", auds, h))
 

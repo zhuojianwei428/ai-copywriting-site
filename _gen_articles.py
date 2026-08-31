@@ -10,6 +10,7 @@ import os
 import json
 import glob
 import re
+from _config import HIDE_TOOLS
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 SITE_URL = "https://aiwritereview.com"
@@ -90,6 +91,9 @@ PAGE_SHELL_HEAD = """<!DOCTYPE html>
 
 </body>
 </html>"""
+
+if HIDE_TOOLS:
+    PAGE_SHELL_HEAD = PAGE_SHELL_HEAD.replace('<a href="{prefix}tools.html">AI copywriting tools</a>', '')
 
 
 def prefix(rel):

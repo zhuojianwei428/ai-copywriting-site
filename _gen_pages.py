@@ -2,6 +2,7 @@
 # 生成站1兄弟词内页（承接主词 ai copywriting tools）
 # 每个页面对应一个"人群x场景"目录，符合用户要求：按人群分、清晰、痛点钩子
 import os
+from _config import HIDE_TOOLS
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 
@@ -75,7 +76,7 @@ TPL = """<!DOCTYPE html>
 <header class="nav"><div class="wrap nav-inner">
 <a class="logo" href="index.html"><span class="dot"></span>CopyTools<small>&nbsp;Real-Tested AI Writing</small></a>
 <nav class="nav-links"><a href="index.html">Home</a><a href="tools.html">AI copywriting tools</a><a href="for-office-workers.html"{NAV_OFFICE}>Office workers</a><a href="for-content-creators.html"{NAV_CONTENT}>Content creators</a><a href="blog/how-we-avoid-ai-hallucinations.html">Blog</a></nav>
-<a class="nav-cta" href="tools.html">See the picks →</a>
+<a class="nav-cta" href="blog/how-we-avoid-ai-hallucinations.html">View all blog posts →</a>
 </div></header>
 
 <section class="page-head"><div class="wrap">
@@ -98,6 +99,10 @@ TPL = """<!DOCTYPE html>
 </html>
 """
 
+if HIDE_TOOLS:
+    TPL = TPL.replace('<a href="index.html">Home</a><a href="tools.html">AI copywriting tools</a>', '<a href="index.html">Home</a>')
+    TPL = TPL.replace('<a href="index.html">Home</a> · <a href="tools.html">AI copywriting tools</a> · <a href="index.html#method">Method</a>', '<a href="index.html">Home</a> · <a href="index.html#method">Method</a>')
+
 for fname, d in PAGES.items():
     cards = ""
     for name, sc, label, desc, tags in d["tools"]:
@@ -117,8 +122,8 @@ for fname, d in PAGES.items():
 <p>{d["intro"]}</p>
 </div>''' if d.get("intro") else ""
 
-    # Build tool section only if tools exist
-    if d["tools"]:
+    # Build tool section only if tools exist AND not hidden
+    if d["tools"] and not HIDE_TOOLS:
         tool_section = f'''<div class="tools" style="margin-top:28px">
 {cards}
 </div>
@@ -128,7 +133,7 @@ for fname, d in PAGES.items():
 </div>
 <p style="color:var(--text-faint);font-size:14px;margin-top:26px">Back to <a href="index.html" style="color:var(--accent)">all tested tools &rarr;</a></p>'''
     else:
-        tool_section = '<h2 class="sec-title" style="margin-top:8px">More AI copywriting tools by audience</h2><p style="color:var(--text-faint);font-size:14px;margin-top:14px">Back to <a href="index.html" style="color:var(--accent)">all tested AI copywriting tools &rarr;</a></p>'
+        tool_section = ''
 
     # Nav active state: highlight the current page link
     nav_office = ' class="active"' if fname == "for-office-workers.html" else ""

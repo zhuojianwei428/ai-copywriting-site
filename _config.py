@@ -15,3 +15,12 @@ LEGAL_UPDATED = "August 30, 2026"
 
 # 法务页里写死的年份，版权用
 LEGAL_YEAR = "2026"
+
+# ★★★ 临时隐藏 "AI copywriting tools" 目录（tools.html + tools/ 11 个工具页） ★★★
+#   True  = 从导航/页脚/首页/博客移除所有 tools 入口，robots.txt 屏蔽，sitemap 排除，
+#           工具页加 noindex，首页 JSON-LD 不再列出工具。文件不删，URL 仍可访问。
+#   False = 全部恢复公开。
+#   放开时：把这里改成 False，然后跑一次 python _build.py 即可全站恢复。
+#   注意：index.html 的 hero 按钮、blog/how-we-avoid 页的工具网格是两处手写改动，
+#         放开时还需手动还原这两处（见项目 memory 记录）。
+HIDE_TOOLS = True

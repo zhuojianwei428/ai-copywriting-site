@@ -9,6 +9,7 @@ SITE_URL = "https://aiwritereview.com"
 # ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 # 站点名和联系邮箱在 _config.py 里改（页脚、法务页、结构化数据共用）
 from _config import SITE_NAME
+from _config import HIDE_TOOLS
 # ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 
 import os, re, glob, json, time
@@ -52,16 +53,17 @@ def build_jsonld(p):
             "name": SITE_NAME, "url": root + "/",
             "description": "Real-tested AI copywriting tool reviews, graded on one thing: does the output sound human?",
         })
-        blocks.append({
-            "@context": "https://schema.org", "@type": "ItemList",
-            "name": "Tested AI copywriting tools",
-            "numberOfItems": len(TOOL_SLUGS),
-            "itemListElement": [
-                {"@type": "ListItem", "position": i,
-                 "name": nm, "url": "%s/tools/%s" % (root, slug)}
-                for i, (slug, nm) in enumerate(TOOL_SLUGS, start=1)
-            ],
-        })
+        if not HIDE_TOOLS:
+            blocks.append({
+                "@context": "https://schema.org", "@type": "ItemList",
+                "name": "Tested AI copywriting tools",
+                "numberOfItems": len(TOOL_SLUGS),
+                "itemListElement": [
+                    {"@type": "ListItem", "position": i,
+                     "name": nm, "url": "%s/tools/%s" % (root, slug)}
+                    for i, (slug, nm) in enumerate(TOOL_SLUGS, start=1)
+                ],
+            })
 
     elif p.startswith("tools/") and p != "tools.html":
         slug = os.path.basename(p)
@@ -143,23 +145,35 @@ def page_url(p):
     return "%s/%s" % (SITE_URL.rstrip("/"), p)
 
 
-NAV_TPL = """<header class="nav"><div class="wrap nav-inner">
+NAV_HEAD = """<header class="nav"><div class="wrap nav-inner">
 <a class="logo" href="{p}index.html"><span class="dot"></span>{SITE}<small>&nbsp;Real-Tested AI Writing</small></a>
 <nav class="nav-links">
-<a href="{p}index.html"{ah}>Home</a>
-<a href="{p}tools.html"{at}>AI copywriting tools</a>
-<a href="{p}for-office-workers.html"{ao}>Office workers</a>
-<a href="{p}for-content-creators.html"{ac}>Content creators</a>
-<a href="{p}blog/how-we-avoid-ai-hallucinations.html"{ab}>Blog</a>
+{links}
 </nav>
-<a class="nav-cta" href="{p}tools.html">See the picks →</a>
+{cta}
 </div></header>"""
+
+
+def build_nav(p, ah, at, ao, ac, ab):
+    """导航栏。HIDE_TOOLS=True 时移除 'AI copywriting tools' 入口。
+    CTA 固定指向 Blog（与首页一致，tools 隐藏后不再引导到工具页）。"""
+    links = ['<a href="{p}index.html"{ah}>Home</a>'.format(p=p, ah=ah)]
+    if not HIDE_TOOLS:
+        links.append('<a href="{p}tools.html"{at}>AI copywriting tools</a>'.format(p=p, at=at))
+    links += [
+        '<a href="{p}for-office-workers.html"{ao}>Office workers</a>'.format(p=p, ao=ao),
+        '<a href="{p}for-content-creators.html"{ac}>Content creators</a>'.format(p=p, ac=ac),
+        '<a href="{p}blog/how-we-avoid-ai-hallucinations.html"{ab}>Blog</a>'.format(p=p, ab=ab),
+    ]
+    cta = '<a class="nav-cta" href="{p}blog/how-we-avoid-ai-hallucinations.html">View all blog posts →</a>'.format(p=p)
+    return NAV_HEAD.format(p=p, SITE=SITE_NAME, links="\n".join(links), cta=cta)
+
 
 FOOTER_TPL = """<footer class="footer"><div class="wrap">
 <div>© 2026 {SITE} &mdash; real-tested reviews of AI copywriting tools.</div>
 <div class="footer-links">
 <a href="{p}index.html">Home</a>
-<a href="{p}tools.html">AI copywriting tools</a>
+{links}
 <a href="{p}for-office-workers.html">Office workers</a>
 <a href="{p}for-content-creators.html">Content creators</a>
 <a href="{p}blog/how-we-avoid-ai-hallucinations.html">Blog</a>
@@ -170,6 +184,14 @@ FOOTER_TPL = """<footer class="footer"><div class="wrap">
 <a href="{p}contact.html">Contact</a>
 </div>
 </div></footer>"""
+
+
+def build_footer(p):
+    """页脚。HIDE_TOOLS=True 时移除 'AI copywriting tools' 入口链接。"""
+    links = ""
+    if not HIDE_TOOLS:
+        links = '<a href="{p}tools.html">AI copywriting tools</a>\n'.format(p=p)
+    return FOOTER_TPL.format(p=p, SITE=SITE_NAME, links=links)
 
 HEAD_START = "<!--SEO:START-->"
 HEAD_END = "<!--SEO:END-->"
@@ -197,7 +219,7 @@ def build_head(p, title, desc):
         + '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..900&display=swap" />\n'
         + '<link rel="icon" type="image/svg+xml" href="%sfavicon.svg" />\n' % depth_prefix(p)
         + '<link rel="canonical" href="%s" />\n' % url
-        + '<meta name="robots" content="index,follow" />\n'
+        + '<meta name="robots" content="%s" />\n' % ("noindex,follow" if (HIDE_TOOLS and (p == "tools.html" or p.startswith("tools/"))) else "index,follow")
         + '<meta property="og:type" content="%s" />\n' % ogtype
         + '<meta property="og:site_name" content="%s" />\n' % SITE_NAME
         + '<meta property="og:title" content="%s" />\n' % title
@@ -244,7 +266,7 @@ for p in pages:
     ab = ' class="active"' if p.startswith("blog/") else ""
     src = re.sub(
         r"<header class=\"nav\">.*?</header>",
-        lambda m: NAV_TPL.format(p=prefix, SITE=SITE_NAME, ah=ah, at=at, ao=ao, ac=ac, ab=ab),
+        lambda m: build_nav(prefix, ah, at, ao, ac, ab),
         src, count=1, flags=re.S)
     # 博客聚合页不需要 CTA 按钮
     if "how-we-avoid-ai-hallucinations" in p:
@@ -253,7 +275,7 @@ for p in pages:
     # 4. 统一页脚
     src = re.sub(
         r"<footer class=\"footer\">.*?</footer>",
-        lambda m: FOOTER_TPL.format(p=prefix, SITE=SITE_NAME),
+        lambda m: build_footer(prefix),
         src, count=1, flags=re.S)
 
     # 5. 面包屑里指向首页 #tools 的链接改成真实页面
@@ -269,6 +291,8 @@ LAST_MODIFIED = os.environ.get("SITEMAP_LASTMOD") or time.strftime("%Y-%m-%d")
 
 urls = []
 for p in pages:
+    if HIDE_TOOLS and (p == "tools.html" or p.startswith("tools/")):
+        continue
     if p == "index.html":
         loc, pri = SITE_URL.rstrip("/") + "/", "1.0"
     elif p == "tools.html":
@@ -288,7 +312,14 @@ sitemap = ('<?xml version="1.0" encoding="UTF-8"?>\n'
 open("sitemap.xml", "w", encoding="utf-8", newline="\n").write(sitemap)
 
 # ---------- robots.txt ----------
-robots = ("User-agent: *\nAllow: /\n\nSitemap: %s/sitemap.xml\n" % SITE_URL.rstrip("/"))
+if HIDE_TOOLS:
+    robots = ("User-agent: *\n"
+              "Disallow: /tools.html\n"
+              "Disallow: /tools/\n"
+              "\n"
+              "Sitemap: %s/sitemap.xml\n" % SITE_URL.rstrip("/"))
+else:
+    robots = ("User-agent: *\nAllow: /\n\nSitemap: %s/sitemap.xml\n" % SITE_URL.rstrip("/"))
 open("robots.txt", "w", encoding="utf-8", newline="\n").write(robots)
 
 print("页面处理: %d / 改写: %d" % (len(pages), len(changed)))
