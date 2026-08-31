@@ -240,6 +240,22 @@ document.addEventListener('click', function(e) {
 });
 
 // ====== 文件加载 ======
+async function loadFromServer() {
+  try {
+    const resp = await fetch('../articles.json');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    appData = await resp.json();
+    if (!appData.articles) appData.articles = [];
+    renderList();
+    selectItem(appData.articles.length > 0 ? 0 : -1);
+    updateStatus(`已加载 ${appData.articles.length} 篇文章`);
+  } catch(err) {
+    // 离线或本地预览：提示手动加载
+    updateStatus('未连接，请手动加载 JSON');
+    console.warn('自动加载失败:', err.message);
+  }
+}
+
 function loadFromFile() {
   const input = document.createElement('input');
   input.type = 'file'; input.accept = '.json';
@@ -560,6 +576,9 @@ function toast(msg, type='info'){
 
 // ====== 快捷键 ======
 document.addEventListener('keydown', (e) => { if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();downloadJSON()} });
+
+// 页面打开自动加载 articles.json
+loadFromServer();
 </script>
 </body>
 </html>
