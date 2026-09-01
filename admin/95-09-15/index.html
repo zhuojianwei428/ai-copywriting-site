@@ -119,6 +119,11 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
 .content-field h2 { font-size:18px; margin:8px 0 6px; }
 .content-field ul, .content-field ol { padding-left:22px; margin:6px 0; }
 .content-field blockquote { border-left:3px solid var(--accent); padding-left:12px; margin:8px 0; color:var(--text2); }
+/* Safety net: Chrome wraps trailing text in a fresh <div> after an inline
+   contenteditable=false node — force it back to the normal body style so it
+   doesn't shrink / look like a muted comment. Excludes h2/blockquote which
+   keep their own rules (they are not <div> elements). */
+.content-field > div { font-size:14px !important; line-height:1.7 !important; color:var(--text) !important; }
 /* Image placeholder tag (visible in editor before publish) */
 .img-placeholder {
   display:inline-flex !important; align-items:center; gap:4px;
