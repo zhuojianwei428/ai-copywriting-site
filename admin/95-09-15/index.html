@@ -248,7 +248,6 @@ const BODY_SECTIONS = [
   { key:'verdict', icon:'✦', label:'Verdict', hint:'One-line verdict: is this tool/solution good and worth using? Readers see this first.' },
   { key:'getting_started', icon:'①', label:'Real use cases', hint:'Concrete situations people use it for: sample prompts, workflows, before/after examples.' },
   { key:'pricing', icon:'💰', label:'Pricing', hint:'Price details: free tier, paid plans, cheaper or pricier than rivals.' },
-  { key:'best_tools', icon:'🎯', label:'Best tools for this', hint:'List the best-fitting tools and why they fit.' },
 ];
 
 // ====== 菜单开关 ======
@@ -335,7 +334,6 @@ function newArticle() {
     slug: 'article-' + Date.now().toString(36),
     category: '',
     verdict: '', getting_started: '', pricing: '',
-    best_tools: '',
     content: ''
   };
   appData.articles.push(tpl);
