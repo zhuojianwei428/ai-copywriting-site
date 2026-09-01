@@ -104,9 +104,7 @@ BODY_SECTIONS = [
     ("verdict", "Verdict"),
     ("getting_started", "Real Use Cases"),
     ("pricing", "Pricing"),
-    ("comparison", "Comparison with Other Tools"),
     ("best_tools", "Best Tools for This"),
-    ("scenarios", "Best For What Scenarios"),
 ]
 
 

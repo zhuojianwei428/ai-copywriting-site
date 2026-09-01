@@ -248,9 +248,7 @@ const BODY_SECTIONS = [
   { key:'verdict', icon:'✦', label:'Verdict', hint:'One-line verdict: is this tool/solution good and worth using? Readers see this first.' },
   { key:'getting_started', icon:'①', label:'Real use cases', hint:'Concrete situations people use it for: sample prompts, workflows, before/after examples.' },
   { key:'pricing', icon:'💰', label:'Pricing', hint:'Price details: free tier, paid plans, cheaper or pricier than rivals.' },
-  { key:'comparison', icon:'⚖', label:'Comparison with other tools', hint:'Real comparison with mainstream tools (ChatGPT, Jasper, Copy.ai, etc.): strengths and weaknesses.' },
   { key:'best_tools', icon:'🎯', label:'Best tools for this', hint:'List the best-fitting tools and why they fit.' },
-  { key:'scenarios', icon:'📋', label:'Best for what scenarios', hint:'Concrete use cases: product copy, business email, blog SEO, social posts, etc.' },
 ];
 
 // ====== 菜单开关 ======
@@ -337,7 +335,7 @@ function newArticle() {
     slug: 'article-' + Date.now().toString(36),
     category: '',
     verdict: '', getting_started: '', pricing: '',
-    comparison: '', best_tools: '', scenarios: '',
+    best_tools: '',
     content: ''
   };
   appData.articles.push(tpl);
