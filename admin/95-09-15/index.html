@@ -123,7 +123,10 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
    contenteditable=false node — force it back to the normal body style so it
    doesn't shrink / look like a muted comment. Excludes h2/blockquote which
    keep their own rules (they are not <div> elements). */
-.content-field > div { font-size:14px !important; line-height:1.7 !important; color:var(--text) !important; }
+.content-field > div,
+.content-field div:not(.img-placeholder) { font-size:14px !important; line-height:1.7 !important; color:var(--text) !important; }
+/* Crush any inline font-size Chrome injects into auto-wrapped divs */
+.content-field div[style*="font-size"] { font-size:14px !important; }
 /* Image placeholder tag (visible in editor before publish) */
 .img-placeholder {
   display:inline-flex !important; align-items:center; gap:4px;
