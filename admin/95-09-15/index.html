@@ -119,6 +119,16 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
 .content-field h2 { font-size:18px; margin:8px 0 6px; }
 .content-field ul, .content-field ol { padding-left:22px; margin:6px 0; }
 .content-field blockquote { border-left:3px solid var(--accent); padding-left:12px; margin:8px 0; color:var(--text2); }
+/* Image placeholder tag (visible in editor before publish) */
+.img-placeholder {
+  display:inline-flex; align-items:center; gap:4px;
+  background:rgba(45,212,191,.10); border:1px solid rgba(45,212,191,.30);
+  border-radius:6px; padding:2px 8px; margin:2px 0;
+  font-size:12.5px; color:var(--accent); cursor:default;
+  vertical-align:middle; white-space:nowrap; user-select:none;
+}
+.img-placeholder:hover { background:rgba(45,212,191,.18); }
+.img-placeholder .img-ph-icon { font-size:14px; }
 
 /* Preview */
 .preview-toggle { display:flex; align-items:center; gap:10px; margin:20px 0 12px; }
@@ -498,12 +508,14 @@ function insertBodyImage() {
       const arr = pendingBodyImages[currentIdx] || (pendingBodyImages[currentIdx] = []);
       const filename = `${slug}-img${arr.length + 1}.${ext}`;
       arr.push({ filename, base64 });
-      const url = `https://aiwritereview.com/images/${filename}`;
-      // Insert <img> at the current caret position
+      // Insert visible placeholder tag at caret position
       ensureSelection();
-      document.execCommand('insertHTML', false, `<img src="${url}" alt="" />`);
+      const phId = `ph_${Date.now().toString(36)}_${arr.length}`;
+      document.execCommand('insertHTML', false,
+        `<span class="img-placeholder" data-ph-id="${phId}" data-img-file="${esc(filename)}" contenteditable="false">` +
+        `<span class="img-ph-icon">🖼</span> ${esc(file.name)}</span>`);
       onRichInput(fieldKey);
-      toast('Image added, publish to upload', 'ok');
+      toast(`Image "${file.name}" inserted — publish to upload`, 'ok');
     };
     reader.readAsDataURL(file);
   };
@@ -776,7 +788,24 @@ async function publishToGitHub(){
         catch (err) { toast(err.message, 'err'); updateStatus('Image upload failed'); return; }
       }
     }
-    // 2. 再提交 articles.json
+    // 2. 把编辑器里的图片占位标签替换成真实 <img>（已上传的 URL）
+    function resolveImgPh(html) {
+      const d = document.createElement('div'); d.innerHTML = html;
+      d.querySelectorAll('.img-placeholder').forEach(ph => {
+        const f = ph.getAttribute('data-img-file');
+        if (!f) { ph.remove(); return; }
+        const img = document.createElement('img');
+        img.src = 'https://aiwritereview.com/images/' + f;
+        img.alt = ph.textContent.replace(/🖼\s*/,'').trim();
+        img.style.cssText = 'max-width:100%;height:auto;border-radius:6px;margin:6px 0';
+        ph.replaceWith(img);
+      });
+      return d.innerHTML;
+    }
+    BODY_SECTIONS.forEach(sec => { if (currentItem && currentItem[sec.key]) currentItem[sec.key] = resolveImgPh(currentItem[sec.key]); });
+    if (currentItem && currentItem.content) currentItem.content = resolveImgPh(currentItem.content);
+
+    // 3. 再提交 articles.json
     const getRes = await fetch(`https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent('articles.json')}?ref=${encodeURIComponent(s.branch)}`, { headers: ghHeaders(s.token) });
     let sha = null;
     if(getRes.ok) sha = (await getRes.json()).sha || null;
