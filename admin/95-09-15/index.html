@@ -121,13 +121,15 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
 .content-field blockquote { border-left:3px solid var(--accent); padding-left:12px; margin:8px 0; color:var(--text2); }
 /* Image placeholder tag (visible in editor before publish) */
 .img-placeholder {
-  display:inline-flex; align-items:center; gap:4px;
-  background:rgba(45,212,191,.10); border:1px solid rgba(45,212,191,.30);
-  border-radius:6px; padding:2px 8px; margin:2px 0;
-  font-size:12.5px; color:var(--accent); cursor:default;
+  display:inline-flex !important; align-items:center; gap:4px;
+  background:rgba(45,212,191,.10) !important; border:1px solid rgba(45,212,191,.30) !important;
+  border-radius:6px !important; padding:2px 8px !important; margin:2px 0;
+  font-size:12.5px !important; color:#2dd4bf !important; cursor:default !important;
   vertical-align:middle; white-space:nowrap; user-select:none;
+  text-decoration:none !important; line-height:1.6;
+  box-shadow:none !important;
 }
-.img-placeholder:hover { background:rgba(45,212,191,.18); }
+.img-placeholder:hover { background:rgba(45,212,191,.22) !important; }
 .img-placeholder .img-ph-icon { font-size:14px; }
 
 /* Preview */
