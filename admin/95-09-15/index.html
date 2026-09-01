@@ -616,14 +616,19 @@ function onFieldChange(key, el) {
 
 // ====== Slug helpers ======
 // Turn a title into a URL-friendly slug (keeps a-z 0-9 and hyphens only).
+// SEO-tuned: drops English stopwords and limits to the first 8 words.
 function slugify(t) {
   if (!t) return '';
-  return t.toString().toLowerCase().trim()
+  const STOP = new Set(['a','an','the','and','or','but','of','for','to','in','on','at','by','with','from','as','is','are','be','this','that','your','you']);
+  let s = t.toString().toLowerCase().trim()
     .replace(/[^a-z0-9\s-]/g, '')      // drop anything not letter/digit/space/hyphen
     .replace(/[\s_]+/g, '-')            // spaces/underscores -> hyphen
     .replace(/-+/g, '-')                // collapse repeated hyphens
-    .replace(/^-+|-+$/g, '')           // trim leading/trailing hyphens
-    .slice(0, 64);
+    .replace(/^-+|-+$/g, '');           // trim leading/trailing hyphens
+  let words = s.split('-').filter(Boolean);
+  const kept = words.filter(w => !STOP.has(w));
+  if (kept.length) words = kept;        // fallback: keep original if stopwords emptied it
+  return words.slice(0, 8).join('-');
 }
 function autoSlug() {
   if (!currentItem) return;
