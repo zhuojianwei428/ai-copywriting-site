@@ -87,11 +87,50 @@ PAGE_SHELL_HEAD = """<!DOCTYPE html>
 </div>
 </div></footer>
 
+__LIGHTBOX__
+
 </body>
 </html>"""
 
 if HIDE_TOOLS:
     PAGE_SHELL_HEAD = PAGE_SHELL_HEAD.replace('<a href="{prefix}tools.html">AI copywriting tools</a>', '')
+
+# Lightbox markup + script injected right before </body>.
+# Kept as a raw string (no .format braces) and injected via .replace()
+# so the JS curly braces don't break PAGE_SHELL_HEAD.format().
+LIGHTBOX_HTML = """
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true">
+  <span class="lb-close" id="lbClose" title="Close (Esc)">&times;</span>
+  <img id="lbImg" src="" alt="" />
+</div>
+<script>
+(function () {
+  var lb = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lbImg');
+  if (!lb || !lbImg) return;
+  function openLb(src, alt) {
+    lbImg.src = src; lbImg.alt = alt || '';
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLb() {
+    lb.classList.remove('open'); lbImg.src = '';
+    document.body.style.overflow = '';
+  }
+  document.querySelectorAll('.prose img').forEach(function (img) {
+    img.addEventListener('click', function () {
+      openLb(img.currentSrc || img.src, img.alt);
+    });
+  });
+  lb.addEventListener('click', function (e) {
+    if (e.target === lb || e.target.id === 'lbClose') closeLb();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeLb();
+  });
+})();
+</script>
+"""
 
 
 def load_articles():
@@ -175,6 +214,8 @@ def generate_detail(art, idx):
         "publisher": {"@type": "Organization", "name": SITE_NAME},
     }, ensure_ascii=False)
     html = html.replace("__ARTICLE_JSONLD__", jsonld)
+    # Lightbox: click any article image to view it full size
+    html = html.replace("__LIGHTBOX__", LIGHTBOX_HTML)
 
     out_dir = ARTICLE_DIR
     os.makedirs(out_dir, exist_ok=True)
