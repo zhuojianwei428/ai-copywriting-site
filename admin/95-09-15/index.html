@@ -520,9 +520,9 @@ function insertBodyImage() {
       const phId = `ph_${Date.now().toString(36)}_${arr.length}`;
       document.execCommand('insertHTML', false,
         `<span class="img-placeholder" data-ph-id="${phId}" data-img-file="${esc(filename)}" contenteditable="false">` +
-        `<span class="img-ph-icon">🖼</span> ${esc(file.name)}</span>`);
+        `<span class="img-ph-icon">🖼</span> 图片</span>`);
       onRichInput(fieldKey);
-      toast(`Image "${file.name}" inserted — publish to upload`, 'ok');
+      toast(`图片已插入 — 发布时上传`, 'ok');
     };
     reader.readAsDataURL(file);
   };
