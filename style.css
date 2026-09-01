@@ -306,7 +306,15 @@ a.tagchip:hover { border-color: var(--accent); color: var(--accent); }
 .prose p, .prose li, .prose div { font-size: 18px; line-height: 1.85; color: var(--text); margin: 14px 0; }
 .prose ul { color: var(--text); margin: 14px 0 14px 22px; }
 /* Screenshots: centered, rounded, sized to sit naturally beside the 18px body */
-.prose img { display: block; width: 100%; max-width: 720px; height: auto; margin: 28px auto; border-radius: 10px; border: 1px solid var(--border); }
+.prose img { display: block; width: 100%; max-width: 720px; height: auto; margin: 28px auto; border-radius: 10px; border: 1px solid var(--border); cursor: zoom-in; transition: filter .15s ease; }
+.prose img:hover { filter: brightness(0.96); }
+
+/* Lightbox: click any article image to view it full size */
+.lightbox { position: fixed; inset: 0; background: rgba(8,10,14,0.86); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 4vw; cursor: zoom-out; }
+.lightbox.open { display: flex; }
+.lightbox img { max-width: 92vw; max-height: 88vh; width: auto; height: auto; border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,.5); background: #fff; }
+.lightbox .lb-close { position: absolute; top: 18px; right: 22px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.12); color: #fff; font-size: 22px; line-height: 40px; text-align: center; cursor: pointer; user-select: none; }
+.lightbox .lb-close:hover { background: rgba(255,255,255,.24); }
 /* Neutralize the small inline font-size Chrome injects into contenteditable output */
 .prose span[style*="font-size"], .prose font { font-size: inherit !important; color: inherit !important; }
 .prose strong { color: var(--text); font-weight: 700; }
