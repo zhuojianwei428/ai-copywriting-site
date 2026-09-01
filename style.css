@@ -295,17 +295,21 @@ a.tagchip:hover { border-color: var(--accent); color: var(--accent); }
 .page-head p { color: var(--text-dim); margin-top: 14px; max-width: var(--maxw); font-size: 18px; }
 .breadcrumb { font-size: 13px; color: var(--text-faint); margin-bottom: 16px; }
 .breadcrumb a:hover { color: var(--accent); }
-.prose { max-width: var(--maxw); }
+.prose { max-width: 780px; font-size: 18px; }
 .prose h2 { font-size: 27px; letter-spacing: -0.02em; margin: 40px 0 14px; font-weight: 800; }
 .prose .article-section-head {
   font-size: 20px; margin: 32px 0 12px; padding-bottom: 8px;
   border-bottom: 2px solid var(--accent); display: inline-block; font-weight: 700; color: var(--text);
 }
 .prose h3 { font-size: 21px; margin: 28px 0 10px; font-weight: 750; }
-.prose p { color: var(--text-dim); margin: 12px 0; }
-.prose ul { color: var(--text-dim); margin: 12px 0 12px 22px; }
-.prose li { margin: 8px 0; }
-.prose strong { color: var(--text); }
+/* Body text: comfortable reading size that scales with the large screenshots */
+.prose p, .prose li, .prose div { font-size: 18px; line-height: 1.85; color: var(--text); margin: 14px 0; }
+.prose ul { color: var(--text); margin: 14px 0 14px 22px; }
+/* Screenshots: centered, rounded, sized to sit naturally beside the 18px body */
+.prose img { display: block; width: 100%; max-width: 720px; height: auto; margin: 28px auto; border-radius: 10px; border: 1px solid var(--border); }
+/* Neutralize the small inline font-size Chrome injects into contenteditable output */
+.prose span[style*="font-size"], .prose font { font-size: inherit !important; color: inherit !important; }
+.prose strong { color: var(--text); font-weight: 700; }
 
 /* ---------- Contact page ---------- */
 .contact-card { max-width: 760px; text-align: center; margin: 8px 0 12px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 34px 32px; box-shadow: var(--shadow); }
