@@ -237,7 +237,7 @@ let pendingBodyImages = {}; // currentIdx -> [ { filename, base64 } ]  (inline b
 const META_FIELDS = [
   { key:'title', label:'Article title', hint:'SEO-friendly title (include keywords, under 60 chars)', full:true },
   { key:'subtitle', label:'Subtitle / summary', hint:'Short description shown on article cards', full:true },
-  { key:'slug', label:'URL slug', hint:'URL-friendly name, e.g. best-free-ai-copywriting-tools' },
+  { key:'slug', label:'URL slug', hint:'Auto-generated from the title; click ↻ Auto or edit manually', isSlug:true },
   { key:'date', label:'Publish date', hint:'Format: YYYY-MM-DD' },
   { key:'image', label:'Cover image', hint:'Local upload supported: pick an image and it is uploaded on publish (recommended 1200x630)', isImage:true },
   { key:'category', label:'Category', hint:'', isSelect:true,
@@ -331,7 +331,7 @@ function newArticle() {
   const tpl = {
     title: '', subtitle: '', image: '',
     date: new Date().toISOString().slice(0, 10),
-    slug: 'article-' + Date.now().toString(36),
+    slug: '',
     category: '',
     verdict: '', getting_started: '', pricing: '',
     content: ''
@@ -377,6 +377,8 @@ function renderEditor() {
       if (pv) html += `<div class="img-preview"><img src="${esc(pv)}" alt="cover" /></div>`;
       html += `<input type="text" id="field_${f.key}" value="${esc(val)}" placeholder="URL generated on publish" oninput="onFieldChange('${f.key}',this)" />`;
       html += `</div></div>`;
+    } else if (f.isSlug) {
+      html += `<div class="${cls} slug-row" style="display:flex;gap:8px;align-items:center"><input type="text" id="field_${f.key}" value="${esc(val)}" placeholder="auto from title" oninput="onFieldChange('${f.key}',this)" style="flex:1" /><button type="button" class="mini-btn" onclick="autoSlug()" title="Generate from title" style="flex:0 0 auto;padding:6px 10px;border:1px solid var(--line);background:var(--bg2);color:var(--text);border-radius:6px;cursor:pointer;font-size:12px;white-space:nowrap">↻ Auto</button></div>`;
     } else {
       html += `<div class="${cls}"><input type="text" id="field_${f.key}" value="${esc(val)}" placeholder="${esc(f.label)}" oninput="onFieldChange('${f.key}',this)" /></div>`;
     }
@@ -580,7 +582,12 @@ function updatePreview() {
 }
 
 function previewArticle() {
-  if (!currentItem || !currentItem.slug) { toast('Fill in the URL slug first', 'err'); return; }
+  if (!currentItem) { toast('No article loaded', 'err'); return; }
+  if (!currentItem.slug) {
+    const s = slugify(currentItem.title);
+    if (s) { currentItem.slug = s; const sf = document.getElementById('field_slug'); if (sf) sf.value = s; }
+  }
+  if (!currentItem.slug) { toast('Enter a title first (slug auto-generates from it)', 'err'); return; }
   window.open(`https://aiwritereview.com/blog/articles/${encodeURIComponent(currentItem.slug)}.html`, '_blank');
 }
 
@@ -598,8 +605,33 @@ function onFieldChange(key, el) {
   if (key === 'title') {
     const itm = document.querySelectorAll('.item')[currentIdx];
     if (itm) itm.querySelector('.item-title').textContent = currentItem.title || '[Untitled]';
+    // Auto-generate slug from title only if user hasn't set one manually
+    if (!currentItem.slug) {
+      const s = slugify(currentItem.title);
+      if (s) { currentItem.slug = s; const sf = document.getElementById('field_slug'); if (sf) sf.value = s; }
+    }
   }
   updatePreview();
+}
+
+// ====== Slug helpers ======
+// Turn a title into a URL-friendly slug (keeps a-z 0-9 and hyphens only).
+function slugify(t) {
+  if (!t) return '';
+  return t.toString().toLowerCase().trim()
+    .replace(/[^a-z0-9\s-]/g, '')      // drop anything not letter/digit/space/hyphen
+    .replace(/[\s_]+/g, '-')            // spaces/underscores -> hyphen
+    .replace(/-+/g, '-')                // collapse repeated hyphens
+    .replace(/^-+|-+$/g, '')           // trim leading/trailing hyphens
+    .slice(0, 64);
+}
+function autoSlug() {
+  if (!currentItem) return;
+  const s = slugify(currentItem.title) || ('article-' + Date.now().toString(36));
+  currentItem.slug = s;
+  const sf = document.getElementById('field_slug');
+  if (sf) sf.value = s;
+  toast('Slug set: ' + s, 'ok');
 }
 
 // ====== 下载 ======
@@ -716,6 +748,12 @@ async function publishToGitHub(){
   // Sync all rich-editor content into currentItem before publishing
   BODY_SECTIONS.forEach(sec => { if (currentItem) currentItem[sec.key] = getEditorContent(sec.key); });
   if (currentItem) currentItem.content = getEditorContent('content');
+  // Auto-set slug from title if missing before publishing (fall back to timestamp for non-Latin titles)
+  if (currentItem && !currentItem.slug) {
+    const s = slugify(currentItem.title);
+    currentItem.slug = s || ('article-' + Date.now().toString(36));
+  }
+  if (!currentItem) { toast('No article loaded', 'err'); return; }
   try{
     updateStatus('Committing to GitHub…');
     // 1. 先上传待发布的封面图
