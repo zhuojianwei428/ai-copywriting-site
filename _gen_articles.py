@@ -168,6 +168,9 @@ def linkify(text):
     """
     if not text:
         return text
+    # 保险：若文本里已经存在链接，直接原样返回，避免任何重复链接化
+    if '<a href' in text:
+        return text
     parts = re.split(r'(<[^>]+>)', text)
     out = []
     in_anchor = False
