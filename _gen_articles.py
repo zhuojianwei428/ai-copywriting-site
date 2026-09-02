@@ -71,6 +71,8 @@ PAGE_SHELL_HEAD = """<!DOCTYPE html>
 </div>
 </div></section>
 
+__RELATED__
+
 <footer class="footer"><div class="wrap">
 <div>&copy; 2026 {site} &mdash; real-tested reviews of AI copywriting tools.</div>
 <div class="footer-links">
@@ -180,6 +182,49 @@ def render_article_body(art):
     return "\n".join(parts)
 
 
+def render_related(current):
+    """Render the 'Related articles' section for an article page.
+    Prioritizes other articles in the same category, then falls back to
+    most-recent others. Excludes the current article. Returns '' when there
+    are no other articles to link to."""
+    all_articles = load_articles()
+    slug = current.get("slug")
+    cat = current.get("category") or ""
+    others = [a for a in all_articles if a.get("slug") != slug]
+    if not others:
+        return ""
+    same_cat = [a for a in others if (a.get("category") or "") == cat]
+    diff_cat = [a for a in others if (a.get("category") or "") != cat]
+    same_cat.sort(key=lambda a: a.get("date", ""), reverse=True)
+    diff_cat.sort(key=lambda a: a.get("date", ""), reverse=True)
+    related = (same_cat + diff_cat)[:4]
+    items = []
+    for a in related:
+        a_slug = a.get("slug", "")
+        a_title = a.get("title", "[Untitled]")
+        a_sub = a.get("subtitle", "")
+        a_date = a.get("date", "")
+        a_img = a.get("image", "")
+        items.append(
+            f'<a class="article-row" href="{a_slug}.html">\n'
+            f'  <img class="article-thumb" src="{a_img}" alt="" loading="lazy" />\n'
+            f'  <div class="article-body">\n'
+            f'    <h3 class="article-title">{a_title}</h3>\n'
+            f'    <p class="article-excerpt">{a_sub}</p>\n'
+            f'    <span class="article-date">{a_date}</span>\n'
+            f'  </div>\n'
+            f'</a>'
+        )
+    return (
+        '<section class="related-articles section"><div class="wrap">\n'
+        '<h2 class="article-section-head">Related articles</h2>\n'
+        '<div class="article-list">\n'
+        + "\n".join(items) + "\n"
+        '</div>\n'
+        '</div></section>'
+    )
+
+
 def generate_detail(art, idx):
     """生成单篇文章详情页 HTML"""
     slug = art.get("slug", f"article-{idx}")
@@ -216,6 +261,8 @@ def generate_detail(art, idx):
     html = html.replace("__ARTICLE_JSONLD__", jsonld)
     # Lightbox: click any article image to view it full size
     html = html.replace("__LIGHTBOX__", LIGHTBOX_HTML)
+    # Related articles: auto-discovered from articles.json (same category first)
+    html = html.replace("__RELATED__", render_related(art))
 
     out_dir = ARTICLE_DIR
     os.makedirs(out_dir, exist_ok=True)
