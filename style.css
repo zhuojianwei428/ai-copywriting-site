@@ -415,6 +415,10 @@ a.tagchip:hover { border-color: var(--accent); color: var(--accent); }
 .page-head + .section { padding-top: 12px; padding-bottom: 16px; }
 .section:has(.article-list) { padding-top: 16px; padding-bottom: 48px; }
 
+/* Related articles shown at the bottom of each article page */
+.related-articles { border-top: 1px solid var(--border); margin-top: 20px; }
+.related-articles .article-section-head { margin-top: 28px; }
+
 /* ---------- Reduced motion: honor user preference ---------- */
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
