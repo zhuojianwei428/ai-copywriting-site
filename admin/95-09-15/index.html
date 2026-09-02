@@ -58,6 +58,9 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
 .item.active { background:rgba(99,102,241,.12); color:var(--text); border:1px solid rgba(99,102,241,.25); }
 .item-title { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .cat-tag { font-size:10px; padding:2px 7px; border-radius:8px; font-weight:600; white-space:nowrap; flex-shrink:0; }
+.item-del { background:transparent; border:none; color:var(--text2); font-size:16px; line-height:1; cursor:pointer; padding:1px 6px; border-radius:5px; flex-shrink:0; opacity:0; transition:opacity .12s, color .12s, background .12s; }
+.item:hover .item-del { opacity:1; }
+.item-del:hover { color:#f87171; background:rgba(248,113,113,.14); }
 .cat-ow { background:rgba(245,158,11,.15); color:#fbbf24; }
 .cat-cc { background:rgba(99,102,241,.15); color:#818cf8; }
 
@@ -332,8 +335,9 @@ function renderList() {
     const catClass = cat === 'office-workers' ? 'cat-ow' : (cat === 'content-creators' ? 'cat-cc' : '');
     const catLabel = cat === 'office-workers' ? 'OW' : (cat === 'content-creators' ? 'CC' : '');
     el.className = 'item' + (i === currentIdx ? ' active' : '');
-    el.innerHTML = `<span class="item-title">${esc(a.title || '[Untitled]')}</span><span class="cat-tag ${catClass}">${esc(catLabel)}</span>`;
+    el.innerHTML = `<span class="item-title">${esc(a.title || '[Untitled]')}</span><span class="cat-tag ${catClass}">${esc(catLabel)}</span><button class="item-del" title="Delete this article">&times;</button>`;
     el.onclick = () => selectItem(i);
+    el.querySelector('.item-del').onclick = (e) => { e.stopPropagation(); deleteArticle(i); };
     container.appendChild(el);
   });
 }
@@ -362,6 +366,29 @@ function newArticle() {
   selectItem(appData.articles.length - 1);
   updateStatus('Article created');
   toast('Article created', 'ok');
+}
+
+// ====== 删除文章 ======
+function deleteArticle(idx) {
+  const items = appData?.articles || [];
+  if (idx < 0 || idx >= items.length) return;
+  const name = (items[idx].title || '[Untitled]').trim();
+  if (!confirm('Delete this article?\n\n"' + name + '"\n\nThis cannot be undone. You still need to click "Publish" to remove it from the live site.')) return;
+  items.splice(idx, 1);
+  if (items.length === 0) {
+    currentIdx = -1; currentItem = null;
+    renderList();
+    const area = document.getElementById('editorArea');
+    area.innerHTML = '<div class="empty-state"><div class="icon">🗑️</div><p>No articles left. Click <strong>+ New article</strong> to create one.</p></div>';
+    document.getElementById('previewBtn').style.display = 'none';
+    updateStatus('No articles');
+  } else {
+    if (currentIdx > idx) currentIdx--;
+    else if (currentIdx >= items.length) currentIdx = items.length - 1;
+    renderList();
+    selectItem(currentIdx);
+  }
+  toast('Article deleted — click Publish to apply', 'ok');
 }
 
 // ====== 选中 & 编辑 ======
