@@ -130,6 +130,8 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
 .content-field div:not(.img-placeholder) { font-size:14px !important; line-height:1.7 !important; color:var(--text) !important; }
 /* Crush any inline font-size Chrome injects into auto-wrapped divs */
 .content-field div[style*="font-size"] { font-size:14px !important; }
+/* Force uniform text color — override any pasted inline style/color on spans, fonts, etc. */
+.content-field, .content-field *, .content-field [style*="color"] { color: var(--text) !important; }
 /* Image placeholder tag (visible in editor before publish) */
 .img-placeholder {
   display:inline-flex !important; align-items:center; gap:4px;
@@ -840,8 +842,17 @@ async function publishToGitHub(){
       });
       return d.innerHTML;
     }
-    BODY_SECTIONS.forEach(sec => { if (currentItem && currentItem[sec.key]) currentItem[sec.key] = resolveImgPh(currentItem[sec.key]); });
-    if (currentItem && currentItem.content) currentItem.content = resolveImgPh(currentItem.content);
+    // Strip pasted inline styles (color, font-size, etc.) and <font> tags — keeps HTML structure but removes visual noise
+    function stripInlineStyles(html) {
+      const d = document.createElement('div'); d.innerHTML = html;
+      // Remove style attributes from ALL elements
+      d.querySelectorAll('[style]').forEach(el => el.removeAttribute('style'));
+      // Unwrap <font> tags (keep text, drop the tag)
+      d.querySelectorAll('font').forEach(f => f.replaceWith(...f.childNodes));
+      return d.innerHTML;
+    }
+    BODY_SECTIONS.forEach(sec => { if (currentItem && currentItem[sec.key]) currentItem[sec.key] = resolveImgPh(stripInlineStyles(currentItem[sec.key])); });
+    if (currentItem && currentItem.content) currentItem.content = resolveImgPh(stripInlineStyles(currentItem.content));
 
     // 3. 再提交 articles.json
     const getRes = await fetch(`https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent('articles.json')}?ref=${encodeURIComponent(s.branch)}`, { headers: ghHeaders(s.token) });
