@@ -130,8 +130,10 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
 .content-field div:not(.img-placeholder) { font-size:14px !important; line-height:1.7 !important; color:var(--text) !important; }
 /* Crush any inline font-size Chrome injects into auto-wrapped divs */
 .content-field div[style*="font-size"] { font-size:14px !important; }
-/* Force uniform text color — override any pasted inline style/color on spans, fonts, etc. */
-.content-field, .content-field *, .content-field [style*="color"] { color: var(--text) !important; }
+/* Force uniform text color + kill pasted highlight backgrounds (e.g. background:white) on any element */
+.content-field, .content-field *, .content-field [style*="color"], .content-field [style*="background"] {
+  color: var(--text) !important; background: transparent !important;
+}
 /* Image placeholder tag (visible in editor before publish) */
 .img-placeholder {
   display:inline-flex !important; align-items:center; gap:4px;
@@ -160,6 +162,7 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
 .preview-content ul, .preview-content ol { margin:8px 0 8px 20px; }
 .preview-content li { margin:3px 0; }
 .preview-content a { color:var(--accent); }
+.preview-content, .preview-content * { background: transparent !important; color: var(--text) !important; }
 .preview-content img { max-width:100%; border-radius:8px; margin:10px 0; display:block; }
 .preview-section-block { margin:16px 0; }
 .preview-section-block .ps-head { font-size:15px; font-weight:700; color:var(--accent); margin-bottom:8px; display:flex; align-items:center; gap:8px; }
