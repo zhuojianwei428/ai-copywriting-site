@@ -175,7 +175,7 @@ def render_article_body(art):
     # 可选的自由补充内容
     extra = (art.get("content") or "").strip()
     if extra:
-        parts.append('<h2 class="article-section-head">Extra content</h2>\n' + extra)
+        parts.append('<h2 class="article-section-head">Extra content</h2>\n<div class="prose">' + extra + '</div>')
 
     if not parts:
         return "<p>[Content pending]</p>"
