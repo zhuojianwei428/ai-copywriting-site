@@ -140,6 +140,51 @@ def load_articles():
         return json.load(f).get("articles", [])
 
 
+def _linkify_urls(seg):
+    """Wrap bare http(s) URLs in a text segment into clickable <a> tags.
+    Trailing punctuation (.,);]!?) is moved outside the link."""
+    url_re = re.compile(r'https?://[^\s<>"\']+')
+
+    def repl(m):
+        url = m.group(0)
+        trail = ''
+        while url and url[-1] in '.,);]!?':
+            trail = url[-1] + trail
+            url = url[:-1]
+        if not url:
+            return m.group(0)
+        return '<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>%s' % (
+            url, url, trail)
+
+    return url_re.sub(repl, seg)
+
+
+def linkify(text):
+    """Turn bare URLs in article text into visible, clickable links.
+
+    Walks the HTML token-by-token so URLs already inside an <a>…</a> tag are
+    left untouched (no nested anchors), while plain-text URLs anywhere else
+    become links. Tags like <div>/<img> are passed through unchanged.
+    """
+    if not text:
+        return text
+    parts = re.split(r'(<[^>]+>)', text)
+    out = []
+    in_anchor = False
+    for seg in parts:
+        if re.match(r'^<[^>]+>$', seg):
+            if re.search(r'<a\b', seg, re.I) and not re.search(r'</a>', seg):
+                in_anchor = True
+            if re.search(r'</a>', seg, re.I):
+                in_anchor = False
+            out.append(seg)
+        elif in_anchor:
+            out.append(seg)
+        else:
+            out.append(_linkify_urls(seg))
+    return ''.join(out)
+
+
 # 结构化栏目定义（与 admin 后台一致）
 BODY_SECTIONS = [
     ("verdict", "Verdict"),
@@ -158,6 +203,8 @@ def render_article_body(art):
         text = (art.get(key) or "").strip()
         if not text:
             continue
+        # 把正文里的裸 URL 自动转成可见、可点击的链接
+        text = linkify(text)
         # 将换行转为 <p> 段落，保留基本 HTML 标签
         paragraphs = text.split("\n")
         body_html = ""
@@ -175,6 +222,7 @@ def render_article_body(art):
     # 可选的自由补充内容
     extra = (art.get("content") or "").strip()
     if extra:
+        extra = linkify(extra)
         parts.append('<h2 class="article-section-head">Extra content</h2>\n<div class="prose">' + extra + '</div>')
 
     if not parts:
