@@ -22,7 +22,12 @@ import sys
 import subprocess
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-STEPS = ["_gen_pages.py", "_gen_tools.py", "_gen_legal.py", "_gen_articles.py", "_og_image.py", "_seo.py", "_internal_links.py", "_strip_emdash.py"]
+# _clean_orphans.py 的位置不能动：
+#   必须在 _gen_articles.py 之后（文章页刚重新生成完）
+#   必须在 _seo.py 之前（sitemap 是扫描目录生成的，先清干净才不会收录已删页面）
+# 作用：删掉 articles.json 里已删除文章的残留 HTML（孤儿页）+ 无人引用的图片
+STEPS = ["_gen_pages.py", "_gen_tools.py", "_gen_legal.py", "_gen_articles.py",
+         "_clean_orphans.py", "_og_image.py", "_seo.py", "_internal_links.py", "_strip_emdash.py"]
 
 for s in STEPS:
     print("=== " + s)
