@@ -273,16 +273,19 @@ def generate_list_snippet(articles, rel_prefix=""):
 
 
 def inject_into_pages():
-    """将文章列表注入到人群页 + Blog页（无论标签，全部显示）"""
+    """将文章列表注入到人群页 + Blog页。
+    人群页按文章的 category 过滤（office-workers / content-creators），
+    Blog 聚合页显示全部文章。"""
     import re
     articles = load_articles()
     target_pages = [
-        ("for-office-workers.html", ""),
-        ("for-content-creators.html", ""),
-        ("blog/how-we-avoid-ai-hallucinations.html", "../"),
+        ("for-office-workers.html", "", "office-workers"),
+        ("for-content-creators.html", "", "content-creators"),
+        ("blog/how-we-avoid-ai-hallucinations.html", "../", None),  # None = 全部
     ]
-    for page, rel_prefix in target_pages:
-        snippet = generate_list_snippet(articles, rel_prefix)
+    for page, rel_prefix, cat in target_pages:
+        page_articles = [a for a in articles if (a.get("category") or "") == cat] if cat else articles
+        snippet = generate_list_snippet(page_articles, rel_prefix)
         path = os.path.join(BASE, page)
         if not os.path.exists(path):
             continue
