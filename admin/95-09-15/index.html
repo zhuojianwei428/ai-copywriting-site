@@ -123,7 +123,7 @@ body { font-family:'Noto Sans SC','Inter',-apple-system,sans-serif; background:v
 .content-field ul, .content-field ol { padding-left:22px; margin:6px 0; }
 .content-field blockquote { border-left:3px solid var(--accent); padding-left:12px; margin:8px 0; color:var(--text2); }
 /* Safety net: Chrome wraps trailing text in a fresh <div> after an inline
-   contenteditable=false node — force it back to the normal body style so it
+   contenteditable=false node, force it back to the normal body style so it
    doesn't shrink / look like a muted comment. Excludes h2/blockquote which
    keep their own rules (they are not <div> elements). */
 .content-field > div,
@@ -373,7 +373,7 @@ function deleteArticle(idx) {
   const items = appData?.articles || [];
   if (idx < 0 || idx >= items.length) return;
   const name = (items[idx].title || '[Untitled]').trim();
-  if (!confirm('Delete this article?\n\n"' + name + '"\n\nThis cannot be undone. You still need to click "Publish" to remove it from the live site.')) return;
+  if (!confirm('Delete this article?\n\n"' + name + '"\n\nClick "Publish" afterwards to remove it from the live site, the published page file will be deleted for good.')) return;
   items.splice(idx, 1);
   if (items.length === 0) {
     currentIdx = -1; currentItem = null;
@@ -388,7 +388,7 @@ function deleteArticle(idx) {
     renderList();
     selectItem(currentIdx);
   }
-  toast('Article deleted — click Publish to apply', 'ok');
+  toast('Article deleted, click Publish to remove it from the site', 'ok');
 }
 
 // ====== 选中 & 编辑 ======
@@ -553,7 +553,7 @@ function insertBodyImage() {
         `<span class="img-placeholder" data-ph-id="${phId}" data-img-file="${esc(filename)}" contenteditable="false">` +
         `<span class="img-ph-icon">🖼</span> 图片</span>`);
       onRichInput(fieldKey);
-      toast(`图片已插入 — 发布时上传`, 'ok');
+      toast(`图片已插入, 发布时上传`, 'ok');
     };
     reader.readAsDataURL(file);
   };
@@ -855,7 +855,35 @@ async function publishToGitHub(){
       body: JSON.stringify({ message:'[admin] update articles.json', content: content, sha: sha, branch: s.branch })
     });
     if(!putRes.ok){ const err = await putRes.json().catch(()=>({})); toast('Publish failed: '+(err.message||putRes.status),'err'); return; }
+
+    // 3b. 彻底删除：把 articles.json 里已不存在的文章页从仓库删掉（孤儿页）
+    //     否则页面文件会残留在仓库与线上：没人链过去，但仍可直接访问、仍被 sitemap 收录。
+    let removedCount = 0;
+    try {
+      const liveSlugs = new Set((appData.articles||[]).map(a => a.slug).filter(Boolean));
+      const dirRes = await fetch(
+        `https://api.github.com/repos/${s.repo}/contents/blog/articles?ref=${encodeURIComponent(s.branch)}`,
+        { headers: ghHeaders(s.token) });
+      if (dirRes.ok) {
+        const files = await dirRes.json();
+        const orphans = (Array.isArray(files) ? files : [])
+          .filter(f => f.type === 'file' && /\.html$/.test(f.name) && !liveSlugs.has(f.name.replace(/\.html$/, '')));
+        for (const f of orphans) {
+          updateStatus('Deleting removed page ' + f.name + ' …');
+          const delRes = await fetch(
+            `https://api.github.com/repos/${s.repo}/contents/${encodeURIComponent(f.path)}`, {
+              method: 'DELETE',
+              headers: ghHeaders(s.token, { 'Content-Type': 'application/json' }),
+              body: JSON.stringify({ message: '[admin] remove deleted article page: ' + f.name, sha: f.sha, branch: s.branch })
+            });
+          if (delRes.ok) removedCount++;
+          else console.warn('orphan delete failed:', f.name, delRes.status);
+        }
+      }
+    } catch(e) { console.warn('orphan cleanup skipped:', e); }
+
     updateStatus('Committed, Vercel is redeploying…');
+    if (removedCount) toast(`Deleted ${removedCount} removed page${removedCount>1?'s':''} for good`, 'ok');
     pendingImages = {}; pendingBodyImages = {};
     toast('Published! Live within ~1 min','ok');
   }catch(e){ toast('Publish error: '+e.message,'err'); }
