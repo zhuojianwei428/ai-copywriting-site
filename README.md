@@ -22,7 +22,7 @@ npm run build && npm run start
 | Variable | Required | Default | Notes |
 |---|---|---|---|
 | `DEEPSEEK_API_KEY` | yes | — | Your DeepSeek key. Server-side only, never exposed to the browser. |
-| `DEEPSEEK_MODEL` | no | `deepseek-chat` | DeepSeek chat model id (e.g. `deepseek-chat`, `deepseek-reasoner`). |
+| `DEEPSEEK_MODEL` | no | `deepseek-v4-flash` | Current model id. `deepseek-chat` / `deepseek-reasoner` were retired 2026-07-24 and now error out; use `deepseek-v4-pro` only for heavy reasoning (≈3x the price). |
 | `DEEPSEEK_BASE_URL` | no | `https://api.deepseek.com` | Override only if using a DeepSeek-compatible proxy/endpoint. |
 | `MAX_INPUT_CHARS` | no | `6000` | Max characters accepted per request; longer input is rejected with 413. |
 | `MAX_OUTPUT_TOKENS` | no | `700` | Max output tokens per generation — the main cost cap. |

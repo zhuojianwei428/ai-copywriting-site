@@ -165,7 +165,9 @@ export async function POST(req: Request) {
     baseURL: process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com",
   });
 
-  const model = process.env.DEEPSEEK_MODEL || "deepseek-chat";
+  // 注意：deepseek-chat / deepseek-reasoner 已于 2026-07-24 永久停用，
+  // 现役模型为 deepseek-v4-flash（默认，成本低）与 deepseek-v4-pro（约 3 倍价格）。
+  const model = process.env.DEEPSEEK_MODEL || "deepseek-v4-flash";
   const dailyCalls = bumpDaily();
 
   if (
