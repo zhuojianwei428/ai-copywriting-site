@@ -150,9 +150,6 @@ export default function Wizard() {
         {step === 1 && (
           <div>
             <h2 style={{ marginTop: 0 }}>What type of review are you writing?</h2>
-            <p style={{ color: "var(--muted)", marginTop: -6 }}>
-              Choose the perspective. This shapes the tone and structure.
-            </p>
             <div style={{ display: "grid", gap: 12 }}>
               {REVIEW_TYPES.map((t) => (
                 <div
@@ -164,10 +161,8 @@ export default function Wizard() {
                     <Check size={20} />
                   </span>
                   <span>
-                    <div style={{ fontWeight: 600 }}>
-                      <CssText text={t.title} as="span" />
-                    </div>
-                    <div style={{ color: "var(--muted)", fontSize: 14 }}>{t.desc}</div>
+                    <div className="label">{t.title}</div>
+                    <div className="desc">{t.desc}</div>
                   </span>
                 </div>
               ))}
@@ -312,10 +307,8 @@ export default function Wizard() {
                     <Check size={20} />
                   </span>
                   <span>
-                    <div style={{ fontWeight: 600 }}>
-                      <CssText text={t.id} as="span" />
-                    </div>
-                    <div style={{ color: "var(--muted)", fontSize: 14 }}>{t.desc}</div>
+                    <div className="label">{t.id}</div>
+                    <div className="desc">{t.desc}</div>
                   </span>
                 </div>
               ))}
@@ -370,8 +363,9 @@ export default function Wizard() {
                   marginTop: 14,
                   padding: "12px 14px",
                   borderRadius: 10,
-                  background: "#fef2f2",
-                  color: "#b91c1c",
+                  background: "var(--bg-soft)",
+                  border: "1px solid var(--line)",
+                  color: "var(--ink)",
                   fontSize: 14,
                 }}
               >
@@ -402,10 +396,10 @@ export default function Wizard() {
                 <button className="btn btn-secondary" onClick={handleGenerate}>
                   <RefreshCw size={16} /> <CssText text="Regenerate" as="span" />
                 </button>
-                <button className="btn btn-success" onClick={downloadPDF}>
+                <button className="btn btn-secondary" onClick={downloadPDF}>
                   <FileText size={16} /> <CssText text="Download PDF" as="span" />
                 </button>
-                <button className="btn btn-success" onClick={() => downloadWord(result)}>
+                <button className="btn btn-secondary" onClick={() => downloadWord(result)}>
                   <FileDown size={16} /> <CssText text="Download Word" as="span" />
                 </button>
               </div>

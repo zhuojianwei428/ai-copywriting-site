@@ -6,37 +6,30 @@ export default function Home() {
     <main>
       <header
         style={{
-          borderBottom: "1px solid var(--border)",
+          borderBottom: "1px solid var(--line)",
           background: "#fff",
         }}
       >
         <div
-          className="container"
-          style={{ display: "flex", alignItems: "center", height: 56 }}
+          className="wrap"
+          style={{ display: "flex", alignItems: "center", height: 64 }}
         >
-          <span style={{ fontWeight: 700, fontSize: 18, color: "var(--brand-700)" }}>
+          <span style={{ fontWeight: 700, fontSize: 18, color: "var(--brand-ink)" }}>
             AI Write Review
           </span>
         </div>
       </header>
 
-      <section style={{ paddingTop: 36, paddingBottom: 8 }}>
+      <section className="section" style={{ paddingBottom: 0 }}>
         <div className="container">
           <h1>AI Performance Review Generator</h1>
-          <p
-            style={{
-              color: "var(--muted)",
-              fontSize: 17,
-              marginTop: -4,
-              maxWidth: 620,
-              lineHeight: 1.6,
-            }}
-          >
-            Write a structured, professional employee performance review in under a minute.
-            Pick a type, add what went well, choose a tone—and get a ready-to-edit draft.
-            Free, no signup required.
+          <p className="lead">
+            Write a clear, structured employee performance review—free, no signup
+            required.
           </p>
-          <Wizard />
+          <div style={{ marginTop: 40 }}>
+            <Wizard />
+          </div>
         </div>
       </section>
 
@@ -44,31 +37,33 @@ export default function Home() {
 
       <footer
         style={{
-          borderTop: "1px solid var(--border)",
+          borderTop: "1px solid var(--line)",
           background: "#fff",
-          marginTop: 40,
+          marginTop: 64,
         }}
       >
         <div
-          className="container"
+          className="wrap"
           style={{
             display: "flex",
             flexWrap: "wrap",
             gap: 16,
             alignItems: "center",
             justifyContent: "space-between",
-            paddingTop: 20,
-            paddingBottom: 20,
+            paddingTop: 24,
+            paddingBottom: 24,
             fontSize: 14,
-            color: "var(--muted)",
+            color: "var(--ink-soft)",
           }}
         >
-          <span>© {new Date().getFullYear()} AI Write Review. All rights reserved.</span>
+          <span>
+            © {new Date().getFullYear()} AI Write Review. All rights reserved.
+          </span>
           <span style={{ display: "flex", gap: 16 }}>
-            <a href="/privacy-policy" style={{ color: "var(--muted)" }}>
+            <a href="/privacy-policy" style={{ color: "var(--ink-soft)" }}>
               Privacy Policy
             </a>
-            <a href="/terms" style={{ color: "var(--muted)" }}>
+            <a href="/terms" style={{ color: "var(--ink-soft)" }}>
               Terms
             </a>
           </span>
