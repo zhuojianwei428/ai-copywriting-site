@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Check, Copy, Pencil, RefreshCw } from "lucide-react";
 import { downloadPDF, downloadWord } from "../lib/export";
 
@@ -16,7 +16,7 @@ const PROGRESS_PHASES: { at: number; label: string }[] = [
   { at: 80, label: "Polishing the tone…" },
   { at: 95, label: "Almost done…" },
 ];
-const ESTIMATED_CHARS = 1100;
+const ESTIMATED_CHARS = 3600;
 
 function phaseFor(pct: number): string {
   let label = PROGRESS_PHASES[0].label;
@@ -24,6 +24,40 @@ function phaseFor(pct: number): string {
     if (pct >= p.at) label = p.label;
   }
   return label;
+}
+
+/**
+ * Renders the streamed report so that part headings (e.g. "1. Basic Overview")
+ * become bold sub-headings instead of plain text lines.
+ */
+function renderReport(text: string): ReactNode {
+  const lines = text.split("\n");
+  return lines.map((line, i) => {
+    const t = line.trim();
+    const m = t.match(/^(\d)\.\s+(.+)/);
+    if (m && t.length < 80) {
+      return (
+        <div key={i} style={{ marginTop: 16, marginBottom: 6 }}>
+          <h3
+            className="font-title-md text-title-md text-text-primary"
+            style={{ fontWeight: 700, margin: 0 }}
+          >
+            {t}
+          </h3>
+        </div>
+      );
+    }
+    if (t === "") return <div key={i} style={{ height: 8 }} />;
+    return (
+      <p
+        key={i}
+        className="font-body-md text-body-md text-text-primary"
+        style={{ margin: 0, marginBottom: 8, lineHeight: 1.7 }}
+      >
+        {line}
+      </p>
+    );
+  });
 }
 
 const REVIEW_TYPES = [
@@ -730,11 +764,8 @@ export default function GeneratorModal({
                   </div>
                 </div>
               ) : (
-                <div
-                  className="whitespace-pre-wrap"
-                  style={{ lineHeight: 1.7, fontSize: 15, color: "var(--text-primary)" }}
-                >
-                  {result}
+                <div>
+                  {renderReport(result)}
                 </div>
               )}
 
