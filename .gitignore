@@ -1,14 +1,7 @@
-.vercel
-.env
-.env*
-node_modules
-*.log
+node_modules/
+.next/
+.env.local
+.env*.local
+*.tsbuildinfo
+next-env.d.ts.bak
 .DS_Store
-
-# 不上线/不部署的本地文件
-_bak_legal/
-_*.html
-*.bak
-*.bak_centered
-index.html.bak_centered
-style.css.bak_centered
