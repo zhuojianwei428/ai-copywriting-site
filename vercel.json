@@ -1,6 +1,6 @@
 {
   "framework": null,
-  "buildCommand": "echo 'placeholder-mode: skip rebuild (site under reconstruction)'",
+  "buildCommand": "python3 -c \"import pathlib,time; p=pathlib.Path('index.html'); s=p.read_text(); s=s.replace('__BUILD_TOKEN__', time.strftime('%Y%m%d%H%M%S')); p.write_text(s); print('placeholder baked')\"",
   "outputDirectory": ".",
   "rewrites": [
     { "source": "/admin/index.html/95-09-15", "destination": "/admin/95-09-15/index.html" }
