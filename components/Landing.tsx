@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import GeneratorModal from "./GeneratorModal";
+import ScoreGeneratorModal from "./ScoreGeneratorModal";
 import { FAQ_ITEMS } from "../lib/jsonld";
 
 type FormatKey = "self" | "manager" | "peer" | "360";
@@ -44,6 +45,8 @@ export default function Landing() {
   const [format, setFormat] = useState<FormatKey>("self");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalDefault, setModalDefault] = useState<FormatKey>("self");
+  const [scoreOpen, setScoreOpen] = useState(false);
+  const [scoredMode, setScoredMode] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   function openGenerator(preset: FormatKey) {
@@ -98,8 +101,55 @@ export default function Landing() {
             required.
           </p>
 
-          {/* Interactive Generator Box (Step 1 of 4) */}
+          {/* Interactive Generator Box */}
           <div className="w-full max-w-5xl text-left bg-surface-card border border-border-subtle rounded-xl p-md lg:p-xl shadow-sm">
+            {/* Mode Toggle */}
+            <div className="flex items-center justify-between gap-md pb-md mb-md border-b border-border-subtle">
+              <div className="flex items-center gap-xs">
+                <span className="font-title-md text-title-md text-text-primary font-semibold">
+                  {scoredMode ? "KRA Scorecard Generator" : "Review Writer"}
+                </span>
+                <span className="font-label-sm text-label-sm text-text-muted hidden sm:inline">
+                  — two output styles
+                </span>
+              </div>
+              <div
+                className="inline-flex rounded-lg border border-border-strong bg-surface-canvas p-0.5"
+                role="tablist"
+                aria-label="Output style"
+              >
+                <button
+                  role="tab"
+                  aria-selected={!scoredMode}
+                  onClick={() => setScoredMode(false)}
+                  className={`px-3.5 py-1.5 rounded-md font-label-md text-label-md transition-colors ${
+                    !scoredMode
+                      ? "bg-primary-container text-on-primary"
+                      : "text-text-muted hover:text-text-primary"
+                  }`}
+                  type="button"
+                >
+                  Narrative
+                </button>
+                <button
+                  role="tab"
+                  aria-selected={scoredMode}
+                  onClick={() => setScoredMode(true)}
+                  className={`px-3.5 py-1.5 rounded-md font-label-md text-label-md transition-colors ${
+                    scoredMode
+                      ? "bg-primary-container text-on-primary"
+                      : "text-text-muted hover:text-text-primary"
+                  }`}
+                  type="button"
+                >
+                  Scored · KRA
+                </button>
+              </div>
+            </div>
+
+            {/* ===== NARRATIVE MODE ===== */}
+            {!scoredMode && (
+              <>
             {/* Step Indicator Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-lg border-b border-border-subtle gap-md">
               <div className="flex flex-col">
@@ -203,6 +253,68 @@ export default function Landing() {
                 </span>
               </button>
             </div>
+              </>
+            )}
+
+            {/* ===== SCORED MODE ===== */}
+            {scoredMode && (
+              <div className="pt-sm">
+                <div className="flex items-start gap-md p-lg rounded-lg border border-border-strong bg-surface-canvas mb-md">
+                  <span className="material-symbols-outlined text-primary-container text-[26px] shrink-0 mt-0.5">
+                    fact_check
+                  </span>
+                  <div>
+                    <h2 className="font-headline-sm text-headline-sm text-text-primary mb-xs">
+                      Score performance against weighted key results
+                    </h2>
+                    <p className="font-body-md text-body-md text-text-muted">
+                      Define 1–6 KRAs with weights, add goal completion and
+                      evidence. We score each KRA on a 1–5 star scale, compute a
+                      weighted total and letter grade (A–D), and attach a written
+                      evaluation — the way enterprise HRMS appraisals do.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-md">
+                  {[
+                    { icon: "rule", t: "Weighted KRAs", d: "Weights must total 100%" },
+                    { icon: "stars", t: "1–5 star scoring", d: "Honest, evidence-based" },
+                    { icon: "summarize", t: "Grade + narrative", d: "A–D + written review" },
+                  ].map((f) => (
+                    <div
+                      key={f.t}
+                      className="flex-1 p-md rounded-lg border border-border-subtle flex items-start gap-sm"
+                    >
+                      <span className="material-symbols-outlined text-primary-container text-[20px] shrink-0">
+                        {f.icon}
+                      </span>
+                      <div>
+                        <div className="font-title-sm text-title-sm text-text-primary">{f.t}</div>
+                        <div className="font-body-sm text-body-sm text-text-muted">{f.d}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-md flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-md pt-md border-t border-border-subtle">
+                  <div className="flex items-center gap-xs">
+                    <span className="font-body-sm text-body-sm text-text-muted">Output style:</span>
+                    <span className="font-title-md text-title-md text-text-primary font-semibold">
+                      Structured scorecard
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setScoreOpen(true)}
+                    className="inline-flex items-center justify-center gap-xs px-5 py-2.5 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2"
+                    type="button"
+                  >
+                    <span>Build a scored review</span>
+                    <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -884,6 +996,12 @@ export default function Landing() {
         open={modalOpen}
         defaultFormat={modalDefault}
         onClose={() => setModalOpen(false)}
+      />
+
+      {/* ===================== SCORED REVIEW MODAL ===================== */}
+      <ScoreGeneratorModal
+        open={scoreOpen}
+        onClose={() => setScoreOpen(false)}
       />
     </main>
   );
