@@ -92,6 +92,8 @@ export default function GeneratorModal({
   const [strengths, setStrengths] = useState<string[]>([]);
   const [freeNote, setFreeNote] = useState("");
   const [growthAreas, setGrowthAreas] = useState<string[]>([]);
+  const [growthNote, setGrowthNote] = useState("");
+  const [showGrowthNote, setShowGrowthNote] = useState(false);
   const [tone, setTone] = useState<Tone | null>(null);
 
   const [loading, setLoading] = useState(false);
@@ -113,6 +115,8 @@ export default function GeneratorModal({
       setLoading(false);
       setIsCustomJobTitle(false);
       setJobTitle("");
+      setGrowthNote("");
+      setShowGrowthNote(false);
     }
   }, [open, defaultFormat]);
 
@@ -145,6 +149,9 @@ export default function GeneratorModal({
     const finalStrengths = freeNote.trim()
       ? [...strengths, freeNote.trim()]
       : strengths;
+    const finalGrowth = growthNote.trim()
+      ? [...growthAreas, growthNote.trim()]
+      : growthAreas;
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
@@ -154,7 +161,7 @@ export default function GeneratorModal({
           jobTitle,
           tenure,
           strengths: finalStrengths,
-          growthAreas,
+          growthAreas: finalGrowth,
           tone,
         }),
       });
@@ -494,7 +501,32 @@ export default function GeneratorModal({
                     {g}
                   </button>
                 ))}
+                <button
+                  onClick={() => setShowGrowthNote((v) => !v)}
+                  className={`px-4 py-2 rounded border text-body-md ${
+                    showGrowthNote
+                      ? "border-primary-container bg-surface-canvas text-text-primary"
+                      : "border-border-subtle bg-surface-card text-text-primary hover:border-border-strong"
+                  }`}
+                  type="button"
+                >
+                  Other
+                </button>
               </div>
+              {showGrowthNote && (
+                <label className="block mb-lg">
+                  <span className="font-title-md text-title-md text-text-primary mb-xs block">
+                    Anything else?
+                  </span>
+                  <textarea
+                    value={growthNote}
+                    onChange={(e) => setGrowthNote(e.target.value)}
+                    placeholder="e.g. Needs to improve public speaking and data storytelling"
+                    className="w-full min-h-[70px] px-3.5 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container resize-y"
+                    style={{ fontSize: 14 }}
+                  />
+                </label>
+              )}
               <label className="block font-title-md text-title-md text-text-primary mb-sm">
                 Tone
               </label>
