@@ -853,6 +853,18 @@ export default function Landing() {
                 Powered by DeepSeek
               </span>
             </div>
+            <p className="font-body-sm text-body-sm text-text-muted pt-sm max-w-3xl">
+              Your text is sent to our AI provider (DeepSeek) via API to generate
+              your review. We don&apos;t store your reviews on our servers and we
+              don&apos;t sell your data. See our{" "}
+              <a
+                href="/privacy"
+                className="text-primary-container hover:text-primary underline underline-offset-2"
+              >
+                Privacy Policy
+              </a>{" "}
+              for details, including what DeepSeek&apos;s own policy covers.
+            </p>
           </div>
         </div>
       </footer>

@@ -34,15 +34,18 @@ export default function Terms() {
             How your input is processed
           </h2>
           <p className="font-body-md text-body-md text-text-muted leading-relaxed mb-md">
-            The inputs you provide are sent to DeepSeek&apos;s API to generate the
-            draft, as described in our{" "}
+            Your text is sent to our AI provider (DeepSeek) via API to generate
+            your review, as described in our{" "}
             <Link
               href="/privacy"
               className="text-primary-container hover:text-primary underline underline-offset-2"
             >
               Privacy Policy
             </Link>
-            . We do not store your review text on our servers.
+            . We do not store your review text on our servers. How DeepSeek
+            handles the data it receives is governed by DeepSeek&apos;s own
+            privacy policy and terms, which we do not control and make no
+            representations about.
           </p>
 
           <h2 className="font-headline-sm text-headline-sm text-text-primary tracking-tight mt-xl mb-sm">

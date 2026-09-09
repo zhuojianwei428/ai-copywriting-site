@@ -24,11 +24,14 @@ export default function Privacy() {
           </h2>
           <p className="font-body-md text-body-md text-text-muted leading-relaxed mb-md">
             We do not create user accounts, and we do not store the review text
-            you enter or the drafts we generate. When you click Generate, the
-            inputs you provide (role, tenure, strengths, growth areas, and tone)
-            are sent to DeepSeek&apos;s API to produce the text and are streamed
-            straight back to your browser. We do not save those inputs or the
-            generated output on our servers.
+            you enter or the drafts we generate. When you click Generate, your
+            text is sent to our AI provider (DeepSeek) via API to generate your
+            review, and the result is streamed straight back to your browser. We
+            do not save those inputs or the generated output on our servers. To
+            keep the service running and to spot abuse, we log operational
+            metadata only — a timestamp, a masked IP address, the number of
+            characters you submitted, and the number of tokens the request
+            consumed. We never log the text of your review.
           </p>
 
           <h2 className="font-headline-sm text-headline-sm text-text-primary tracking-tight mt-xl mb-sm">
@@ -54,15 +57,21 @@ export default function Privacy() {
             >
               DeepSeek&apos;s Privacy Policy
             </a>
-            . AI Write Review does not use your data to train models.
+            . We don&apos;t control how DeepSeek retains or uses the data it
+            receives, and we don&apos;t make any claim on DeepSeek&apos;s behalf
+            about whether that data is stored or used for model training. Please
+            read DeepSeek&apos;s own policy before submitting anything you
+            consider confidential.
           </p>
 
           <h2 className="font-headline-sm text-headline-sm text-text-primary tracking-tight mt-xl mb-sm">
             What we don&apos;t do
           </h2>
           <p className="font-body-md text-body-md text-text-muted leading-relaxed mb-md">
-            We don&apos;t sell your data. We don&apos;t store your reviews. This
-            site does not set advertising or cross-site tracking cookies.
+            We don&apos;t sell your data. We don&apos;t store your reviews on our
+            servers — the review text you enter and the drafts we generate are
+            never written to a database or a file. This site does not set
+            advertising or cross-site tracking cookies.
           </p>
 
           <h2 className="font-headline-sm text-headline-sm text-text-primary tracking-tight mt-xl mb-sm">
