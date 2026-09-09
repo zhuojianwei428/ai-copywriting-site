@@ -7,6 +7,25 @@ import { downloadPDF, downloadWord } from "../lib/export";
 type ReviewType = "self" | "manager" | "peer" | "360";
 type Tone = "Formal" | "Encouraging" | "Direct";
 
+/** Stages shown to the user while the AI is streaming a draft. */
+const PROGRESS_PHASES: { at: number; label: string }[] = [
+  { at: 0, label: "Reading your inputs…" },
+  { at: 8, label: "Drafting the opening…" },
+  { at: 30, label: "Expanding on strengths…" },
+  { at: 55, label: "Adding growth areas…" },
+  { at: 80, label: "Polishing the tone…" },
+  { at: 95, label: "Almost done…" },
+];
+const ESTIMATED_CHARS = 1100;
+
+function phaseFor(pct: number): string {
+  let label = PROGRESS_PHASES[0].label;
+  for (const p of PROGRESS_PHASES) {
+    if (pct >= p.at) label = p.label;
+  }
+  return label;
+}
+
 const REVIEW_TYPES = [
   { id: "self", title: "Self Review", desc: "Reviewing my own performance" },
   { id: "manager", title: "Manager Review", desc: "Reviewing a direct report" },
@@ -97,6 +116,8 @@ export default function GeneratorModal({
   const [tone, setTone] = useState<Tone | null>(null);
 
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState("");
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
 
@@ -117,6 +138,8 @@ export default function GeneratorModal({
       setJobTitle("");
       setGrowthNote("");
       setShowGrowthNote(false);
+      setProgress(0);
+      setPhase("");
     }
   }, [open, defaultFormat]);
 
@@ -145,6 +168,8 @@ export default function GeneratorModal({
     setLoading(true);
     setError("");
     setResult("");
+    setProgress(0);
+    setPhase(PROGRESS_PHASES[0].label);
     if (editing) setEditing(false);
     const finalStrengths = freeNote.trim()
       ? [...strengths, freeNote.trim()]
@@ -152,6 +177,21 @@ export default function GeneratorModal({
     const finalGrowth = growthNote.trim()
       ? [...growthAreas, growthNote.trim()]
       : growthAreas;
+
+    // Smooth fake-progress tick while we wait for the first stream chunk.
+    // Keeps the bar moving at ~3.5%/s and stops the moment real characters arrive.
+    let fakeTimer: ReturnType<typeof setInterval> | null = null;
+    let firstChunkSeen = false;
+    fakeTimer = setInterval(() => {
+      if (firstChunkSeen) return;
+      setProgress((p) => {
+        if (p >= 12) return p;
+        const next = Math.min(12, p + 1.5);
+        setPhase(phaseFor(next));
+        return next;
+      });
+    }, 350);
+
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
@@ -173,6 +213,7 @@ export default function GeneratorModal({
         } catch {}
         setError(msg);
         setLoading(false);
+        if (fakeTimer) clearInterval(fakeTimer);
         return;
       }
       const reader = res.body.getReader();
@@ -182,13 +223,26 @@ export default function GeneratorModal({
         const { done, value } = await reader.read();
         if (done) break;
         acc += decoder.decode(value, { stream: true });
+        firstChunkSeen = true;
+        if (fakeTimer) {
+          clearInterval(fakeTimer);
+          fakeTimer = null;
+        }
         setResult(acc);
+        // Progress driven by chars streamed vs. soft estimate.
+        const pct = Math.min(99, Math.round((acc.length / ESTIMATED_CHARS) * 100));
+        setProgress(pct);
+        setPhase(phaseFor(pct));
       }
+      setProgress(100);
+      setPhase("Done");
+      if (fakeTimer) clearInterval(fakeTimer);
       setLoading(false);
       setStep(5);
     } catch {
       setError("Network error. Please try again.");
       setLoading(false);
+      if (fakeTimer) clearInterval(fakeTimer);
     }
   }
 
@@ -599,13 +653,42 @@ export default function GeneratorModal({
               </h2>
               {loading ? (
                 <div>
+                  {/* Phase + percentage row */}
+                  <div className="flex items-center justify-between mb-sm">
+                    <div className="flex items-center gap-xs">
+                      <RefreshCw size={14} className="animate-spin text-text-muted" />
+                      <span className="font-label-md text-label-md text-text-primary">
+                        {phase || PROGRESS_PHASES[0].label}
+                      </span>
+                    </div>
+                    <span className="font-label-md text-label-md text-text-muted tabular-nums">
+                      {Math.round(progress)}%
+                    </span>
+                  </div>
+                  {/* Progress bar */}
+                  <div
+                    className="h-1.5 w-full rounded-full overflow-hidden mb-lg"
+                    style={{ background: "var(--border-subtle, #e5e7eb)" }}
+                    role="progressbar"
+                    aria-valuenow={Math.round(progress)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  >
+                    <div
+                      className="h-full rounded-full transition-[width] duration-300 ease-out"
+                      style={{
+                        width: `${Math.max(2, Math.min(100, progress))}%`,
+                        background: "var(--primary-container, #6366f1)",
+                      }}
+                    />
+                  </div>
                   <div className="skeleton lg" />
                   <div className="skeleton" />
                   <div className="skeleton" />
                   <div className="skeleton lg" />
                   <div className="skeleton" />
-                  <div className="font-body-sm text-body-sm text-text-muted">
-                    Writing your performance review...
+                  <div className="font-body-sm text-body-sm text-text-muted mt-md">
+                    Streaming your performance review… you can close this and come back; we'll keep going.
                   </div>
                 </div>
               ) : editing ? (
