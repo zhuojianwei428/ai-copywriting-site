@@ -51,8 +51,7 @@ export default function AuthModal({
     setNotice("");
     try {
       const supabase = createClient();
-      const redirectTo =
-        window.location.origin + window.location.pathname;
+      const redirectTo = window.location.origin + "/auth";
       const { error: e } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: { redirectTo },
@@ -72,8 +71,7 @@ export default function AuthModal({
     setNotice("");
     try {
       const supabase = createClient();
-      const redirectTo =
-        window.location.origin + window.location.pathname;
+      const redirectTo = window.location.origin + "/auth";
 
       if (mode === "signup") {
         const { error: e } = await supabase.auth.signUp({
