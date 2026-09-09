@@ -1,6 +1,6 @@
 {
   "framework": null,
-  "buildCommand": "python3 _build.py",
+  "buildCommand": "echo 'placeholder-mode: skip rebuild (site under reconstruction)'",
   "outputDirectory": ".",
   "rewrites": [
     { "source": "/admin/index.html/95-09-15", "destination": "/admin/95-09-15/index.html" }
