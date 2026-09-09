@@ -3,6 +3,7 @@
 import { useState } from "react";
 import GeneratorModal from "./GeneratorModal";
 import ScoreGeneratorModal from "./ScoreGeneratorModal";
+import { AuthProvider } from "./auth/AuthContext";
 import { FAQ_ITEMS } from "../lib/jsonld";
 
 type FormatKey = "self" | "manager" | "peer" | "360";
@@ -55,7 +56,8 @@ export default function Landing() {
   }
 
   return (
-    <main className="min-h-screen bg-surface-canvas">
+    <AuthProvider>
+      <main className="min-h-screen bg-surface-canvas">
       {/* ===================== HEADER ===================== */}
       <header className="sticky top-0 z-40 w-full border-b border-border-subtle bg-surface-card/90 backdrop-blur">
         <div className="max-w-[1280px] mx-auto px-gutter-mobile lg:px-gutter-desktop h-16 flex items-center justify-between">
@@ -1003,6 +1005,7 @@ export default function Landing() {
         open={scoreOpen}
         onClose={() => setScoreOpen(false)}
       />
-    </main>
+      </main>
+    </AuthProvider>
   );
 }

@@ -6,6 +6,24 @@
 import DeepSeekClient from "openai";
 import { SCORE_SYSTEM_PROMPT, buildScorePrompt } from "../../../lib/scorePrompt";
 import { computeScorecard, gradeOf, type KraInput } from "../../../lib/score";
+import { createClient as createSupabaseClient } from "../../../lib/supabase/server";
+
+/** 与 /api/generate 一致：Supabase 已配置时要求已登录会话，否则 401。 */
+async function requireUser(): Promise<{ error: string } | null> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anonKey) return null;
+  try {
+    const supabase = await createSupabaseClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { error: "Please sign in to continue." };
+    return null;
+  } catch {
+    return { error: "Authentication is unavailable. Please try again." };
+  }
+}
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -91,6 +109,13 @@ function extractJson(text: string): any | null {
 export async function POST(req: Request) {
   const ip = getIp(req);
   const startedAt = Date.now();
+
+  const authErr = await requireUser();
+  if (authErr) {
+    logCall({ event: "auth_required", level: "warn", ip });
+    return Response.json({ error: authErr.error }, { status: 401 });
+  }
+
   const apiKey = process.env.DEEPSEEK_API_KEY;
 
   if (!apiKey) {

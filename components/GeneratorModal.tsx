@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Check, Copy, Pencil, RefreshCw } from "lucide-react";
 import { downloadPDF, downloadWord } from "../lib/export";
+import { useAuth } from "./auth/AuthContext";
 
 type ReviewType = "self" | "manager" | "peer" | "360";
 type Tone = "Formal" | "Encouraging" | "Direct";
@@ -160,6 +161,8 @@ export default function GeneratorModal({
   const [draft, setDraft] = useState("");
   const [copied, setCopied] = useState(false);
 
+  const { requireSignIn, setAuthOpen } = useAuth();
+
   // Reset to step 1 whenever the modal opens with a (possibly new) default format
   useEffect(() => {
     if (open) {
@@ -197,6 +200,7 @@ export default function GeneratorModal({
   if (!open) return null;
 
   async function handleGenerate() {
+    if (!requireSignIn()) return; // 游客 → 弹登录框，不发起请求
     if (!reviewType || !tone) {
       setError("Please choose a review type and a tone before generating.");
       return;
@@ -248,6 +252,10 @@ export default function GeneratorModal({
           const e = await res.json();
           if (e?.error) msg = e.error;
         } catch {}
+        if (res.status === 401) {
+          msg = "Please sign in to generate your review.";
+          setAuthOpen(true);
+        }
         setError(msg);
         setLoading(false);
         if (fakeTimer) clearInterval(fakeTimer);

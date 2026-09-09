@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { downloadPDF, downloadWord } from "../lib/export";
 import { weightError, type KraInput, type ScoredKra } from "../lib/score";
+import { useAuth } from "./auth/AuthContext";
 
 type ReviewType = "self" | "manager" | "peer" | "360";
 type Tone = "Formal" | "Encouraging" | "Direct";
@@ -120,6 +121,8 @@ export default function ScoreGeneratorModal({
   const [error, setError] = useState("");
   const [resp, setResp] = useState<ScoreResponse | null>(null);
 
+  const { requireSignIn, setAuthOpen } = useAuth();
+
   useEffect(() => {
     if (open) {
       setStep("context");
@@ -175,6 +178,7 @@ export default function ScoreGeneratorModal({
   }
 
   async function handleGenerate() {
+    if (!requireSignIn()) return; // 游客 → 弹登录框，不发起请求
     const wErr = validateKraBeforeNotes();
     if (wErr) {
       setError(wErr);
@@ -211,7 +215,12 @@ export default function ScoreGeneratorModal({
       });
       const data = (await res.json()) as ScoreResponse;
       if (!res.ok || !data.ok) {
-        setError(data?.error || "Something went wrong. Please try again.");
+        if (res.status === 401) {
+          setError("Please sign in to score your review.");
+          setAuthOpen(true);
+        } else {
+          setError(data?.error || "Something went wrong. Please try again.");
+        }
         setLoading(false);
         return;
       }
