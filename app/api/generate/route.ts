@@ -67,7 +67,9 @@ function logCall(entry: Record<string, unknown>) {
 }
 
 const MAX_INPUT_CHARS = Number(process.env.MAX_INPUT_CHARS || 6000);
-const MAX_OUTPUT_TOKENS = Number(process.env.MAX_OUTPUT_TOKENS || 700);
+// 现役输出为 600-900 词的完整 7 部分绩效表（约 800-1300 tokens）。
+// 上限只是保险丝（避免长报告被硬截断），模型写到自然结束即停，不会强制用满。
+const MAX_OUTPUT_TOKENS = Number(process.env.MAX_OUTPUT_TOKENS || 1600);
 
 export async function POST(req: Request) {
   const ip = getIp(req);
