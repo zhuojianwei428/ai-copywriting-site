@@ -849,6 +849,9 @@ export default function Landing() {
               <span className="font-label-sm text-label-sm text-text-muted">
                 We don&apos;t store your reviews
               </span>
+              <span className="font-label-sm text-label-sm text-text-muted">
+                Powered by DeepSeek
+              </span>
             </div>
           </div>
         </div>

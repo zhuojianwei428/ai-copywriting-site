@@ -32,10 +32,10 @@ export async function POST(req: Request) {
     );
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
     return Response.json(
-      { error: "AI service is not configured. Please set OPENAI_API_KEY." },
+      { error: "AI service is not configured. Please set DEEPSEEK_API_KEY." },
       { status: 500 }
     );
   }
@@ -67,10 +67,10 @@ export async function POST(req: Request) {
 
   const openai = new OpenAI({
     apiKey,
-    baseURL: process.env.OPENAI_BASE_URL || undefined,
+    baseURL: process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com",
   });
 
-  const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+  const model = process.env.DEEPSEEK_MODEL || "deepseek-chat";
 
   try {
     const stream = await openai.chat.completions.create({

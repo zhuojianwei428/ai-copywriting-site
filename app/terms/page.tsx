@@ -34,7 +34,7 @@ export default function Terms() {
             How your input is processed
           </h2>
           <p className="font-body-md text-body-md text-text-muted leading-relaxed mb-md">
-            The inputs you provide are sent to OpenAI&apos;s API to generate the
+            The inputs you provide are sent to DeepSeek&apos;s API to generate the
             draft, as described in our{" "}
             <Link
               href="/privacy"

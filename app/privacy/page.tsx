@@ -26,7 +26,7 @@ export default function Privacy() {
             We do not create user accounts, and we do not store the review text
             you enter or the drafts we generate. When you click Generate, the
             inputs you provide (role, tenure, strengths, growth areas, and tone)
-            are sent to OpenAI&apos;s API to produce the text and are streamed
+            are sent to DeepSeek&apos;s API to produce the text and are streamed
             straight back to your browser. We do not save those inputs or the
             generated output on our servers.
           </p>
@@ -41,20 +41,20 @@ export default function Privacy() {
           </p>
 
           <h2 className="font-headline-sm text-headline-sm text-text-primary tracking-tight mt-xl mb-sm">
-            How OpenAI is used
+            How DeepSeek is used
           </h2>
           <p className="font-body-md text-body-md text-text-muted leading-relaxed mb-md">
-            Generation is performed by OpenAI. Your inputs are transmitted to
-            OpenAI for processing under{" "}
+            Generation is performed by DeepSeek. Your inputs are transmitted to
+            DeepSeek for processing under{" "}
             <a
-              href="https://openai.com/privacy"
+              href="https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary-container hover:text-primary underline underline-offset-2"
             >
-              OpenAI&apos;s Privacy Policy
+              DeepSeek&apos;s Privacy Policy
             </a>
-            . We do not use your data to train models.
+            . AI Write Review does not use your data to train models.
           </p>
 
           <h2 className="font-headline-sm text-headline-sm text-text-primary tracking-tight mt-xl mb-sm">
