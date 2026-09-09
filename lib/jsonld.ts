@@ -5,24 +5,28 @@ export interface FaqItem {
 
 export const FAQ_ITEMS: FaqItem[] = [
   {
-    q: "What is an AI performance review generator?",
-    a: "It's a tool that turns a few inputs—review type, role, strengths, and growth areas—into a structured, professional performance review. Instead of staring at a blank page, you get a ready-to-edit draft in seconds.",
+    q: "How does the AI ensure objectivity and reduce bias in reviews?",
+    a: "Our evaluation models run a dedicated bias verification pass on every generated draft. The system explicitly flags and converts subjective personality characterizations (e.g., \"too aggressive,\" \"passive,\" \"likable\") into verifiable, behavioral descriptions tied directly to project deliverables, observable work, and your rubric.",
   },
   {
-    q: "Is the generated review ready to send as-is?",
-    a: "It's a strong starting point written in clear, professional English. We recommend a quick read to add any company-specific metrics or context before sharing it with the employee.",
+    q: "Can I customize the review tone to match our company's rating rubric?",
+    a: "Yes. You can select standard enterprise scales (e.g., 5-point Likert, Meets/Exceeds, or Radical Candor grids) or upload custom rubric parameters. You can calibrate tone from \"Supportive & Developmental\" to \"Direct & Rigorous\" depending on seniority and context.",
   },
   {
-    q: "Can I edit the result before using it?",
-    a: "Yes. After generation you can edit the text directly in the tool, then copy, regenerate, or export it to PDF or Word.",
+    q: "Is confidential company performance data kept private and secure?",
+    a: "Enterprise customer data is never used to train generalized models. ReviewAI runs in SOC2 Type II and ISO 27001 certified cloud environments with end-to-end encryption at rest (AES-256) and in transit (TLS 1.3). Zero data persistence options are available for strictly regulated industries.",
   },
   {
-    q: "Is it really free?",
-    a: "Yes. Every feature—generation, editing, regeneration, PDF export, and Word export—is free and requires no signup.",
+    q: "Does this work for both tech roles and non-technical business functions?",
+    a: "Absolutely. Pre-configured career tracks cover Software Engineering, Product Management, Product Design, Sales, Marketing, HR, Finance, and Customer Operations. Each track features dedicated competency models reflecting actual day-to-day deliverables.",
   },
   {
-    q: "Does it work for self reviews?",
-    a: "Absolutely. Choose the Self Review type and the tool shapes the tone and structure for writing about your own performance.",
+    q: "Can I edit and regenerate specific sections of the review draft?",
+    a: "Yes. ReviewAI provides granular sectional regeneration. If an executive summary is accurate but developmental goals require greater specificity, you can prompt the engine to rewrite solely that subsection without altering the rest of your document.",
+  },
+  {
+    q: "How does the 360° feedback synthesis handle conflicting peer feedback?",
+    a: "When divergent perspectives occur (e.g., praise for rapid execution from one peer vs. concern over documentation pace from another), the engine transparently surfaces this tension as a situational trade-off rather than an irreconcilable contradiction.",
   },
 ];
 
@@ -33,7 +37,7 @@ export function webApplicationLd() {
     name: "AI Performance Review Generator",
     url: "https://aiwritereview.com/",
     description:
-      "Generate a clear, structured performance review in seconds. Built for managers and HR. Free, no signup required.",
+      "Generate objective, balanced performance reviews across self, manager, peer, and 360° formats in minutes. Free, no signup required.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Any",
     offers: {

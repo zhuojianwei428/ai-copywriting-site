@@ -5,13 +5,13 @@ import { webApplicationLd, faqLd } from "../lib/jsonld";
 export const metadata: Metadata = {
   title: "AI Performance Review Generator — Free & Instant",
   description:
-    "Generate a clear, structured performance review in seconds. Built for managers and HR. Free, no signup required.",
+    "Generate objective, balanced performance reviews across self, manager, peer, and 360° formats in minutes. Calibrated to your rubric, role level, and documented impact. Free, no signup required.",
   robots: { index: true, follow: true },
   metadataBase: new URL("https://aiwritereview.com"),
   openGraph: {
     title: "AI Performance Review Generator — Free & Instant",
     description:
-      "Generate a clear, structured performance review in seconds. Built for managers and HR. Free, no signup required.",
+      "Generate objective, balanced performance reviews across self, manager, peer, and 360° formats in minutes. Free, no signup required.",
     type: "website",
   },
 };
@@ -31,7 +31,11 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
           rel="stylesheet"
         />
         <script
