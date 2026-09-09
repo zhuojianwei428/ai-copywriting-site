@@ -29,6 +29,45 @@ const KRA_PRESETS = [
   "Process Improvement",
 ];
 
+const JOB_TITLE_PRESETS = [
+  "Software Engineer",
+  "Senior Software Engineer",
+  "Staff Engineer",
+  "Engineering Manager",
+  "Product Manager",
+  "Senior Product Manager",
+  "Product Designer",
+  "Senior Product Designer",
+  "UX Designer",
+  "UI Designer",
+  "Design Lead",
+  "Data Analyst",
+  "Data Scientist",
+  "Data Engineer",
+  "Marketing Manager",
+  "Content Marketer",
+  "Growth Marketer",
+  "SEO Specialist",
+  "Sales Manager",
+  "Account Executive",
+  "Customer Success Manager",
+  "Operations Manager",
+  "Project Manager",
+  "Program Manager",
+  "HR Manager",
+  "Recruiter",
+  "Finance Analyst",
+  "Accountant",
+  "Customer Support Specialist",
+  "QA Engineer",
+  "DevOps Engineer",
+  "Security Engineer",
+  "Solutions Architect",
+  "Technical Writer",
+  "Researcher",
+  "Other (type your own)",
+];
+
 type Step = "context" | "kra" | "notes" | "result";
 
 const STEPS: { id: Step; label: string }[] = [
@@ -68,6 +107,7 @@ export default function ScoreGeneratorModal({
 
   const [reviewType, setReviewType] = useState<ReviewType>("manager");
   const [jobTitle, setJobTitle] = useState("");
+  const [isCustomJobTitle, setIsCustomJobTitle] = useState(false);
   const [cycle, setCycle] = useState("");
   const [tone, setTone] = useState<Tone>("Formal");
 
@@ -87,6 +127,8 @@ export default function ScoreGeneratorModal({
       setLoading(false);
       setResp(null);
       setKras([emptyKra()]);
+      setIsCustomJobTitle(false);
+      setJobTitle("");
     }
   }, [open]);
 
@@ -304,14 +346,50 @@ export default function ScoreGeneratorModal({
               </div>
 
               <label className="block font-title-md text-title-md text-text-primary mb-xs">Job title (optional)</label>
-              <input
-                type="text"
-                value={jobTitle}
-                onChange={(e) => setJobTitle(e.target.value)}
-                placeholder="e.g. Senior Product Designer"
-                className="w-full px-3.5 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container mb-lg"
-                style={{ fontSize: 14 }}
-              />
+              {!isCustomJobTitle ? (
+                <select
+                  value={jobTitle}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === "__custom__") {
+                      setIsCustomJobTitle(true);
+                      setJobTitle("");
+                    } else {
+                      setJobTitle(v);
+                    }
+                  }}
+                  className="w-full px-3.5 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container mb-lg"
+                  style={{ fontSize: 14 }}
+                >
+                  <option value="">Select a job title…</option>
+                  {JOB_TITLE_PRESETS.map((t) => (
+                    <option key={t} value={t === "Other (type your own)" ? "__custom__" : t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="mb-lg">
+                  <input
+                    type="text"
+                    value={jobTitle}
+                    onChange={(e) => setJobTitle(e.target.value)}
+                    placeholder="e.g. Senior Product Designer"
+                    className="w-full px-3.5 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container"
+                    style={{ fontSize: 14 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCustomJobTitle(false);
+                      setJobTitle("");
+                    }}
+                    className="mt-xs font-label-sm text-label-sm text-text-muted hover:text-text-primary"
+                  >
+                    ← Back to preset list
+                  </button>
+                </div>
+              )}
 
               <label className="block font-title-md text-title-md text-text-primary mb-xs">Appraisal cycle (optional)</label>
               <input
