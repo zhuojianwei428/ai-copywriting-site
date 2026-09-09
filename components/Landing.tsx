@@ -3,7 +3,7 @@
 import { useState } from "react";
 import GeneratorModal from "./GeneratorModal";
 import ScoreGeneratorModal from "./ScoreGeneratorModal";
-import { AuthProvider } from "./auth/AuthContext";
+import { useAuth } from "./auth/AuthContext";
 import { FAQ_ITEMS } from "../lib/jsonld";
 
 type FormatKey = "self" | "manager" | "peer" | "360";
@@ -50,13 +50,24 @@ export default function Landing() {
   const [scoredMode, setScoredMode] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
+  // 全局登录态：点"开始生成"前先过登录门槛
+  const { user, gate, signOut } = useAuth();
+
+  /** 真正打开 narrative 生成器（只有已登录会走到这里） */
   function openGenerator(preset: FormatKey) {
     setModalDefault(preset);
     setModalOpen(true);
   }
+  /** CTA 入口：未登录先弹登录框，登录成功后自动打开生成器 */
+  function startGenerator(preset: FormatKey) {
+    gate(() => openGenerator(preset));
+  }
+  /** CTA 入口：scored 模式同样先登录 */
+  function startScored() {
+    gate(() => setScoreOpen(true));
+  }
 
   return (
-    <AuthProvider>
       <main className="min-h-screen bg-surface-canvas">
       {/* ===================== HEADER ===================== */}
       <header className="sticky top-0 z-40 w-full border-b border-border-subtle bg-surface-card/90 backdrop-blur">
@@ -69,12 +80,42 @@ export default function Landing() {
               AI Review Writer
             </span>
           </div>
-          <button
-            onClick={() => openGenerator(format)}
-            className="inline-flex items-center justify-center gap-xs px-4 py-2 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2"
-          >
-            Generate a review
-          </button>
+          <div className="flex items-center gap-sm">
+            {user ? (
+              <>
+                <span className="hidden sm:flex items-center gap-xs font-label-md text-label-md text-text-muted">
+                  {user.user_metadata?.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={user.user_metadata.avatar_url as string}
+                      alt=""
+                      className="w-6 h-6 rounded-full"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <span className="w-6 h-6 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-label-sm text-label-sm">
+                      {(user.email || "U").slice(0, 1).toUpperCase()}
+                    </span>
+                  )}
+                  {user.email || "Signed in"}
+                </span>
+                <button
+                  onClick={() => signOut()}
+                  className="inline-flex items-center px-3 py-2 rounded-lg border border-border-strong text-text-primary font-label-md text-label-md hover:bg-surface-canvas transition-colors"
+                  type="button"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => startGenerator(format)}
+                className="inline-flex items-center justify-center gap-xs px-4 py-2 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2"
+              >
+                Generate a review
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -99,8 +140,8 @@ export default function Landing() {
           {/* Brand tagline subtitle */}
           <p className="font-body-lg text-body-lg text-text-muted max-w-2xl">
             Reviews written with rigor, precision, and nuance — calibrated to
-            your rubric, role level, and documented impact. Free, no signup
-            required.
+            your rubric, role level, and documented impact. Sign in with
+            Google or your email to start.
           </p>
 
           {/* Interactive Generator Box */}
@@ -245,7 +286,7 @@ export default function Landing() {
                 </span>
               </div>
               <button
-                onClick={() => openGenerator(format)}
+                onClick={() => startGenerator(format)}
                 className="inline-flex items-center justify-center gap-xs px-5 py-2.5 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2"
                 type="button"
               >
@@ -307,7 +348,7 @@ export default function Landing() {
                     </span>
                   </div>
                   <button
-                    onClick={() => setScoreOpen(true)}
+                    onClick={() => startScored()}
                     className="inline-flex items-center justify-center gap-xs px-5 py-2.5 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2"
                     type="button"
                   >
@@ -764,7 +805,7 @@ export default function Landing() {
                 d: "Standardize evaluation quality across departments and reduce unhelpful one-line reviews. Supports consistent, well-documented evaluations and helps reduce unconscious bias in your review cycle.",
                 items: [
                   "Prompts you to support claims with concrete, specific language",
-                  "No account to create, nothing to delete later",
+                  "Secure sign-in — generate and export as often as you need",
                 ],
               },
             ].map((a) => (
@@ -961,7 +1002,7 @@ export default function Landing() {
                 Currently free, no credit card required
               </span>
               <span className="font-label-sm text-label-sm text-text-muted">
-                No account to create, nothing to delete later
+                Your reviews are never stored on our servers
               </span>
               <span className="font-label-sm text-label-sm text-text-muted">
                 We don&apos;t sell your data
@@ -1006,6 +1047,5 @@ export default function Landing() {
         onClose={() => setScoreOpen(false)}
       />
       </main>
-    </AuthProvider>
   );
 }
