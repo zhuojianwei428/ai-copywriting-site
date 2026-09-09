@@ -30,6 +30,45 @@ const TONES = [
   { id: "Direct", desc: "Blunt and to the point" },
 ] as const;
 
+const JOB_TITLE_PRESETS = [
+  "Software Engineer",
+  "Senior Software Engineer",
+  "Staff Engineer",
+  "Engineering Manager",
+  "Product Manager",
+  "Senior Product Manager",
+  "Product Designer",
+  "Senior Product Designer",
+  "UX Designer",
+  "UI Designer",
+  "Design Lead",
+  "Data Analyst",
+  "Data Scientist",
+  "Data Engineer",
+  "Marketing Manager",
+  "Content Marketer",
+  "Growth Marketer",
+  "SEO Specialist",
+  "Sales Manager",
+  "Account Executive",
+  "Customer Success Manager",
+  "Operations Manager",
+  "Project Manager",
+  "Program Manager",
+  "HR Manager",
+  "Recruiter",
+  "Finance Analyst",
+  "Accountant",
+  "Customer Support Specialist",
+  "QA Engineer",
+  "DevOps Engineer",
+  "Security Engineer",
+  "Solutions Architect",
+  "Technical Writer",
+  "Researcher",
+  "Other (type your own)",
+];
+
 const STEPS = ["Format", "Role & Level", "Inputs", "Draft"];
 
 function toggle(list: string[], v: string): string[] {
@@ -48,6 +87,7 @@ export default function GeneratorModal({
   const [step, setStep] = useState<number>(1);
   const [reviewType, setReviewType] = useState<ReviewType | null>(defaultFormat);
   const [jobTitle, setJobTitle] = useState("");
+  const [isCustomJobTitle, setIsCustomJobTitle] = useState(false);
   const [tenure, setTenure] = useState<string | null>(null);
   const [strengths, setStrengths] = useState<string[]>([]);
   const [freeNote, setFreeNote] = useState("");
@@ -71,6 +111,8 @@ export default function GeneratorModal({
       setError("");
       setEditing(false);
       setLoading(false);
+      setIsCustomJobTitle(false);
+      setJobTitle("");
     }
   }, [open, defaultFormat]);
 
@@ -280,14 +322,50 @@ export default function GeneratorModal({
               <label className="block font-title-md text-title-md text-text-primary mb-xs">
                 Job title
               </label>
-              <input
-                type="text"
-                value={jobTitle}
-                onChange={(e) => setJobTitle(e.target.value)}
-                placeholder="e.g. Senior Marketing Manager"
-                className="w-full px-3.5 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container mb-lg"
-                style={{ fontSize: 14 }}
-              />
+              {!isCustomJobTitle ? (
+                <select
+                  value={jobTitle}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === "__custom__") {
+                      setIsCustomJobTitle(true);
+                      setJobTitle("");
+                    } else {
+                      setJobTitle(v);
+                    }
+                  }}
+                  className="w-full px-3.5 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container mb-lg"
+                  style={{ fontSize: 14 }}
+                >
+                  <option value="">Select a job title…</option>
+                  {JOB_TITLE_PRESETS.map((t) => (
+                    <option key={t} value={t === "Other (type your own)" ? "__custom__" : t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="mb-lg">
+                  <input
+                    type="text"
+                    value={jobTitle}
+                    onChange={(e) => setJobTitle(e.target.value)}
+                    placeholder="e.g. Senior Marketing Manager"
+                    className="w-full px-3.5 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container"
+                    style={{ fontSize: 14 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCustomJobTitle(false);
+                      setJobTitle("");
+                    }}
+                    className="mt-xs font-label-sm text-label-sm text-text-muted hover:text-text-primary"
+                  >
+                    ← Back to preset list
+                  </button>
+                </div>
+              )}
               <label className="block font-title-md text-title-md text-text-primary mb-sm">
                 Time in this role
               </label>
