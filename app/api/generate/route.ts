@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 // ---- 轻量内存限流（MVP 够用，Serverless 重启后失效）----
 const rateMap = new Map<string, { count: number; resetAt: number }>();
-function isRateLimited(ip: string, limit = 10, windowMs = 60_000): boolean {
+function isRateLimited(ip: string, limit = 5, windowMs = 60_000): boolean {
   const now = Date.now();
   const rec = rateMap.get(ip);
   if (!rec || now > rec.resetAt) {
@@ -87,7 +87,7 @@ export async function POST(req: Request) {
     );
   }
 
-  if (isRateLimited(ip)) {
+  if (isRateLimited(ip, 5)) {
     logCall({
       event: "rate_limited",
       level: "warn",
@@ -96,9 +96,7 @@ export async function POST(req: Request) {
       dailyCalls: bumpDaily(),
     });
     return Response.json(
-      {
-        error: "You've generated a lot just now. Please try again in a minute.",
-      },
+      { error: "Too many requests. Please try again later." },
       { status: 429 }
     );
   }

@@ -314,37 +314,36 @@ export default function Landing() {
                 </div>
               </div>
               {/* Document Action Toolbar */}
-              <div className="flex items-center gap-xs">
-                <div
-                  className="relative group"
-                  title="Available after you generate your own draft"
-                >
-                  <button
-                    disabled
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border-strong rounded text-text-muted cursor-not-allowed font-label-md text-label-md"
-                    type="button"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">
-                      content_copy
-                    </span>
-                    <span>Copy Draft</span>
-                  </button>
+              <div className="flex flex-col items-end gap-1.5">
+                <div className="flex items-center gap-xs">
+                  <div className="relative group">
+                    <button
+                      disabled
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border-strong rounded text-text-muted cursor-not-allowed font-label-md text-label-md"
+                      type="button"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">
+                        content_copy
+                      </span>
+                      <span>Copy Draft</span>
+                    </button>
+                  </div>
+                  <div className="relative group">
+                    <button
+                      disabled
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border-strong rounded text-text-muted cursor-not-allowed font-label-md text-label-md"
+                      type="button"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">
+                        picture_as_pdf
+                      </span>
+                      <span>Export PDF</span>
+                    </button>
+                  </div>
                 </div>
-                <div
-                  className="relative group"
-                  title="Available after you generate your own draft"
-                >
-                  <button
-                    disabled
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border-strong rounded text-text-muted cursor-not-allowed font-label-md text-label-md"
-                    type="button"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">
-                      picture_as_pdf
-                    </span>
-                    <span>Export PDF</span>
-                  </button>
-                </div>
+                <p className="font-label-sm text-label-sm text-text-muted text-right">
+                  Available after you generate your own draft
+                </p>
               </div>
             </div>
 
@@ -845,7 +844,7 @@ export default function Landing() {
             </span>
             <div className="flex flex-wrap items-center gap-lg">
               <span className="font-label-sm text-label-sm text-text-muted">
-                Free — no signup, no credit card
+                Currently free, no credit card required
               </span>
               <span className="font-label-sm text-label-sm text-text-muted">
                 No account to create, nothing to delete later

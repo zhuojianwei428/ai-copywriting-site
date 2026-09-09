@@ -3,16 +3,24 @@ import "./globals.css";
 import { webApplicationLd, faqLd } from "../lib/jsonld";
 
 export const metadata: Metadata = {
-  title: "AI Performance Review Generator — Free & Instant",
+  title: "AI Review Writer — AI Performance Review Generator",
   description:
     "Generate objective, balanced performance reviews across self, manager, peer, and 360° formats in minutes. Calibrated to your rubric, role level, and documented impact. Free, no signup required.",
   robots: { index: true, follow: true },
   metadataBase: new URL("https://aiwritereview.com"),
   openGraph: {
-    title: "AI Performance Review Generator — Free & Instant",
+    title: "AI Review Writer — AI Performance Review Generator",
     description:
       "Generate objective, balanced performance reviews across self, manager, peer, and 360° formats in minutes. Free, no signup required.",
     type: "website",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "AI Review Writer — AI Performance Review Generator",
+      },
+    ],
   },
 };
 
