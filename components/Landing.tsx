@@ -40,42 +40,15 @@ const FORMATS: {
 
 const STEPS = ["Format", "Role & Level", "Inputs", "Draft"];
 
-const SAMPLE_REVIEW = `EXECUTIVE RATING: Exceeds Expectations (Level 5)
-
-Elena demonstrated remarkable ownership across the Core Experience domain this half-year. Her leadership during the Checkout Design System unification delivered measurable velocity improvements across both product and mobile engineering squads, while establishing higher accessibility benchmarks organization-wide.
-
-1. CORE COMPETENCIES & DOCUMENTED IMPACT
-- Design System Architecture & Velocity: Engineered and published 24 accessible Figma tokens aligned to the internal Tailwind spec. Authored cross-functional guidelines that unblocked 6 teams. (+34% Team Velocity)
-- Multi-tier Checkout Redesign: Shipped friction-reduction flows across enterprise checkout portals ahead of the scheduled Q4 holiday freeze. Zero regressions reported in post-release audit. (-18% Drop-off Rate)
-- Design Mentorship & Rituals: Structured bi-weekly design critique sessions and onboarded 2 Associate Designers, cutting ramp time by three weeks. (2 Mentees Promoted)
-
-2. DEVELOPMENTAL OBJECTIVES & FOCUS AREAS
-- Cross-Functional Strategic Sync: Drive higher leverage by introducing Product Management and Analytics earlier in the exploratory phase.
-- Executive-Level Synthesis: Frame quarterly proposals in terms of business bottom-line impact and engineering tradeoff matrices.
-
-3. 360° QUALITATIVE SYNTHESIS
-Consensus Themes: Peers commended Elena for deep empathy during technical feasibility reviews and responsiveness to urgent pull requests. One recurring opportunity noted was to empower junior teammates to lead design reviews independently.`;
-
 export default function Landing() {
   const [format, setFormat] = useState<FormatKey>("self");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalDefault, setModalDefault] = useState<FormatKey>("self");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [copiedMock, setCopiedMock] = useState(false);
 
   function openGenerator(preset: FormatKey) {
     setModalDefault(preset);
     setModalOpen(true);
-  }
-
-  async function handleCopySample() {
-    try {
-      await navigator.clipboard.writeText(SAMPLE_REVIEW);
-      setCopiedMock(true);
-      setTimeout(() => setCopiedMock(false), 2000);
-    } catch {
-      /* ignore */
-    }
   }
 
   return (
@@ -88,7 +61,7 @@ export default function Landing() {
               rate_review
             </span>
             <span className="font-title-md text-title-md text-text-primary tracking-tight">
-              AI Write Review
+              AI Review Writer
             </span>
           </div>
           <button
@@ -112,13 +85,17 @@ export default function Landing() {
           </div>
           {/* Headline */}
           <h1 className="font-display-lg text-display-lg-mobile lg:text-display-lg text-text-primary max-w-4xl tracking-tight mb-md">
-            Performance reviews written with rigor, precision, and nuance.
+            AI Performance Review Generator
           </h1>
-          {/* Subtitle */}
-          <p className="font-body-lg text-body-lg text-text-muted max-w-2xl mb-2xl">
-            Generate objective, balanced evaluations across all standard review
-            formats in minutes. Calibrated to your rubric, role level, and
-            documented impact.
+          {/* SEO subtitle */}
+          <p className="font-headline-md text-headline-md text-text-primary max-w-3xl mb-sm">
+            Write self, manager &amp; 360° performance reviews in minutes.
+          </p>
+          {/* Brand tagline subtitle */}
+          <p className="font-body-lg text-body-lg text-text-muted max-w-2xl">
+            Reviews written with rigor, precision, and nuance — calibrated to
+            your rubric, role level, and documented impact. Free, no signup
+            required.
           </p>
 
           {/* Interactive Generator Box (Step 1 of 4) */}
@@ -275,8 +252,28 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* High-Fidelity Review Document Mockup */}
-          <div className="w-full bg-surface-card border border-border-subtle rounded-xl shadow-sm overflow-hidden">
+          {/* High-Fidelity Review Document Mockup (sample — illustrative only) */}
+          <div className="w-full bg-surface-card border-2 border-dashed border-border-strong rounded-xl overflow-hidden">
+            {/* Sample Banner */}
+            <div className="bg-surface-canvas border-b border-dashed border-border-strong px-md lg:px-xl py-3 flex flex-col gap-1">
+              <div className="flex flex-wrap items-center gap-sm">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-label-sm text-label-sm font-semibold tracking-wide">
+                  <span className="material-symbols-outlined text-[14px]">info</span>
+                  SAMPLE OUTPUT — ILLUSTRATIVE ONLY
+                </span>
+                <span className="font-body-sm text-body-sm text-text-muted">
+                  Shown in Manager Review format
+                </span>
+              </div>
+              <p className="font-body-sm text-body-sm text-text-muted leading-relaxed">
+                All names, metrics, and milestones shown below are fictional
+                examples, not real employee data.
+              </p>
+              <p className="font-body-sm text-body-sm text-text-muted leading-relaxed">
+                AI-generated draft. Review and edit before use. Not a substitute
+                for HR, legal, or employment advice.
+              </p>
+            </div>
             {/* Document Meta Header Bar */}
             <div className="bg-surface-canvas border-b border-border-subtle p-md lg:px-xl lg:py-md flex flex-wrap items-center justify-between gap-md">
               <div className="flex flex-wrap items-center gap-x-lg gap-y-xs">
@@ -318,26 +315,36 @@ export default function Landing() {
               </div>
               {/* Document Action Toolbar */}
               <div className="flex items-center gap-xs">
-                <button
-                  onClick={handleCopySample}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-card border border-border-strong rounded text-text-primary font-label-md text-label-md hover:bg-surface-canvas transition-colors"
-                  type="button"
+                <div
+                  className="relative group"
+                  title="Available after you generate your own draft"
                 >
-                  <span className="material-symbols-outlined text-[16px]">
-                    content_copy
-                  </span>
-                  <span>{copiedMock ? "Copied to Clipboard" : "Copy Draft"}</span>
-                </button>
-                <button
-                  onClick={() => openGenerator(format)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-card border border-border-strong rounded text-text-primary font-label-md text-label-md hover:bg-surface-canvas transition-colors"
-                  type="button"
+                  <button
+                    disabled
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border-strong rounded text-text-muted cursor-not-allowed font-label-md text-label-md"
+                    type="button"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">
+                      content_copy
+                    </span>
+                    <span>Copy Draft</span>
+                  </button>
+                </div>
+                <div
+                  className="relative group"
+                  title="Available after you generate your own draft"
                 >
-                  <span className="material-symbols-outlined text-[16px]">
-                    picture_as_pdf
-                  </span>
-                  <span>Export PDF</span>
-                </button>
+                  <button
+                    disabled
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border-strong rounded text-text-muted cursor-not-allowed font-label-md text-label-md"
+                    type="button"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">
+                      picture_as_pdf
+                    </span>
+                    <span>Export PDF</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -370,7 +377,7 @@ export default function Landing() {
                     1. Core Competencies &amp; Documented Impact
                   </h3>
                   <span className="font-label-sm text-label-sm text-text-muted">
-                    4 verifiable milestones logged
+                    3 verifiable milestones logged
                   </span>
                 </div>
                 <ul className="flex flex-col gap-sm">
@@ -458,7 +465,7 @@ export default function Landing() {
                     3. 360° Qualitative Synthesis
                   </h3>
                   <span className="font-label-sm text-label-sm text-text-muted">
-                    Aggregated across 5 peer reviews
+                    Synthesized peer feedback themes
                   </span>
                 </div>
                 <div className="p-md rounded border border-border-subtle bg-surface-card flex flex-col gap-xs">
@@ -519,8 +526,8 @@ export default function Landing() {
               {
                 n: "04",
                 t: "Review, refine & export",
-                d: "Receive a publication-ready review draft. Refine individual sections in-line, verify metric alignments, and export as PDF or Word to drop into Workday, Lattice, or your HRIS.",
-                f: "Direct HRIS Export",
+                d: "Receive a ready-to-edit review draft. Refine individual sections in-line and export as PDF or Word, ready to drop into your review process.",
+                f: "PDF & Word Export",
               },
             ].map((s) => (
               <div
@@ -589,7 +596,7 @@ export default function Landing() {
                   Turn difficult review cycles into constructive growth dialogues
                 </h3>
                 <p className="font-body-md text-body-md text-text-muted leading-relaxed">
-                  AI Write Review synthesizes qualitative feedback and concrete
+                  AI Review Writer synthesizes qualitative feedback and concrete
                   deliverables before review meetings, giving managers and ICs a
                   shared, unbiased baseline for meaningful 1-on-1 discussions.
                 </p>
@@ -613,7 +620,7 @@ export default function Landing() {
                 t: "Engineering & Product Managers",
                 d: "Eliminate review fatigue while writing fair, thorough, and developmental feedback for direct reports. Standardize scoring across diverse roles without spending 40 hours per cycle drafting repetitive prose.",
                 items: [
-                  "Synthesizes 6 months of GitHub and Jira logs into review points",
+                  "Turns your pasted notes, metrics, and project highlights into balanced review points",
                   "Maintains parity across senior and junior squad members",
                 ],
               },
@@ -641,9 +648,9 @@ export default function Landing() {
                 tag: "For HR & People Ops",
                 icon: "verified_user",
                 t: "People & HR Operations",
-                d: "Standardize evaluation quality across departments and eliminate unhelpful one-line reviews. Ensure complete legal compliance, reduce unconscious bias, and increase review cycle completion rates.",
+                d: "Standardize evaluation quality across departments and reduce unhelpful one-line reviews. Supports consistent, well-documented evaluations and helps reduce unconscious bias in your review cycle.",
                 items: [
-                  "Automated flag for non-defensible or subjective language",
+                  "Prompts you to support claims with concrete, specific language",
                   "No account to create, nothing to delete later",
                 ],
               },
@@ -742,12 +749,12 @@ export default function Landing() {
                   rate_review
                 </span>
                 <span className="font-title-md text-title-md text-text-primary tracking-tight">
-                  AI Write Review
+                  AI Review Writer
                 </span>
               </div>
               <p className="font-body-sm text-body-sm text-text-muted max-w-sm">
-                Executive-grade performance review and feedback drafting powered
-                by precision AI. Built for modern managers and HR leaders.
+                Performance review drafting powered by precision AI. Built for
+                modern managers and HR leaders.
               </p>
             </div>
             <div className="flex flex-col gap-2xs">
@@ -834,7 +841,7 @@ export default function Landing() {
           </div>
           <div className="pt-lg flex flex-col sm:flex-row items-center justify-between gap-sm">
             <span className="font-body-sm text-body-sm text-text-muted">
-              © 2026 AI Write Review
+              © 2026 AI Review Writer
             </span>
             <div className="flex flex-wrap items-center gap-lg">
               <span className="font-label-sm text-label-sm text-text-muted">
@@ -864,6 +871,10 @@ export default function Landing() {
                 Privacy Policy
               </a>{" "}
               for details, including what DeepSeek&apos;s own policy covers.
+            </p>
+            <p className="font-label-md text-label-md text-text-muted pt-sm max-w-3xl font-medium">
+              AI-generated draft. Review and edit before use. Not a substitute
+              for HR, legal, or employment advice.
             </p>
           </div>
         </div>

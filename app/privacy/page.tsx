@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Privacy Policy — AI Write Review",
+  title: "Privacy Policy — AI Review Writer",
   robots: { index: true, follow: true },
 };
 
@@ -15,7 +15,7 @@ export default function Privacy() {
           </h1>
 
           <p className="font-body-md text-body-md text-text-muted leading-relaxed mb-md">
-            AI Write Review is a free tool that generates performance-review
+            AI Review Writer is a free tool that generates performance-review
             drafts. No account is required to use it.
           </p>
 

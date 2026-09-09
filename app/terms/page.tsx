@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Terms of Service — AI Write Review",
+  title: "Terms of Service — AI Review Writer",
   robots: { index: true, follow: true },
 };
 
@@ -15,7 +15,7 @@ export default function Terms() {
           </h1>
 
           <p className="font-body-md text-body-md text-text-muted leading-relaxed mb-md">
-            AI Write Review generates performance-review drafts to assist your own
+            AI Review Writer generates performance-review drafts to assist your own
             professional judgment. The service is provided free of charge and
             without creating an account.
           </p>

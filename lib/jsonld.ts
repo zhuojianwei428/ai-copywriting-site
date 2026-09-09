@@ -22,7 +22,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   },
   {
     q: "Can I edit and regenerate specific sections of the review draft?",
-    a: "Yes. AI Write Review provides granular sectional regeneration. If an executive summary is accurate but developmental goals require greater specificity, you can prompt the engine to rewrite solely that subsection without altering the rest of your document.",
+    a: "Yes. AI Review Writer provides granular sectional regeneration. If an executive summary is accurate but developmental goals require greater specificity, you can prompt the engine to rewrite solely that subsection without altering the rest of your document.",
   },
   {
     q: "How does the 360° feedback synthesis handle conflicting peer feedback?",

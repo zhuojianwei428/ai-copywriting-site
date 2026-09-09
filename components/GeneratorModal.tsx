@@ -584,6 +584,24 @@ export default function GeneratorModal({
                   </button>
                 </div>
               )}
+
+              {!loading && !error && result && (
+                <div
+                  className="mt-lg p-md rounded border border-dashed"
+                  style={{
+                    borderColor: "var(--border-strong)",
+                    background: "var(--surface-canvas)",
+                  }}
+                >
+                  <span
+                    className="font-body-sm text-body-sm text-text-muted leading-relaxed"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    AI-generated draft. Review and edit before use. Not a
+                    substitute for HR, legal, or employment advice.
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
