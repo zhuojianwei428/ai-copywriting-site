@@ -105,6 +105,7 @@ export default function GeneratorModal({
 }) {
   const [step, setStep] = useState<number>(1);
   const [reviewType, setReviewType] = useState<ReviewType | null>(defaultFormat);
+  const [employeeName, setEmployeeName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [isCustomJobTitle, setIsCustomJobTitle] = useState(false);
   const [tenure, setTenure] = useState<string | null>(null);
@@ -136,6 +137,7 @@ export default function GeneratorModal({
       setLoading(false);
       setIsCustomJobTitle(false);
       setJobTitle("");
+      setEmployeeName("");
       setGrowthNote("");
       setShowGrowthNote(false);
       setProgress(0);
@@ -198,6 +200,7 @@ export default function GeneratorModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           reviewType,
+          employeeName: employeeName.trim() || undefined,
           jobTitle,
           tenure,
           strengths: finalStrengths,
@@ -380,6 +383,23 @@ export default function GeneratorModal({
               <p className="font-body-md text-body-md text-text-muted mb-md" style={{ marginTop: "-4px" }}>
                 Optional, but it makes the review far more specific.
               </p>
+              <label className="block font-title-md text-title-md text-text-primary mb-xs">
+                {reviewType === "self"
+                  ? "Your name (optional)"
+                  : "Employee name (optional)"}
+              </label>
+              <input
+                type="text"
+                value={employeeName}
+                onChange={(e) => setEmployeeName(e.target.value)}
+                placeholder={
+                  reviewType === "self"
+                    ? "e.g. Alex Chen"
+                    : "e.g. Jordan Rivera"
+                }
+                className="w-full px-3.5 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container mb-lg"
+                style={{ fontSize: 14 }}
+              />
               <label className="block font-title-md text-title-md text-text-primary mb-xs">
                 Job title
               </label>

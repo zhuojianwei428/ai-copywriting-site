@@ -20,6 +20,7 @@ const TYPE_LABEL: Record<ReviewType, string> = {
 export interface GenerateInput {
   reviewType: ReviewType;
   jobTitle?: string;
+  employeeName?: string | null;
   tenure?: string | null;
   strengths: string[];
   growthAreas: string[];
@@ -36,6 +37,7 @@ export function buildPrompt(input: GenerateInput): string {
     : "- (none provided)";
 
   return `Review type: ${typeLabel}
+Employee name: ${input.employeeName?.trim() || "N/A"}
 Job title: ${input.jobTitle || "N/A"}
 Time in role: ${input.tenure || "N/A"}
 

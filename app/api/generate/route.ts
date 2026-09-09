@@ -109,7 +109,7 @@ export async function POST(req: Request) {
     return Response.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { reviewType, jobTitle, tenure, strengths, growthAreas, tone } = body;
+  const { reviewType, jobTitle, employeeName, tenure, strengths, growthAreas, tone } = body;
 
   if (!reviewType || !tone) {
     logCall({ event: "missing_fields", ip, keyHint: maskKey(apiKey) });
@@ -126,6 +126,7 @@ export async function POST(req: Request) {
   const inputChars = [
     reviewType,
     jobTitle,
+    employeeName,
     tenure,
     tone,
     ...safeStrengths,
@@ -152,6 +153,7 @@ export async function POST(req: Request) {
   const prompt = buildPrompt({
     reviewType,
     jobTitle,
+    employeeName,
     tenure,
     strengths: safeStrengths,
     growthAreas: safeGrowth,
