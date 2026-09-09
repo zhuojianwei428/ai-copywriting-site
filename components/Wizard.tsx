@@ -164,7 +164,9 @@ export default function Wizard() {
                     <Check size={20} />
                   </span>
                   <span>
-                    <div style={{ fontWeight: 600 }}>{t.title}</div>
+                    <div style={{ fontWeight: 600 }}>
+                      <CssText text={t.title} as="span" />
+                    </div>
                     <div style={{ color: "var(--muted)", fontSize: 14 }}>{t.desc}</div>
                   </span>
                 </div>
@@ -310,7 +312,9 @@ export default function Wizard() {
                     <Check size={20} />
                   </span>
                   <span>
-                    <div style={{ fontWeight: 600 }}>{t.id}</div>
+                    <div style={{ fontWeight: 600 }}>
+                      <CssText text={t.id} as="span" />
+                    </div>
                     <div style={{ color: "var(--muted)", fontSize: 14 }}>{t.desc}</div>
                   </span>
                 </div>
