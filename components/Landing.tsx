@@ -88,7 +88,7 @@ export default function Landing() {
               rate_review
             </span>
             <span className="font-title-md text-title-md text-text-primary tracking-tight">
-              ReviewAI
+              AI Write Review
             </span>
           </div>
           <button
@@ -265,7 +265,7 @@ export default function Landing() {
                     verified
                   </span>
                   <span className="font-title-md text-title-md text-text-primary font-semibold">
-                    12,000+ Leaders
+                    Managers &amp; ICs
                   </span>
                 </div>
                 <span className="font-body-sm text-body-sm text-text-muted">
@@ -519,7 +519,7 @@ export default function Landing() {
               {
                 n: "04",
                 t: "Review, refine & export",
-                d: "Receive a publication-ready review draft. Refine individual sections in-line, verify metric alignments, and export directly into Workday, Lattice, or PDF.",
+                d: "Receive a publication-ready review draft. Refine individual sections in-line, verify metric alignments, and export as PDF or Word to drop into Workday, Lattice, or your HRIS.",
                 f: "Direct HRIS Export",
               },
             ].map((s) => (
@@ -589,7 +589,7 @@ export default function Landing() {
                   Turn difficult review cycles into constructive growth dialogues
                 </h3>
                 <p className="font-body-md text-body-md text-text-muted leading-relaxed">
-                  ReviewAI synthesizes qualitative feedback and concrete
+                  AI Write Review synthesizes qualitative feedback and concrete
                   deliverables before review meetings, giving managers and ICs a
                   shared, unbiased baseline for meaningful 1-on-1 discussions.
                 </p>
@@ -597,7 +597,7 @@ export default function Landing() {
               <div className="pt-md border-t border-border-subtle flex items-center justify-between font-label-sm text-label-sm text-text-muted">
                 <span>Objective Milestones</span>
                 <span className="h-1 w-1 rounded-full bg-border-strong"></span>
-                <span>Zero Hallucination</span>
+                <span>Grounded in your notes</span>
                 <span className="h-1 w-1 rounded-full bg-border-strong"></span>
                 <span>Defensible Rubrics</span>
               </div>
@@ -644,7 +644,7 @@ export default function Landing() {
                 d: "Standardize evaluation quality across departments and eliminate unhelpful one-line reviews. Ensure complete legal compliance, reduce unconscious bias, and increase review cycle completion rates.",
                 items: [
                   "Automated flag for non-defensible or subjective language",
-                  "Full compliance with SOC2 Type II and GDPR standards",
+                  "No account to create, nothing to delete later",
                 ],
               },
             ].map((a) => (
@@ -742,7 +742,7 @@ export default function Landing() {
                   rate_review
                 </span>
                 <span className="font-title-md text-title-md text-text-primary tracking-tight">
-                  ReviewAI
+                  AI Write Review
                 </span>
               </div>
               <p className="font-body-sm text-body-sm text-text-muted max-w-sm">
@@ -803,9 +803,9 @@ export default function Landing() {
               </a>
               <a
                 className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
-                href="#"
+                href="mailto:support@aiwritereview.com"
               >
-                Security &amp; Trust
+                Email Support
               </a>
             </div>
             <div className="flex flex-col gap-2xs">
@@ -814,7 +814,7 @@ export default function Landing() {
               </span>
               <a
                 className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
-                href="/privacy-policy"
+                href="/privacy"
               >
                 Privacy Policy
               </a>
@@ -826,22 +826,28 @@ export default function Landing() {
               </a>
               <a
                 className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
-                href="#"
+                href="mailto:support@aiwritereview.com"
               >
-                Data Compliance
+                Contact
               </a>
             </div>
           </div>
           <div className="pt-lg flex flex-col sm:flex-row items-center justify-between gap-sm">
             <span className="font-body-sm text-body-sm text-text-muted">
-              © 2025 ReviewAI Technologies Inc. All rights reserved.
+              © 2026 AI Write Review
             </span>
-            <div className="flex items-center gap-lg">
+            <div className="flex flex-wrap items-center gap-lg">
               <span className="font-label-sm text-label-sm text-text-muted">
-                SOC2 Type II Certified
+                Free — no signup, no credit card
               </span>
               <span className="font-label-sm text-label-sm text-text-muted">
-                GDPR Compliant
+                No account to create, nothing to delete later
+              </span>
+              <span className="font-label-sm text-label-sm text-text-muted">
+                We don&apos;t sell your data
+              </span>
+              <span className="font-label-sm text-label-sm text-text-muted">
+                We don&apos;t store your reviews
               </span>
             </div>
           </div>
