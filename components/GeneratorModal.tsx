@@ -261,7 +261,7 @@ export default function GeneratorModal({
                   onClick={() => setStep(2)}
                   type="button"
                 >
-                  <span>Continue to Step 2: Role &amp; Metrics</span>
+                  <span>Continue to Step 2: Role &amp; Level</span>
                   <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                 </button>
               </div>
@@ -342,7 +342,8 @@ export default function GeneratorModal({
                 What went well?
               </h2>
               <p className="font-body-md text-body-md text-text-muted mb-md" style={{ marginTop: "-4px" }}>
-                Tap everything that applies. The more you pick, the better the output.
+                Select everything that applies. The more you pick, the better
+                the output.
               </p>
               <div className="flex flex-wrap gap-sm mb-lg">
                 {STRENGTHS.map((s) => (

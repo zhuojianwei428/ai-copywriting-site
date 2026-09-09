@@ -42,11 +42,11 @@ const STEPS = ["Format", "Role & Level", "Inputs", "Draft"];
 
 const SAMPLE_REVIEW = `EXECUTIVE RATING: Exceeds Expectations (Level 5)
 
-Elena demonstrated remarkable ownership across the Core Experience domain this half. Her leadership during the Checkout Design System unification delivered measurable velocity improvements across both product and mobile engineering squads, while establishing higher accessibility benchmarks organization-wide.
+Elena demonstrated remarkable ownership across the Core Experience domain this half-year. Her leadership during the Checkout Design System unification delivered measurable velocity improvements across both product and mobile engineering squads, while establishing higher accessibility benchmarks organization-wide.
 
 1. CORE COMPETENCIES & DOCUMENTED IMPACT
 - Design System Architecture & Velocity: Engineered and published 24 accessible Figma tokens aligned to the internal Tailwind spec. Authored cross-functional guidelines that unblocked 6 teams. (+34% Team Velocity)
-- Multi-tier Checkout Redesign: Shipped friction-reduction flows across enterprise checkout portals ahead of scheduled Q4 holiday freeze. Zero regressions reported in post-release audit. (-18% Drop-off Rate)
+- Multi-tier Checkout Redesign: Shipped friction-reduction flows across enterprise checkout portals ahead of the scheduled Q4 holiday freeze. Zero regressions reported in post-release audit. (-18% Drop-off Rate)
 - Design Mentorship & Rituals: Structured bi-weekly design critique sessions and onboarded 2 Associate Designers, cutting ramp time by three weeks. (2 Mentees Promoted)
 
 2. DEVELOPMENTAL OBJECTIVES & FOCUS AREAS
@@ -54,7 +54,7 @@ Elena demonstrated remarkable ownership across the Core Experience domain this h
 - Executive-Level Synthesis: Frame quarterly proposals in terms of business bottom-line impact and engineering tradeoff matrices.
 
 3. 360° QUALITATIVE SYNTHESIS
-Consensus Themes: Peers commended Elena for deep empathy during technical feasibility reviews and responsiveness to urgent pull requests. One recurring opportunity noted was empowering junior teammates to lead design reviews independently.`;
+Consensus Themes: Peers commended Elena for deep empathy during technical feasibility reviews and responsiveness to urgent pull requests. One recurring opportunity noted was to empower junior teammates to lead design reviews independently.`;
 
 export default function Landing() {
   const [format, setFormat] = useState<FormatKey>("self");
@@ -220,7 +220,7 @@ export default function Landing() {
                 className="inline-flex items-center justify-center gap-xs px-5 py-2.5 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2"
                 type="button"
               >
-                <span>Continue to Step 2: Role &amp; Metrics</span>
+                <span>Continue to Step 2: Role &amp; Level</span>
                 <span className="material-symbols-outlined text-[18px]">
                   arrow_forward
                 </span>
@@ -355,7 +355,7 @@ export default function Landing() {
                 </div>
                 <p className="font-body-md text-body-md text-text-primary leading-relaxed">
                   Elena demonstrated remarkable ownership across the Core
-                  Experience domain this half. Her leadership during the Checkout
+                  Experience domain this half-year. Her leadership during the Checkout
                   Design System unification delivered measurable velocity
                   improvements across both product and mobile engineering squads,
                   while establishing higher accessibility benchmarks
@@ -382,7 +382,7 @@ export default function Landing() {
                     },
                     {
                       t: "Multi-tier Checkout Redesign",
-                      d: "Shipped friction-reduction flows across enterprise checkout portals ahead of scheduled Q4 holiday freeze. Zero regressions reported in post-release audit.",
+                      d: "Shipped friction-reduction flows across enterprise checkout portals ahead of the scheduled Q4 holiday freeze. Zero regressions reported in post-release audit.",
                       m: "-18% Drop-off Rate",
                     },
                     {
@@ -468,7 +468,7 @@ export default function Landing() {
                     technical feasibility reviews and her responsiveness to urgent
                     pull requests. Multiple engineering leads highlighted that
                     her spec documentation minimizes back-and-forth communication.
-                    One recurring opportunity noted was empowering junior
+                    One recurring opportunity noted was to empower junior
                     teammates to lead design reviews independently.
                   </p>
                 </div>
@@ -621,7 +621,7 @@ export default function Landing() {
                 tag: "For Professionals",
                 icon: "person",
                 t: "Individual Contributors",
-                d: "Articulate your accomplishments and project impact clearly without awkward self-promotion. Translate daily problem solving and operational firefighting into documented business value.",
+                d: "Articulate your accomplishments and project impact clearly without awkward self-promotion. Translate daily problem-solving and operational firefighting into documented business value.",
                 items: [
                   "Balances healthy confidence with self-critical growth targets",
                   "Ensures forgotten early-quarter projects receive proper weighting",
@@ -634,7 +634,7 @@ export default function Landing() {
                 d: "Provide respectful, actionable peer reviews in minutes instead of hours. Surface nuanced collaborative praise and constructive feedback without creating awkward team dynamics.",
                 items: [
                   "SBI framework (Situation-Behavior-Impact) prompts",
-                  "Protects candidness while maintaining professional tone",
+                  "Protects candor while maintaining a professional tone",
                 ],
               },
               {
@@ -785,19 +785,19 @@ export default function Landing() {
               </span>
               <a
                 className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
-                href="#"
+                href="#how-it-works"
               >
                 Frameworks
               </a>
               <a
                 className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
-                href="#"
+                href="#faq"
               >
                 Bias Guard
               </a>
               <a
                 className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
-                href="#"
+                href="#output"
               >
                 Templates
               </a>
@@ -855,8 +855,8 @@ export default function Landing() {
             </div>
             <p className="font-body-sm text-body-sm text-text-muted pt-sm max-w-3xl">
               Your text is sent to our AI provider (DeepSeek) via API to generate
-              your review. We don&apos;t store your reviews on our servers and we
-              don&apos;t sell your data. See our{" "}
+              your review. We don&apos;t store your reviews on our servers, and
+              we don&apos;t sell your data. See our{" "}
               <a
                 href="/privacy"
                 className="text-primary-container hover:text-primary underline underline-offset-2"
