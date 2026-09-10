@@ -31,3 +31,19 @@ export async function requireUser(): Promise<{ error: string } | null> {
     return { error: "Authentication is unavailable. Please try again." };
   }
 }
+
+/**
+ * 取当前登录用户 id，**不拦截**（游客返回 null）。
+ *
+ * 用于"免登录也能用，但登录用户额度更高"的配额分档 —— 生成接口已对游客开放，
+ * 这里只是识别身份，决定是否给更高的每日上限。
+ */
+export async function currentUserId(): Promise<string | null> {
+  if (!isClerkConfigured()) return null;
+  try {
+    const { userId } = await auth();
+    return userId ?? null;
+  } catch {
+    return null;
+  }
+}

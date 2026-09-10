@@ -6,7 +6,8 @@
 import DeepSeekClient from "openai";
 import { SCORE_SYSTEM_PROMPT, buildScorePrompt } from "../../../lib/scorePrompt";
 import { computeScorecard, gradeOf, type KraInput } from "../../../lib/score";
-import { requireUser } from "../../../lib/clerk/requireUser";
+import { currentUserId } from "../../../lib/clerk/requireUser";
+import { consumeQuota, withQuotaCookie } from "../../../lib/quotas";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -89,15 +90,37 @@ function extractJson(text: string): any | null {
   }
 }
 
-export async function POST(req: Request) {
+/** 与 /api/generate 同一套配额：游客可用，超限引导注册。 */
+export async function POST(req: Request): Promise<Response> {
+  const userId = await currentUserId();
+  const quota = consumeQuota(req.headers.get("cookie"), userId);
+
+  if (!quota.allowed) {
+    logCall({
+      event: "quota_exceeded",
+      level: "warn",
+      ip: getIp(req),
+      signedIn: Boolean(userId),
+      used: quota.used,
+      limit: quota.limit,
+    });
+    return Response.json(
+      {
+        error: quota.reason,
+        code: "quota_exceeded",
+        requireSignIn: Boolean(quota.requireSignIn),
+      },
+      { status: 429 }
+    );
+  }
+
+  const res = await handlePost(req);
+  return withQuotaCookie(res, quota.setCookie);
+}
+
+async function handlePost(req: Request) {
   const ip = getIp(req);
   const startedAt = Date.now();
-
-  const authErr = await requireUser();
-  if (authErr) {
-    logCall({ event: "auth_required", level: "warn", ip });
-    return Response.json({ error: authErr.error }, { status: 401 });
-  }
 
   const apiKey = process.env.DEEPSEEK_API_KEY;
 

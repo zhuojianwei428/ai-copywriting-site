@@ -205,6 +205,31 @@ export default function ScoreGeneratorModal({
     return weightError(filled);
   }
 
+  /**
+   * 暂存当前向导进度，只在"马上要弹登录框"时调用 ——
+   * Google 登录是整页跳转，回来后靠这份快照恢复已填内容。
+   */
+  function saveSnapshot() {
+    try {
+      sessionStorage.setItem(
+        RESUME_KEY,
+        JSON.stringify({
+          step,
+          reviewType,
+          jobTitle,
+          isCustomJobTitle,
+          cycle,
+          tone,
+          kras,
+          strengths,
+          growth,
+        })
+      );
+    } catch {
+      // sessionStorage 不可用 → 跳页回来只能重新填
+    }
+  }
+
   async function handleGenerate() {
     const wErr = validateKraBeforeNotes();
     if (wErr) {
@@ -212,24 +237,8 @@ export default function ScoreGeneratorModal({
       setStep("kra");
       return;
     }
-    // 游客：暂存向导进度（Google 整页跳转后靠它恢复）→ 弹登录框；
-    // 邮箱验证码登录不跳页，登录成功后 gate 自动续跑 runGenerate。
-    if (!user) {
-      try {
-        sessionStorage.setItem(
-          RESUME_KEY,
-          JSON.stringify({ step, reviewType, jobTitle, isCustomJobTitle, cycle, tone, kras, strengths, growth })
-        );
-      } catch {
-        // sessionStorage 不可用 → 跳页回来只能重新填
-      }
-    }
-    gate(
-      () => {
-        void runGenerate();
-      },
-      "scored"
-    );
+    // 评分对游客开放：直接发请求。额度用尽由 runGenerate 拦下并引导登录。
+    void runGenerate();
   }
 
   async function runGenerate() {
@@ -268,6 +277,22 @@ export default function ScoreGeneratorModal({
       });
       const data = (await res.json()) as ScoreResponse;
       if (!res.ok || !data.ok) {
+        // 游客免费额度用尽 / 会话失效 → 弹登录框，登录成功后自动重试
+        const needsSignIn =
+          res.status === 401 ||
+          (res.status === 429 && (data as any)?.code === "quota_exceeded");
+        if (needsSignIn && !user) {
+          saveSnapshot();
+          setLoading(false);
+          setError("");
+          gate(
+            () => {
+              void runGenerate();
+            },
+            "scored"
+          );
+          return;
+        }
         if (res.status === 401) {
           setError("Please sign in to score your review.");
           setAuthOpen(true);
@@ -750,7 +775,7 @@ export default function ScoreGeneratorModal({
                   </div>
                   <div className="flex flex-col gap-2">
                     <button
-                      onClick={() => downloadPDF()}
+                      onClick={() => gate(() => downloadPDF(), "export:pdf")}
                       className="inline-flex items-center justify-center gap-xs px-4 py-2 border border-border-strong rounded text-text-primary hover:bg-surface-canvas transition-colors"
                       type="button"
                     >
@@ -758,7 +783,13 @@ export default function ScoreGeneratorModal({
                       Export PDF
                     </button>
                     <button
-                      onClick={() => downloadWord(buildWordText(), "performance-scorecard")}
+                      onClick={() =>
+                        gate(
+                          () =>
+                            downloadWord(buildWordText(), "performance-scorecard"),
+                          "export:word"
+                        )
+                      }
                       className="inline-flex items-center justify-center gap-xs px-4 py-2 border border-border-strong rounded text-text-primary hover:bg-surface-canvas transition-colors"
                       type="button"
                     >

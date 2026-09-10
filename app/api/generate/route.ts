@@ -4,7 +4,8 @@
 // is read or used anywhere in this route.
 import DeepSeekClient from "openai";
 import { SYSTEM_PROMPT, buildPrompt } from "../../../lib/prompt";
-import { requireUser } from "../../../lib/clerk/requireUser";
+import { currentUserId } from "../../../lib/clerk/requireUser";
+import { consumeQuota, withQuotaCookie } from "../../../lib/quotas";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -72,15 +73,43 @@ const MAX_INPUT_CHARS = Number(process.env.MAX_INPUT_CHARS || 6000);
 // 上限只是保险丝（避免长报告被硬截断），模型写到自然结束即停，不会强制用满。
 const MAX_OUTPUT_TOKENS = Number(process.env.MAX_OUTPUT_TOKENS || 1600);
 
-export async function POST(req: Request) {
+/**
+ * 生成对游客开放（免登录），靠每日配额而不是登录墙来防滥用：
+ *  - 游客：GUEST_DAILY_LIMIT 次/天（默认 5）
+ *  - 登录：USER_DAILY_LIMIT 次/天（默认 50）
+ *  - 全站：GLOBAL_DAILY_LIMIT 次/天（默认 500），超出后只服务登录用户
+ * 计数写在签名 cookie 里，见 lib/quotas.ts。
+ */
+export async function POST(req: Request): Promise<Response> {
+  const userId = await currentUserId();
+  const quota = consumeQuota(req.headers.get("cookie"), userId);
+
+  if (!quota.allowed) {
+    logCall({
+      event: "quota_exceeded",
+      level: "warn",
+      ip: getIp(req),
+      signedIn: Boolean(userId),
+      used: quota.used,
+      limit: quota.limit,
+    });
+    return Response.json(
+      {
+        error: quota.reason,
+        code: "quota_exceeded",
+        requireSignIn: Boolean(quota.requireSignIn),
+      },
+      { status: 429 }
+    );
+  }
+
+  const res = await handlePost(req);
+  return withQuotaCookie(res, quota.setCookie);
+}
+
+async function handlePost(req: Request) {
   const ip = getIp(req);
   const startedAt = Date.now();
-
-  const authErr = await requireUser();
-  if (authErr) {
-    logCall({ event: "auth_required", level: "warn", ip });
-    return Response.json({ error: authErr.error }, { status: 401 });
-  }
 
   const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {

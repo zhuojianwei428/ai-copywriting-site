@@ -232,39 +232,43 @@ export default function GeneratorModal({
 
   if (!open) return null;
 
+  /**
+   * 把当前向导进度存进 sessionStorage。
+   * 只在"马上要弹登录框"时调用 —— Google 登录是整页跳转，
+   * 回来后组件重新挂载，靠这份快照把 4 步填的内容恢复出来。
+   */
+  function saveSnapshot() {
+    try {
+      sessionStorage.setItem(
+        RESUME_KEY,
+        JSON.stringify({
+          step,
+          reviewType,
+          employeeName,
+          jobTitle,
+          isCustomJobTitle,
+          tenure,
+          strengths,
+          freeNote,
+          growthAreas,
+          growthNote,
+          showGrowthNote,
+          tone,
+        })
+      );
+    } catch {
+      // sessionStorage 不可用（无痕等）→ 跳页回来只能重新填
+    }
+  }
+
   async function handleGenerate() {
     if (!reviewType || !tone) {
       setError("Please choose a review type and a tone before generating.");
       return;
     }
-    // 游客：先把 4 步向导的进度存进 sessionStorage（Google 整页跳转后靠它恢复），
-    // 再弹登录框；邮箱验证码登录不跳页，登录成功后 gate 自动续跑 runGenerate。
-    if (!user) {
-      try {
-        sessionStorage.setItem(
-          RESUME_KEY,
-          JSON.stringify({
-            step,
-            reviewType,
-            employeeName,
-            jobTitle,
-            isCustomJobTitle,
-            tenure,
-            strengths,
-            freeNote,
-            growthAreas,
-            growthNote,
-            showGrowthNote,
-            tone,
-          })
-        );
-      } catch {
-        // sessionStorage 不可用（无痕等）→ 跳页回来只能重新填
-      }
-    }
-    gate(() => {
-      void runGenerate();
-    }, `generator:${reviewType}`);
+    // 生成对游客开放：直接发请求。只有服务端判定额度用尽 / 会话失效时，
+    // 才在 runGenerate 里拦下来引导登录。
+    void runGenerate();
   }
 
   async function runGenerate() {
@@ -316,16 +320,37 @@ export default function GeneratorModal({
         }),
       });
       if (!res.ok || !res.body) {
-        let msg = "Something went wrong. Please try again.";
+        let payload: any = null;
         try {
-          const e = await res.json();
-          if (e?.error) msg = e.error;
+          payload = await res.json();
         } catch {}
-        if (res.status === 401) {
-          msg = "Please sign in to generate your review.";
-          setAuthOpen(true);
+        const msg0 =
+          payload?.error || "Something went wrong. Please try again.";
+
+        // 游客免费额度用尽 / 会话失效 → 弹登录框，登录成功后自动重试本次生成
+        const needsSignIn =
+          res.status === 401 ||
+          (res.status === 429 && payload?.code === "quota_exceeded");
+        if (needsSignIn && !user) {
+          saveSnapshot();
+          setLoading(false);
+          setError("");
+          if (fakeTimer) clearInterval(fakeTimer);
+          gate(
+            () => {
+              void runGenerate();
+            },
+            `generator:${reviewType}`
+          );
+          return;
         }
-        setError(msg);
+
+        setError(
+          res.status === 401
+            ? "Please sign in to generate your review."
+            : msg0
+        );
+        if (res.status === 401) setAuthOpen(true);
         setLoading(false);
         if (fakeTimer) clearInterval(fakeTimer);
         return;
@@ -907,7 +932,7 @@ export default function GeneratorModal({
                   </button>
                   <button
                     className="inline-flex items-center justify-center gap-xs px-4 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card hover:bg-surface-canvas transition-colors"
-                    onClick={downloadPDF}
+                    onClick={() => gate(downloadPDF, "export:pdf")}
                     type="button"
                   >
                     <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
@@ -915,7 +940,9 @@ export default function GeneratorModal({
                   </button>
                   <button
                     className="inline-flex items-center justify-center gap-xs px-4 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card hover:bg-surface-canvas transition-colors"
-                    onClick={() => downloadWord(result)}
+                    onClick={() =>
+                      gate(() => downloadWord(result), "export:word")
+                    }
                     type="button"
                   >
                     <span className="material-symbols-outlined text-[16px]">description</span>
