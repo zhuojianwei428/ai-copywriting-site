@@ -31,6 +31,15 @@ export const metadata: Metadata = {
  */
 const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
+/**
+ * AdSense 主脚本（预埋）。拿到 publisher ID 后填 env `NEXT_PUBLIC_ADSENSE_CLIENT`
+ * 重新构建即可全站生效；未配置时不输出任何标签，对页面零影响。
+ *
+ * 为什么现在就挂：审核期间挂了代码的站点，谷歌能监测到访问量，有流量的站会优先审；
+ * 且审核一通过就能立刻开自动广告，不浪费流量（哥飞《Adsense 提交网站申请的小细节》）。
+ */
+const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "";
+
 export default function RootLayout({
   children,
 }: {
@@ -53,6 +62,13 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
           rel="stylesheet"
         />
+        {adsenseClient && (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
+            crossOrigin="anonymous"
+          />
+        )}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(webApplicationLd()) }}

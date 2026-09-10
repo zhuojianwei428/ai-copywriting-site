@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import GeneratorModal from "./GeneratorModal";
 import ScoreGeneratorModal from "./ScoreGeneratorModal";
 import { useAuth, takeIntent } from "./auth/AuthContext";
+import HistoryModal from "./HistoryModal";
+import AdSlot from "./ads/AdSlot";
+import { mergeGuestIntoUser } from "../lib/history";
 import { FAQ_ITEMS } from "../lib/jsonld";
 
 type FormatKey = "self" | "manager" | "peer" | "360";
@@ -49,6 +52,7 @@ export default function Landing() {
   const [scoreOpen, setScoreOpen] = useState(false);
   const [scoredMode, setScoredMode] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   // 全局登录态：点"开始生成"前先过登录门槛
   const { user, initializing, signOut, requireSignIn } = useAuth();
@@ -66,6 +70,12 @@ export default function Landing() {
   function startScored() {
     setScoreOpen(true);
   }
+
+  // 登录后把游客期间本地存的历史并到该用户桶下（幂等，见 lib/history.ts）
+  useEffect(() => {
+    if (!user?.id) return;
+    mergeGuestIntoUser(user.id);
+  }, [user?.id]);
 
   // Google 登录是整页跳转，内存里的 pending 动作会丢。回来时从 sessionStorage 取回意图续上。
   useEffect(() => {
@@ -113,6 +123,16 @@ export default function Landing() {
                   )}
                   {user.email || "Signed in"}
                 </span>
+                <button
+                  onClick={() => setHistoryOpen(true)}
+                  className="inline-flex items-center gap-xs px-3 py-2 rounded-lg border border-border-strong text-text-primary font-label-md text-label-md hover:bg-surface-canvas transition-colors"
+                  type="button"
+                >
+                  <span className="material-symbols-outlined text-[16px]">
+                    history
+                  </span>
+                  History
+                </button>
                 <button
                   onClick={() => signOut()}
                   className="inline-flex items-center px-3 py-2 rounded-lg border border-border-strong text-text-primary font-label-md text-label-md hover:bg-surface-canvas transition-colors"
@@ -867,6 +887,13 @@ export default function Landing() {
       </section>
 
       {/* ===================== SECTION 5: FAQ ===================== */}
+      {/* 广告位（预埋）：未配置 AdSense env 时是零高度占位，不影响布局与 LCP */}
+      <div className="w-full bg-surface-canvas py-10">
+        <div className="max-w-[1280px] mx-auto px-gutter-mobile lg:px-gutter-desktop">
+          <AdSlot label="in-content" height={120} />
+        </div>
+      </div>
+
       <section id="faq" className="w-full bg-surface-card py-3xl">
         <div className="max-w-[960px] mx-auto px-gutter-mobile lg:px-gutter-desktop">
           <div className="text-left mb-2xl">
@@ -1068,6 +1095,13 @@ export default function Landing() {
       <ScoreGeneratorModal
         open={scoreOpen}
         onClose={() => setScoreOpen(false)}
+      />
+
+      {/* ===================== HISTORY（登录后入口在 header） ===================== */}
+      <HistoryModal
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        scope={user?.id || "guest"}
       />
       </main>
   );

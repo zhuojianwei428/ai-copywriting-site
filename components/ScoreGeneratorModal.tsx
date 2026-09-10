@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { RefreshCw } from "lucide-react";
-import { downloadPDF, downloadWord } from "../lib/export";
+import { downloadPDF, downloadWord, WATERMARK_LINE } from "../lib/export";
+import { saveHistory } from "../lib/history";
 import { weightError, type KraInput, type ScoredKra } from "../lib/score";
 import { useAuth } from "./auth/AuthContext";
 
@@ -310,6 +311,18 @@ export default function ScoreGeneratorModal({
       setLoading(false);
     }
   }
+
+  // 出分后存历史（等 resp 落进 state 再存，才能拿到完整的记分卡文本）
+  useEffect(() => {
+    if (step !== "result" || !resp) return;
+    saveHistory(user?.id || "guest", {
+      kind: "scored",
+      title: [jobTitle || reviewType, cycle].filter(Boolean).join(" — "),
+      content: buildWordText(),
+    });
+    // buildWordText 依赖 resp，此处只在出分这一刻存一次
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, resp]);
 
   function renderStars(score: number): string {
     // AI returns 1-5 (integer or half). Fill stars up to nearest integer.
@@ -775,7 +788,7 @@ export default function ScoreGeneratorModal({
                   </div>
                   <div className="flex flex-col gap-2">
                     <button
-                      onClick={() => gate(() => downloadPDF(), "export:pdf")}
+                      onClick={() => downloadPDF()}
                       className="inline-flex items-center justify-center gap-xs px-4 py-2 border border-border-strong rounded text-text-primary hover:bg-surface-canvas transition-colors"
                       type="button"
                     >
@@ -784,11 +797,7 @@ export default function ScoreGeneratorModal({
                     </button>
                     <button
                       onClick={() =>
-                        gate(
-                          () =>
-                            downloadWord(buildWordText(), "performance-scorecard"),
-                          "export:word"
-                        )
+                        downloadWord(buildWordText(), "performance-scorecard")
                       }
                       className="inline-flex items-center justify-center gap-xs px-4 py-2 border border-border-strong rounded text-text-primary hover:bg-surface-canvas transition-colors"
                       type="button"

@@ -2,7 +2,8 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { Check, Copy, Pencil, RefreshCw } from "lucide-react";
-import { downloadPDF, downloadWord } from "../lib/export";
+import { downloadPDF, downloadWord, WATERMARK_LINE } from "../lib/export";
+import { saveHistory } from "../lib/history";
 import { useAuth } from "./auth/AuthContext";
 
 type ReviewType = "self" | "manager" | "peer" | "360";
@@ -378,6 +379,12 @@ export default function GeneratorModal({
       if (fakeTimer) clearInterval(fakeTimer);
       setLoading(false);
       setStep(5);
+      // 存进历史（游客写 guest 桶，登录后自动并到用户桶 —— 见 lib/history.ts）
+      saveHistory(user?.id || "guest", {
+        kind: "narrative",
+        title: [jobTitle || reviewType, employeeName].filter(Boolean).join(" — "),
+        content: acc,
+      });
     } catch {
       setError("Network error. Please try again.");
       setLoading(false);
@@ -387,7 +394,8 @@ export default function GeneratorModal({
 
   async function handleCopy() {
     try {
-      await navigator.clipboard.writeText(result);
+      // 剪贴板加不了视觉水印，但追加一行署名：既是品牌痕迹，也方便溯源
+      await navigator.clipboard.writeText(`${result}\n\n— ${WATERMARK_LINE}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {}
@@ -932,7 +940,7 @@ export default function GeneratorModal({
                   </button>
                   <button
                     className="inline-flex items-center justify-center gap-xs px-4 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card hover:bg-surface-canvas transition-colors"
-                    onClick={() => gate(downloadPDF, "export:pdf")}
+                    onClick={() => downloadPDF()}
                     type="button"
                   >
                     <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
@@ -941,7 +949,7 @@ export default function GeneratorModal({
                   <button
                     className="inline-flex items-center justify-center gap-xs px-4 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card hover:bg-surface-canvas transition-colors"
                     onClick={() =>
-                      gate(() => downloadWord(result), "export:word")
+                      downloadWord(result)
                     }
                     type="button"
                   >
