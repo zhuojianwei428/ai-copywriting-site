@@ -7,6 +7,7 @@
  */
 
 import type { ScoredKra } from "./score";
+import { DISCLAIMER_LINE } from "./export";
 export type ReviewDocKind = "narrative" | "scored";
 
 /** 记分卡的结构化数据（= /api/score 的响应 + 生成时用的上下文） */
@@ -144,8 +145,8 @@ export function scoreDocToText(s: ScoreDoc): string {
   lines.push("Next steps");
   lines.push(s.nextSteps || "");
   lines.push("");
-  lines.push(
-    "AI-generated draft. Review and edit before use. Not a substitute for HR, legal, or employment advice."
-  );
+  // 免责声明统一取自 lib/export.ts 的 DISCLAIMER_LINE（正典），不再本地写死字面量 ——
+  // 这句话是全站最合规敏感的一句，曾同时存在于 3 处（常量 + 2 份硬编码），改一处会漂移。
+  lines.push(DISCLAIMER_LINE);
   return lines.join("\n\n");
 }

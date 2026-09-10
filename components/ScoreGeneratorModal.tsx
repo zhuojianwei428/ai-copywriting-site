@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RefreshCw } from "lucide-react";
-import { downloadPDF, downloadWord, WATERMARK_LINE } from "../lib/export";
+import { downloadPDF, downloadWord, WATERMARK_LINE, DISCLAIMER_LINE } from "../lib/export";
 import { saveHistory } from "../lib/history";
 import {
   defaultDocTitle,
@@ -409,7 +409,8 @@ export default function ScoreGeneratorModal({
     lines.push("Next steps");
     lines.push(resp.nextSteps || "");
     lines.push("");
-    lines.push("AI-generated draft. Review and edit before use. Not a substitute for HR, legal, or employment advice.");
+    // 免责声明统一取自 lib/export.ts 的 DISCLAIMER_LINE（正典），不本地写死字面量。
+    lines.push(DISCLAIMER_LINE);
     return lines.join("\n\n");
   }
 

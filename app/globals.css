@@ -127,6 +127,15 @@ body {
   #print-area .overflow-x-auto {
     overflow: visible !important;
   }
+
+  /* 编辑页的可编辑块在屏幕上带 min-height: 55vh（给编辑留出舒适区）。
+     这个高度在打印时毫无意义，却会按"每块 55% 页高"撑爆分页 ——
+     scored 模式有 4 个摘要块（Overall Summary / Key Strengths /
+     Areas for Growth / Next Steps），一份 3 个 KRA 的短记分卡会被撑成
+     3 页、其中约 2 页是纯空白。导出件里必须清零。 */
+  .rv-doc {
+    min-height: 0 !important;
+  }
 }
 
 /* ===================== 结果编辑页（/review） ===================== */
