@@ -4,27 +4,7 @@
 // is read or used anywhere in this route.
 import DeepSeekClient from "openai";
 import { SYSTEM_PROMPT, buildPrompt } from "../../../lib/prompt";
-import { createClient as createSupabaseClient } from "../../../lib/supabase/server";
-
-/**
- * 鉴权：若 Supabase 已配置（登录功能上线），要求存在已登录会话；
- * 否则 401，前端会引导登录。未配置 Supabase 时保持公开（过渡/开发）。
- */
-async function requireUser(): Promise<{ error: string } | null> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anonKey) return null; // Supabase 未配置 → 不拦截
-  try {
-    const supabase = await createSupabaseClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return { error: "Please sign in to continue." };
-    return null;
-  } catch {
-    return { error: "Authentication is unavailable. Please try again." };
-  }
-}
+import { requireUser } from "../../../lib/supabase/requireUser";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

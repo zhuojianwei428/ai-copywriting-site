@@ -1,22 +1,22 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { readSupabaseEnv } from "./env";
 
 /**
  * Edge middleware：刷新过期的 Supabase session cookie。
- * 不含任何 auth 逻辑，只负责维持会话存活（标准 Auth.js/SSR 做法）。
+ * 不含任何 auth 逻辑，只负责维持会话存活（标准 @supabase/ssr 做法）。
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const { url, key } = readSupabaseEnv();
 
   // 未配置 Supabase 时不拦截（保持当前公开行为），配置后由 API 层鉴权兜底。
-  if (!url || !anonKey) {
+  if (!url || !key) {
     return supabaseResponse;
   }
 
-  const supabase = createServerClient(url, anonKey, {
+  const supabase = createServerClient(url, key, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
@@ -33,7 +33,8 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // 不主动 getUser（避免每次请求都打网络）；刷新 session 即可。
+  // 触发一次会话刷新（@supabase/ssr 官方推荐写法）：
+  // 过期的 access token 会在这里被静默续期，并把新 cookie 写回响应。
   await supabase.auth.getUser();
 
   return supabaseResponse;
