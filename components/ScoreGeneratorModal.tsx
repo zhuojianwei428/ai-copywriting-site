@@ -799,6 +799,11 @@ export default function ScoreGeneratorModal({
                 completed={stage}
                 label={SCORE_STAGES[Math.min(stage, SCORE_STAGES.length - 1)].label}
                 percent={pct}
+                notice={
+                  retriedRef.current > 0
+                    ? "The first attempt returned an unusable response, so we're retrying once. That's why this is taking a little longer than usual."
+                    : undefined
+                }
                 hint="We'll open your scorecard in the editor as soon as it's ready."
               />
 

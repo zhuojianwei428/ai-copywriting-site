@@ -866,6 +866,11 @@ export default function GeneratorModal({
                     label={prog.label}
                     percent={prog.percent}
                     degraded={prog.degraded}
+                    notice={
+                      retriedRef.current > 0
+                        ? "The first draft came back incomplete, so we're regenerating a full report. This restarts the progress above."
+                        : undefined
+                    }
                     hint="Streaming your performance review — we'll open it in the editor when it's done."
                   />
                   {/* 正文边生成边显示；首个字符到来前先用骨架屏占位 */}

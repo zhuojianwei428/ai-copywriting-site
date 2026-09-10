@@ -28,6 +28,14 @@ interface GenerationProgressProps {
   percent: number;
   /** 降级：拿不到真实分段信号时**不渲染假分段**，只留进度条 */
   degraded?: boolean;
+  /**
+   * 需要向用户解释的异常情况（目前用于"自动重试"）。
+   *
+   * 为什么必须有这个东西：上游偶发送回半截报告时，代码会**静默重跑一次**，
+   * 而重跑会把进度清回 0。用户看到的是进度条跑到 99% 又突然从 0 开始 ——
+   * 不解释的话这就是个"看起来像坏掉"的瞬间，比慢一点更伤信任。
+   */
+  notice?: string;
   /** 面板底部的一行说明 */
   hint?: string;
 }
@@ -38,12 +46,32 @@ export default function GenerationProgress({
   label,
   percent,
   degraded = false,
+  notice,
   hint,
 }: GenerationProgressProps) {
   const pct = Math.max(2, Math.min(100, percent));
 
   return (
     <div>
+      {notice && (
+        <div
+          className="flex items-start gap-xs rounded mb-md"
+          style={{
+            padding: "8px 10px",
+            background: "var(--surface-canvas, #f7f8fa)",
+            border: "1px solid var(--border-subtle, #e5e7eb)",
+          }}
+        >
+          <RefreshCw
+            size={12}
+            className="animate-spin"
+            style={{ marginTop: 3, flexShrink: 0 }}
+            color="var(--text-muted, #6b7280)"
+          />
+          <span className="font-body-sm text-body-sm text-text-muted">{notice}</span>
+        </div>
+      )}
+
       {/* 阶段 + 百分比 */}
       <div className="flex items-center justify-between mb-sm">
         <div className="flex items-center gap-xs">
