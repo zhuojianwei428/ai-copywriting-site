@@ -78,7 +78,18 @@ function logCall(entry: Record<string, unknown>) {
 const MAX_INPUT_CHARS = Number(process.env.MAX_INPUT_CHARS || 6000);
 // 现役输出为 600-900 词的完整 7 部分绩效表（约 800-1300 tokens）。
 // 上限只是保险丝（避免长报告被硬截断），模型写到自然结束即停，不会强制用满。
-const MAX_OUTPUT_TOKENS = Number(process.env.MAX_OUTPUT_TOKENS || 1600);
+/**
+ * 输出预算。
+ *
+ * ⚠️ 不能按"报告只要 ~1000 token"来设：**推理型模型的 reasoning token 与正文共用
+ * 这一份预算**。设成 1600 时实测三次里两次正文被截断在句子中间、或整段为空，
+ * 服务端只能补上模板尾 —— 用户看到的就是半截报告。
+ * 这里给足余量并设下限，避免环境变量被设小又把产品搞坏。
+ */
+const MAX_OUTPUT_TOKENS = Math.max(
+  8192,
+  Number(process.env.MAX_OUTPUT_TOKENS || 0) || 0
+);
 
 /**
  * 生成对游客开放（免登录），靠每日配额而不是登录墙来防滥用：
@@ -320,6 +331,12 @@ async function handlePost(req: Request) {
     const encoder = new TextEncoder();
     let outputChars = 0;
     let usage: any = null;
+    /** 模型真正吐出的正文字符数（0 = 正文为空，全被推理吃掉或上游异常） */
+    let aiChars = 0;
+    /** reasoning_content 字符数 —— 与正文共用 max_tokens，是截断的嫌疑主因 */
+    let reasoningChars = 0;
+    /** "stop" = 正常结束；"length" = 撞到 max_tokens 被截断 */
+    let finishReason = "";
 
     const readable = new ReadableStream({
       async start(controller) {
@@ -328,8 +345,16 @@ async function handlePost(req: Request) {
             // DeepSeek 在最后一个 chunk 返回 usage（需 stream_options.include_usage）
             const maybeUsage = (chunk as any)?.usage;
             if (maybeUsage) usage = maybeUsage;
-            const text = chunk.choices?.[0]?.delta?.content || "";
+            const choice: any = chunk.choices?.[0];
+            if (choice?.finish_reason) finishReason = String(choice.finish_reason);
+            const delta: any = choice?.delta || {};
+            // 推理型模型把思考放在 reasoning_content：不进正文，但要单独计数
+            if (delta.reasoning_content) {
+              reasoningChars += String(delta.reasoning_content).length;
+            }
+            const text = delta.content || "";
             if (text) {
+              aiChars += text.length;
               const rendered = transform(text);
               if (rendered) {
                 outputChars += rendered.length;
@@ -351,6 +376,11 @@ async function handlePost(req: Request) {
             inputChars,
             outputChars,
             markersHit,
+            // 诊断三元组：正文为空 / 被截断时靠这三个字段定位原因
+            aiChars,
+            reasoningChars,
+            finishReason: finishReason || null,
+            incomplete: aiChars === 0 || markersHit < BLOCK_MARKERS.length,
             aiTokens: usage?.completion_tokens ?? null,
             promptTokens: usage?.prompt_tokens ?? null,
             completionTokens: usage?.completion_tokens ?? null,

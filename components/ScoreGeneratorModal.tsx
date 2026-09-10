@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RefreshCw } from "lucide-react";
 import { downloadPDF, downloadWord, WATERMARK_LINE } from "../lib/export";
@@ -123,6 +123,8 @@ export default function ScoreGeneratorModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [resp, setResp] = useState<ScoreResponse | null>(null);
+  /** 本轮的自动重试次数（最多 1 次，防止失败时无限重跑烧额度） */
+  const retriedRef = useRef(0);
 
   // 游客点 Generate 被拦时暂存向导进度；Google 登录整页跳转回来后靠它恢复
   const RESUME_KEY = "air:scoreWizardResume";
@@ -242,6 +244,7 @@ export default function ScoreGeneratorModal({
       return;
     }
     // 评分对游客开放：直接发请求。额度用尽由 runGenerate 拦下并引导登录。
+    retriedRef.current = 0; // 用户主动发起 → 重置重试额度
     void runGenerate();
   }
 
@@ -295,6 +298,12 @@ export default function ScoreGeneratorModal({
             },
             "scored"
           );
+          return;
+        }
+        // 上游输出被截断 → JSON 解析失败（502）。半截记分卡没法用，静默重跑一次。
+        if (res.status === 502 && retriedRef.current < 1) {
+          retriedRef.current += 1;
+          await runGenerate();
           return;
         }
         if (res.status === 401) {

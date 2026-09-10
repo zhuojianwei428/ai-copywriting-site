@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Copy, Pencil, RefreshCw } from "lucide-react";
 import { downloadPDF, downloadWord, WATERMARK_LINE } from "../lib/export";
@@ -28,6 +28,21 @@ function phaseFor(pct: number): string {
     if (pct >= p.at) label = p.label;
   }
   return label;
+}
+
+/**
+ * 判断流式结果是否完整。
+ *
+ * 上游偶发把正文截断在句子中间（推理 token 挤占了 max_tokens 预算），此时服务端
+ * 只会补上模板尾，用户拿到半截报告。命中下面任一特征就自动重跑一次。
+ */
+function isIncompleteReport(text: string): boolean {
+  if (!text || text.length < 1200) return true;
+  if (text.includes("[Generation interrupted")) return true;
+  return (
+    !text.includes("6. Conclusion & Recommendations") &&
+    !text.includes("Conclusion & Recommendations")
+  );
 }
 
 /**
@@ -163,6 +178,8 @@ export default function GeneratorModal({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const [copied, setCopied] = useState(false);
+  /** 本轮的自动重试次数（最多 1 次，防止失败时无限重跑烧额度） */
+  const retriedRef = useRef(0);
 
   // 游客点 Generate 被拦时，把向导进度暂存到这里。
   // Google 登录是整页跳转，回来后组件重新挂载，靠这份数据把 4 步填的内容恢复出来。
@@ -272,6 +289,7 @@ export default function GeneratorModal({
     }
     // 生成对游客开放：直接发请求。只有服务端判定额度用尽 / 会话失效时，
     // 才在 runGenerate 里拦下来引导登录。
+    retriedRef.current = 0; // 用户主动发起 → 重置重试额度
     void runGenerate();
   }
 
@@ -382,6 +400,16 @@ export default function GeneratorModal({
       setPhase("Done");
       if (fakeTimer) clearInterval(fakeTimer);
       setLoading(false);
+
+      // 完整性校验：半截报告不如静默重跑一次（只重试 1 次，避免烧额度）
+      if (isIncompleteReport(acc) && retriedRef.current < 1) {
+        retriedRef.current += 1;
+        setResult("");
+        await runGenerate();
+        return;
+      }
+      retriedRef.current = 0;
+
       // 生成完成 → 存一份历史，然后把内容交接给结果编辑页
       // （用户在编辑页里改完再导出 PDF / Word，见 app/review/page.tsx）
       const scope = user?.id || "guest";

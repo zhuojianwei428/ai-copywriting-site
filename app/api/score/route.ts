@@ -65,7 +65,14 @@ function logCall(entry: Record<string, unknown>) {
 }
 
 const MAX_INPUT_CHARS = Number(process.env.MAX_INPUT_CHARS || 6000);
-const MAX_OUTPUT_TOKENS = Number(process.env.MAX_SCORE_OUTPUT_TOKENS || 1600);
+/**
+ * 输出预算 —— 同 generate 路由：推理 token 与正文共用预算，设小了 JSON 会被
+ * 截断成非法格式（解析失败=整个功能报错），所以给足余量并设下限。
+ */
+const MAX_OUTPUT_TOKENS = Math.max(
+  8192,
+  Number(process.env.MAX_SCORE_OUTPUT_TOKENS || 0) || 0
+);
 
 interface ScoreBody {
   reviewType: string;
