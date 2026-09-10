@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GeneratorModal from "./GeneratorModal";
 import ScoreGeneratorModal from "./ScoreGeneratorModal";
-import { useAuth } from "./auth/AuthContext";
+import { useAuth, takeIntent } from "./auth/AuthContext";
 import { FAQ_ITEMS } from "../lib/jsonld";
 
 type FormatKey = "self" | "manager" | "peer" | "360";
@@ -51,7 +51,7 @@ export default function Landing() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // 全局登录态：点"开始生成"前先过登录门槛
-  const { user, gate, signOut } = useAuth();
+  const { user, initializing, gate, signOut } = useAuth();
 
   /** 真正打开 narrative 生成器（只有已登录会走到这里） */
   function openGenerator(preset: FormatKey) {
@@ -60,12 +60,26 @@ export default function Landing() {
   }
   /** CTA 入口：未登录先弹登录框，登录成功后自动打开生成器 */
   function startGenerator(preset: FormatKey) {
-    gate(() => openGenerator(preset));
+    gate(() => openGenerator(preset), `generator:${preset}`);
   }
   /** CTA 入口：scored 模式同样先登录 */
   function startScored() {
-    gate(() => setScoreOpen(true));
+    gate(() => setScoreOpen(true), "scored");
   }
+
+  // Google 登录是整页跳转，内存里的 pending 动作会丢。回来时从 sessionStorage 取回意图续上。
+  useEffect(() => {
+    if (initializing || !user) return;
+    const intent = takeIntent();
+    if (!intent) return;
+    if (intent === "scored") {
+      setScoreOpen(true);
+    } else if (intent.startsWith("generator:")) {
+      openGenerator(intent.slice("generator:".length) as FormatKey);
+    }
+    // openGenerator 是纯 setState，无需进依赖
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, initializing]);
 
   return (
       <main className="min-h-screen bg-surface-canvas">
