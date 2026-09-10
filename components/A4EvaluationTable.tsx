@@ -175,7 +175,7 @@ export default function A4EvaluationTable({
               <th
                 key={c}
                 style={{
-                  textAlign: c === "Score" ? "center" : "left",
+                  textAlign: "center",
                   fontWeight: 700,
                   fontSize: 12,
                   padding: "6px 8px",
@@ -200,6 +200,7 @@ export default function A4EvaluationTable({
                     borderBottom: "1px solid var(--border-subtle, #e5e7eb)",
                     fontWeight: 600,
                     color: "var(--text-primary, #111827)",
+                    textAlign: "center",
                   }}
                 >
                   {r.area}
@@ -233,6 +234,7 @@ export default function A4EvaluationTable({
                   style={{
                     padding: "6px 8px",
                     borderBottom: "1px solid var(--border-subtle, #e5e7eb)",
+                    textAlign: "center",
                   }}
                 >
                   <CellText
