@@ -51,20 +51,20 @@ export default function Landing() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // 全局登录态：点"开始生成"前先过登录门槛
-  const { user, initializing, gate, signOut, requireSignIn } = useAuth();
+  const { user, initializing, signOut, requireSignIn } = useAuth();
 
-  /** 真正打开 narrative 生成器（只有已登录会走到这里） */
+  /** 真正打开 narrative 生成器 */
   function openGenerator(preset: FormatKey) {
     setModalDefault(preset);
     setModalOpen(true);
   }
-  /** CTA 入口：未登录先弹登录框，登录成功后自动打开生成器 */
+  /** CTA 入口：游客也放行进向导，登录拦截发生在最后一步点 Generate 时（modal 内 gate） */
   function startGenerator(preset: FormatKey) {
-    gate(() => openGenerator(preset), `generator:${preset}`);
+    openGenerator(preset);
   }
-  /** CTA 入口：scored 模式同样先登录 */
+  /** CTA 入口：scored 模式同上 */
   function startScored() {
-    gate(() => setScoreOpen(true), "scored");
+    setScoreOpen(true);
   }
 
   // Google 登录是整页跳转，内存里的 pending 动作会丢。回来时从 sessionStorage 取回意图续上。

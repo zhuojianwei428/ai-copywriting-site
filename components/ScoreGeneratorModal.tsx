@@ -121,18 +121,46 @@ export default function ScoreGeneratorModal({
   const [error, setError] = useState("");
   const [resp, setResp] = useState<ScoreResponse | null>(null);
 
-  const { requireSignIn, setAuthOpen } = useAuth();
+  // 游客点 Generate 被拦时暂存向导进度；Google 登录整页跳转回来后靠它恢复
+  const RESUME_KEY = "air:scoreWizardResume";
+
+  const { user, gate, setAuthOpen } = useAuth();
 
   useEffect(() => {
-    if (open) {
-      setStep("context");
-      setError("");
-      setLoading(false);
-      setResp(null);
-      setKras([emptyKra()]);
-      setIsCustomJobTitle(false);
-      setJobTitle("");
+    if (!open) return;
+    // 存在"被登录拦下前的向导快照"（Google 回跳场景）→ 优先恢复
+    try {
+      const raw = sessionStorage.getItem(RESUME_KEY);
+      if (raw) {
+        sessionStorage.removeItem(RESUME_KEY);
+        const w = JSON.parse(raw) as Record<string, unknown> | null;
+        if (w && typeof w.step === "string" && w.step !== "result") {
+          setStep(w.step as Step);
+          setReviewType((w.reviewType as ReviewType) ?? "manager");
+          setJobTitle((w.jobTitle as string) ?? "");
+          setIsCustomJobTitle(Boolean(w.isCustomJobTitle));
+          setCycle((w.cycle as string) ?? "");
+          setTone((w.tone as Tone) ?? "Formal");
+          setKras(Array.isArray(w.kras) && w.kras.length ? (w.kras as KraInput[]) : [emptyKra()]);
+          setStrengths((w.strengths as string) ?? "");
+          setGrowth((w.growth as string) ?? "");
+          setError("");
+          setLoading(false);
+          setResp(null);
+          return;
+        }
+      }
+    } catch {
+      // 快照损坏 → 走默认重置
     }
+    setStep("context");
+    setError("");
+    setLoading(false);
+    setResp(null);
+    setKras([emptyKra()]);
+    setIsCustomJobTitle(false);
+    setJobTitle("");
+    setCycle("");
   }, [open]);
 
   useEffect(() => {
@@ -178,12 +206,37 @@ export default function ScoreGeneratorModal({
   }
 
   async function handleGenerate() {
-    if (!requireSignIn()) return; // 游客 → 弹登录框，不发起请求
     const wErr = validateKraBeforeNotes();
     if (wErr) {
       setError(wErr);
       setStep("kra");
       return;
+    }
+    // 游客：暂存向导进度（Google 整页跳转后靠它恢复）→ 弹登录框；
+    // 邮箱验证码登录不跳页，登录成功后 gate 自动续跑 runGenerate。
+    if (!user) {
+      try {
+        sessionStorage.setItem(
+          RESUME_KEY,
+          JSON.stringify({ step, reviewType, jobTitle, isCustomJobTitle, cycle, tone, kras, strengths, growth })
+        );
+      } catch {
+        // sessionStorage 不可用 → 跳页回来只能重新填
+      }
+    }
+    gate(
+      () => {
+        void runGenerate();
+      },
+      "scored"
+    );
+  }
+
+  async function runGenerate() {
+    try {
+      sessionStorage.removeItem(RESUME_KEY);
+    } catch {
+      // ignore
     }
     setLoading(true);
     setError("");

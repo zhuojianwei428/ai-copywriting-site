@@ -108,37 +108,45 @@ function ClerkAuthProvider({ children }: { children: ReactNode }) {
 
   // ① OAuth 整页跳转回来时，把登录弹窗恢复出来。
   //    这一步是必须的：Clerk 的 <SignIn> 得处于挂载状态才能收尾 OAuth 回调。
+  //    等 isLoaded 再判定：回跳后若 session 已建立（用户已登录）就不恢复弹窗，
+  //    避免登录框叠在用户正在填的向导上面。
   useEffect(() => {
+    if (!isLoaded) return;
     try {
-      if (sessionStorage.getItem(OPEN_KEY) === "1") setAuthOpen(true);
+      if (sessionStorage.getItem(OPEN_KEY) === "1" && !isSignedIn) setAuthOpen(true);
     } catch {
       // ignore
     }
-  }, []);
+    // 故意只在 isLoaded 就绪时判定一次
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded]);
 
-  // ② 弹窗开合状态落盘，供 ① 在回跳后恢复
-  useEffect(() => {
+  // ② 弹窗开合统一走 setOpen：开合状态同步落盘，供 ① 在回跳后恢复。
+  //    （不用 effect 监听 authOpen，避免回跳 mount 时写入时序把 "1" 冲成 "0"。）
+  function setOpen(open: boolean) {
+    setAuthOpen(open);
     try {
-      sessionStorage.setItem(OPEN_KEY, authOpen ? "1" : "0");
+      sessionStorage.setItem(OPEN_KEY, open ? "1" : "0");
     } catch {
       // ignore
     }
-  }, [authOpen]);
+  }
 
   // 登录成功后自动续上被拦下的动作
   useEffect(() => {
     if (!isSignedIn || !pendingRef.current) return;
     const action = pendingRef.current;
     pendingRef.current = null;
-    setAuthOpen(false);
+    setOpen(false);
     // 让弹窗先卸载，再执行动作，避免两层弹窗叠加
     const t = setTimeout(action, 0);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSignedIn]);
 
   function requireSignIn(): boolean {
     if (isSignedIn) return true;
-    setAuthOpen(true);
+    setOpen(true);
     return false;
   }
 
@@ -149,7 +157,7 @@ function ClerkAuthProvider({ children }: { children: ReactNode }) {
     }
     if (intent) stashIntent(intent);
     pendingRef.current = action;
-    setAuthOpen(true);
+    setOpen(true);
   }
 
   async function signOut() {
@@ -168,12 +176,12 @@ function ClerkAuthProvider({ children }: { children: ReactNode }) {
         requireSignIn,
         gate,
         authOpen,
-        setAuthOpen,
+        setAuthOpen: setOpen,
         signOut,
       }}
     >
       {children}
-      {authOpen && <AuthModal open onClose={() => setAuthOpen(false)} />}
+      {authOpen && <AuthModal open onClose={() => setOpen(false)} />}
     </AuthContext.Provider>
   );
 }

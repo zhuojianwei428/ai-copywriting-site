@@ -161,25 +161,58 @@ export default function GeneratorModal({
   const [draft, setDraft] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const { requireSignIn, setAuthOpen } = useAuth();
+  // 游客点 Generate 被拦时，把向导进度暂存到这里。
+  // Google 登录是整页跳转，回来后组件重新挂载，靠这份数据把 4 步填的内容恢复出来。
+  const RESUME_KEY = "air:wizardResume";
 
-  // Reset to step 1 whenever the modal opens with a (possibly new) default format
+  const { user, gate, setAuthOpen } = useAuth();
+
+  // Open with default reset; 但若存在"被登录拦下前的向导快照"（Google 回跳场景），优先恢复快照
   useEffect(() => {
-    if (open) {
-      setStep(1);
-      setReviewType(defaultFormat);
-      setResult("");
-      setError("");
-      setEditing(false);
-      setLoading(false);
-      setIsCustomJobTitle(false);
-      setJobTitle("");
-      setEmployeeName("");
-      setGrowthNote("");
-      setShowGrowthNote(false);
-      setProgress(0);
-      setPhase("");
+    if (!open) return;
+    try {
+      const raw = sessionStorage.getItem(RESUME_KEY);
+      if (raw) {
+        sessionStorage.removeItem(RESUME_KEY);
+        const w = JSON.parse(raw) as Record<string, unknown> | null;
+        if (w && typeof w.step === "number" && w.step >= 1 && w.step <= 4) {
+          setStep(w.step);
+          setReviewType((w.reviewType as ReviewType) ?? defaultFormat);
+          setEmployeeName((w.employeeName as string) ?? "");
+          setJobTitle((w.jobTitle as string) ?? "");
+          setIsCustomJobTitle(Boolean(w.isCustomJobTitle));
+          setTenure((w.tenure as string | null) ?? null);
+          setStrengths(Array.isArray(w.strengths) ? (w.strengths as string[]) : []);
+          setFreeNote((w.freeNote as string) ?? "");
+          setGrowthAreas(Array.isArray(w.growthAreas) ? (w.growthAreas as string[]) : []);
+          setGrowthNote((w.growthNote as string) ?? "");
+          setShowGrowthNote(Boolean(w.showGrowthNote));
+          setTone((w.tone as Tone) ?? null);
+          setResult("");
+          setError("");
+          setEditing(false);
+          setLoading(false);
+          setProgress(0);
+          setPhase("");
+          return;
+        }
+      }
+    } catch {
+      // 快照损坏 → 走默认重置
     }
+    setStep(1);
+    setReviewType(defaultFormat);
+    setResult("");
+    setError("");
+    setEditing(false);
+    setLoading(false);
+    setIsCustomJobTitle(false);
+    setJobTitle("");
+    setEmployeeName("");
+    setGrowthNote("");
+    setShowGrowthNote(false);
+    setProgress(0);
+    setPhase("");
   }, [open, defaultFormat]);
 
   // Lock body scroll + close on Escape
@@ -200,11 +233,47 @@ export default function GeneratorModal({
   if (!open) return null;
 
   async function handleGenerate() {
-    if (!requireSignIn()) return; // 游客 → 弹登录框，不发起请求
     if (!reviewType || !tone) {
       setError("Please choose a review type and a tone before generating.");
       return;
     }
+    // 游客：先把 4 步向导的进度存进 sessionStorage（Google 整页跳转后靠它恢复），
+    // 再弹登录框；邮箱验证码登录不跳页，登录成功后 gate 自动续跑 runGenerate。
+    if (!user) {
+      try {
+        sessionStorage.setItem(
+          RESUME_KEY,
+          JSON.stringify({
+            step,
+            reviewType,
+            employeeName,
+            jobTitle,
+            isCustomJobTitle,
+            tenure,
+            strengths,
+            freeNote,
+            growthAreas,
+            growthNote,
+            showGrowthNote,
+            tone,
+          })
+        );
+      } catch {
+        // sessionStorage 不可用（无痕等）→ 跳页回来只能重新填
+      }
+    }
+    gate(() => {
+      void runGenerate();
+    }, `generator:${reviewType}`);
+  }
+
+  async function runGenerate() {
+    try {
+      sessionStorage.removeItem(RESUME_KEY);
+    } catch {
+      // ignore
+    }
+    if (!reviewType || !tone) return;
     setLoading(true);
     setError("");
     setResult("");
