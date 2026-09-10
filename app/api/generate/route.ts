@@ -6,6 +6,7 @@ import DeepSeekClient from "openai";
 import { SYSTEM_PROMPT, buildPrompt } from "../../../lib/prompt";
 import { currentUserId } from "../../../lib/clerk/requireUser";
 import { consumeQuota, withQuotaCookie } from "../../../lib/quotas";
+import { estimateCost, cacheHitTokens } from "../../../lib/cost";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -265,6 +266,13 @@ async function handlePost(req: Request) {
             promptTokens: usage?.prompt_tokens ?? null,
             completionTokens: usage?.completion_tokens ?? null,
             totalTokens: usage?.total_tokens ?? null,
+            cacheHitTokens: cacheHitTokens(usage),
+            cacheMissTokens: usage?.prompt_cache_miss_tokens ?? null,
+            costCNY: estimateCost(
+              usage?.prompt_tokens,
+              usage?.completion_tokens,
+              cacheHitTokens(usage)
+            ),
             durationMs: Date.now() - startedAt,
             dailyCalls,
           });

@@ -8,6 +8,7 @@ import { SCORE_SYSTEM_PROMPT, buildScorePrompt } from "../../../lib/scorePrompt"
 import { computeScorecard, gradeOf, type KraInput } from "../../../lib/score";
 import { currentUserId } from "../../../lib/clerk/requireUser";
 import { consumeQuota, withQuotaCookie } from "../../../lib/quotas";
+import { estimateCost, cacheHitTokens } from "../../../lib/cost";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -258,6 +259,12 @@ async function handlePost(req: Request) {
       promptTokens: usage?.prompt_tokens ?? null,
       completionTokens: usage?.completion_tokens ?? null,
       totalTokens: usage?.total_tokens ?? null,
+      cacheHitTokens: cacheHitTokens(usage),
+      costCNY: estimateCost(
+        usage?.prompt_tokens,
+        usage?.completion_tokens,
+        cacheHitTokens(usage)
+      ),
       kraCount: items.length,
       weightSum: Math.round(weightSum * 100) / 100,
       total: calc.total,
