@@ -10,6 +10,7 @@ import {
   conductedText,
   overviewMetaLine,
 } from "../../../lib/prompt";
+import { SECTION_TITLE } from "../../../lib/reportSections";
 import { currentUserId } from "../../../lib/clerk/requireUser";
 import { consumeQuota, withQuotaCookie } from "../../../lib/quotas";
 import { estimateCost, cacheHitTokens } from "../../../lib/cost";
@@ -227,16 +228,18 @@ async function handlePost(req: Request) {
     growthAreas: safeGrowth,
     tone,
   });
+  // 章节标题一律取自 lib/reportSections.ts（正典）—— 前端 lib/reportProgress.ts
+  // 要用**同样的字符串**在流里检测"第几章开始了"来驱动分段进度，两处必须逐字一致。
   const blockReplacements: Record<string, string> = {
-    "[[OVERVIEW]]": `1. Basic Overview\n${metaLine ? `${metaLine}\n\n` : ""}`,
-    "[[FRAMEWORK]]": `\n\n2. How This Evaluation Was Conducted\n${conductedText(
+    "[[OVERVIEW]]": `${SECTION_TITLE.overview}\n${metaLine ? `${metaLine}\n\n` : ""}`,
+    "[[FRAMEWORK]]": `\n\n${SECTION_TITLE.conducted}\n${conductedText(
       reviewType
-    )}\n\n3. Evaluation Framework\n`,
-    "[[GOALS]]": "\n\n4. Progress Against Goals\n",
-    "[[CHALLENGES]]": "\n\n5. Challenges & Analysis of Causes\n",
-    "[[CONCLUSION]]": "\n\n6. Conclusion & Recommendations\n",
+    )}\n\n${SECTION_TITLE.framework}\n`,
+    "[[GOALS]]": `\n\n${SECTION_TITLE.goals}\n`,
+    "[[CHALLENGES]]": `\n\n${SECTION_TITLE.challenges}\n`,
+    "[[CONCLUSION]]": `\n\n${SECTION_TITLE.conclusion}\n`,
   };
-  const REPORT_TAIL = "\n\n7. Other Notes\nNone.";
+  const REPORT_TAIL = `\n\n${SECTION_TITLE.notes}\nNone.`;
 
   /**
    * 把模型输出里的块标记替换成模板文本。

@@ -12,6 +12,8 @@ import {
   type ScoreDoc,
 } from "../lib/reviewDoc";
 import { weightError, type KraInput, type ScoredKra } from "../lib/score";
+import FishboneSteps from "./FishboneSteps";
+import GenerationProgress from "./GenerationProgress";
 import { useAuth } from "./auth/AuthContext";
 
 type ReviewType = "self" | "manager" | "peer" | "360";
@@ -86,6 +88,35 @@ const STEPS: { id: Step; label: string }[] = [
   { id: "result", label: "Scorecard" },
 ];
 
+/** 鱼骨步骤标签的文案（与 STEPS 同序） */
+const WIZARD_STEPS = STEPS.map((s) => s.label);
+
+/**
+ * 生成中的分段阶段。
+ *
+ * ⚠️ 与 narrative 模式的关键差别：`/api/score` 是**单次 JSON 请求**，没有流式正文，
+ * 因此拿不到"内容写到哪了"的真实信号 —— 这里的推进只能按耗时曲线走（见下方 useEffect）。
+ * 阶段文案描述的是真实发生的事，但**阶段边界是估算的**，别把它当成精确进度。
+ *
+ * 为什么只有 3 段：真实请求约 3 秒，渐近曲线在 3 秒时才走到 ~60%。
+ * 原先还挂了一段 "Building your scorecard"（阈值 88%，约需 8 秒），
+ * 实测**它几乎永远点不亮** —— 用户看着一个永远空着的最后一段，比少一段更糟。
+ * 客户端组装记分卡本来就是瞬时的，不配占一段。
+ */
+const SCORE_STAGES: { at: number; label: string }[] = [
+  { at: 0, label: "Validating your key results" },
+  { at: 10, label: "Scoring each key result" },
+  { at: 50, label: "Writing your summary" },
+];
+
+function scoreStageFor(pct: number): number {
+  let idx = 0;
+  for (let i = 0; i < SCORE_STAGES.length; i++) {
+    if (pct >= SCORE_STAGES[i].at) idx = i;
+  }
+  return idx;
+}
+
 function emptyKra(): KraInput {
   return { name: "", weight: 25, goalCompletion: null, evidence: "" };
 }
@@ -126,6 +157,26 @@ export default function ScoreGeneratorModal({
   const [growth, setGrowth] = useState("");
 
   const [loading, setLoading] = useState(false);
+  /** 生成中的分段进度（耗时驱动，原因见 SCORE_STAGES 注释） */
+  const [stage, setStage] = useState(0);
+  const [pct, setPct] = useState(0);
+
+  // 生成期间按耗时曲线推进：渐近函数，3s≈60%、6s≈83%、10s≈92%，上限 96%。
+  // 以 loading 作唯一依赖，好处是无论 runGenerate 从哪个分支 return
+  // （配额拦截后弹登录、502 重试、出错），定时器都由 effect 的 cleanup 自动收掉，
+  // 不必在十几个 return 点上逐个 clearInterval。
+  useEffect(() => {
+    if (!loading) return;
+    setStage(0);
+    setPct(0);
+    const t0 = Date.now();
+    const id = setInterval(() => {
+      const p = Math.min(96, 96 * (1 - Math.exp(-(Date.now() - t0) / 3000)));
+      setPct(p);
+      setStage(scoreStageFor(p));
+    }, 200);
+    return () => clearInterval(id);
+  }, [loading]);
   const [error, setError] = useState("");
   const [resp, setResp] = useState<ScoreResponse | null>(null);
   /** 本轮的自动重试次数（最多 1 次，防止失败时无限重跑烧额度） */
@@ -433,7 +484,7 @@ export default function ScoreGeneratorModal({
               AI Review Writer · Scored Review
             </span>
             <span className="font-title-md text-title-md text-text-primary">
-              {step === "result"
+              {step === "result" || loading
                 ? "Your scorecard"
                 : `Step ${stepIndex()} of 4 · ${STEPS.find((s) => s.id === step)?.label}`}
             </span>
@@ -449,24 +500,14 @@ export default function ScoreGeneratorModal({
         </div>
 
         <div className="p-lg lg:p-xl">
-          {/* Progress */}
-          {step !== "result" && (
-            <div className="mb-lg">
-              <div className="flex gap-2xs">
-                {STEPS.map((s) => {
-                  const cur = STEPS.findIndex((x) => x.id === step);
-                  const si = STEPS.findIndex((x) => x.id === s.id);
-                  return (
-                    <div
-                      key={s.id}
-                      className={`h-1 flex-1 rounded-full ${
-                        si <= cur ? "bg-primary-container" : "bg-border-subtle"
-                      }`}
-                    />
-                  );
-                })}
-              </div>
-            </div>
+          {/* 鱼骨式步骤标签（生成中隐藏：那时的焦点是进度，不是填到第几步） */}
+          {step !== "result" && !loading && (
+            <FishboneSteps
+              steps={WIZARD_STEPS}
+              current={stepIndex() - 1}
+              onJump={(i) => setStep(STEPS[i].id)}
+              className="mb-md"
+            />
           )}
 
           {/* ===== CONTEXT ===== */}
@@ -741,8 +782,38 @@ export default function ScoreGeneratorModal({
             </div>
           )}
 
-          {/* ===== NOTES ===== */}
-          {step === "notes" && (
+          {/* ===== NOTES：生成中 → 换成分段进度面板 ===== */}
+          {step === "notes" && loading && (
+            <div>
+              <h2 className="font-headline-sm text-headline-sm text-text-primary mb-xs" style={{ marginTop: 0 }}>
+                Building your scorecard
+              </h2>
+              <p className="font-body-md text-body-md text-text-muted mb-md" style={{ marginTop: 0 }}>
+                Scoring {kras.filter((k) => k.name.trim()).length || "your"} key{" "}
+                {kras.filter((k) => k.name.trim()).length === 1 ? "result" : "results"} and
+                writing the summary.
+              </p>
+
+              <GenerationProgress
+                sections={SCORE_STAGES.map((s) => s.label)}
+                completed={stage}
+                label={SCORE_STAGES[Math.min(stage, SCORE_STAGES.length - 1)].label}
+                percent={pct}
+                hint="We'll open your scorecard in the editor as soon as it's ready."
+              />
+
+              {/* 记分卡骨架 */}
+              <div className="mt-lg">
+                <div className="skeleton lg" />
+                <div className="skeleton" />
+                <div className="skeleton lg" />
+                <div className="skeleton" />
+              </div>
+            </div>
+          )}
+
+          {/* ===== NOTES（填表态）===== */}
+          {step === "notes" && !loading && (
             <div>
               <h2 className="font-headline-sm text-headline-sm text-text-primary mb-xs" style={{ marginTop: 0 }}>
                 Anything else to weigh in?
@@ -783,22 +854,12 @@ export default function ScoreGeneratorModal({
                   Back
                 </button>
                 <button
-                  className="inline-flex items-center justify-center gap-xs px-5 py-2.5 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary transition-colors sm:flex-1 disabled:opacity-50"
-                  disabled={loading}
+                  className="inline-flex items-center justify-center gap-xs px-5 py-2.5 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary transition-colors sm:flex-1"
                   onClick={handleGenerate}
                   type="button"
                 >
-                  {loading ? (
-                    <>
-                      <RefreshCw size={16} className="animate-spin" />
-                      Scoring KRAs…
-                    </>
-                  ) : (
-                    <>
-                      <span>Generate scorecard</span>
-                      <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                    </>
-                  )}
+                  <span>Generate scorecard</span>
+                  <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                 </button>
               </div>
             </div>
