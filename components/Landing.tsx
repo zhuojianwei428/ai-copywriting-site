@@ -183,8 +183,8 @@ export default function Landing() {
           {/* Brand tagline subtitle */}
           <p className="font-body-lg text-body-lg text-text-muted max-w-2xl">
             Reviews written with rigor, precision, and nuance — calibrated to
-            your rubric, role level, and documented impact. Free to start — no
-            signup required.
+            your rubric, role level, and documented impact. Free to start — 5
+            drafts a day, no signup required.
           </p>
 
           {/* Interactive Generator Box */}
@@ -724,8 +724,8 @@ export default function Landing() {
               {
                 n: "04",
                 t: "Review, refine & export",
-                d: "Receive a ready-to-edit review draft. Refine individual sections in-line and export as PDF or Word, ready to drop into your review process.",
-                f: "PDF & Word Export",
+                d: "Your draft opens on its own page, where you can rewrite any sentence directly in the browser. Export as Word or PDF when it reads right — ready to drop into your review process.",
+                f: "In-browser Editing",
               },
             ].map((s) => (
               <div
@@ -750,6 +750,34 @@ export default function Landing() {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* 在线编辑是本品相对同类工具的真实差异点：多数 AI 站给完文本就结束。
+              刻意不宣称协作编辑 / 版本历史 / 云端保存 —— 这三项都不存在。 */}
+          <div className="mt-lg flex flex-col gap-md rounded-lg border border-border-subtle bg-surface-canvas p-lg md:flex-row md:items-center md:justify-between">
+            <div className="max-w-2xl">
+              <h3 className="mb-xs font-headline-sm text-headline-sm text-text-primary">
+                Edit before you export
+              </h3>
+              <p className="font-body-md text-body-md leading-relaxed text-text-muted">
+                Most AI tools hand you a block of text and stop there. Every
+                draft you generate opens on its own page, where you can rewrite
+                any sentence directly in the browser — then export it as Word or
+                PDF, ready for your review process.
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-col gap-2xs">
+              <span className="font-label-sm text-label-sm uppercase tracking-wider text-text-muted">
+                Free to use
+              </span>
+              <span className="font-body-sm text-body-sm text-text-muted">
+                5 drafts a day — no signup required
+              </span>
+              <span className="font-body-sm text-body-sm text-text-muted">
+                Sign in for 50 a day and to keep your recent drafts in this
+                browser
+              </span>
+            </div>
           </div>
         </div>
       </section>

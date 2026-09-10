@@ -21,8 +21,8 @@ export const FAQ_ITEMS: FaqItem[] = [
     a: "Yes. The engine is role-agnostic — you provide the role, level, and context in Step 2, and it adapts the language to that function. It works for technical roles (engineering, product, design) as well as non-technical functions (sales, marketing, HR, finance, operations). For the strongest output, describe the person's actual deliverables when you paste your notes in Step 3.",
   },
   {
-    q: "Can I edit or regenerate the review draft?",
-    a: "You can regenerate a complete draft as many times as you like, adjusting format, role, tone, and inputs between runs. Each draft opens on its own page where you can edit the text in place, then export it as PDF or Word. Fine-grained, section-by-section regeneration is on our roadmap.",
+    q: "Can I edit the review draft before exporting it?",
+    a: "Yes. Every draft opens on its own page where you can rewrite any sentence directly in the browser, then export the result as Word or PDF. You can also regenerate a complete draft as many times as you like, adjusting format, role, tone, and inputs between runs. Fine-grained, section-by-section regeneration is on our roadmap.",
   },
   {
     q: "How does the 360° feedback synthesis handle conflicting peer feedback?",
@@ -37,7 +37,7 @@ export function webApplicationLd() {
     name: "AI Performance Review Generator",
     url: "https://aiwritereview.com/",
     description:
-      "Generate balanced, evidence-based performance reviews across self, manager, peer, and 360° formats in minutes. Free to use.",
+      "Generate balanced, evidence-based performance reviews in self, manager, peer & 360° formats — then edit the draft in your browser and export as Word or PDF. Free to use.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Any",
     offers: {
