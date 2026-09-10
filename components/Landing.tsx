@@ -51,7 +51,7 @@ export default function Landing() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // 全局登录态：点"开始生成"前先过登录门槛
-  const { user, initializing, gate, signOut } = useAuth();
+  const { user, initializing, gate, signOut, requireSignIn } = useAuth();
 
   /** 真正打开 narrative 生成器（只有已登录会走到这里） */
   function openGenerator(preset: FormatKey) {
@@ -122,12 +122,21 @@ export default function Landing() {
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => startGenerator(format)}
-                className="inline-flex items-center justify-center gap-xs px-4 py-2 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2"
-              >
-                Generate a review
-              </button>
+              <>
+                <button
+                  onClick={() => requireSignIn()}
+                  className="inline-flex items-center px-3 py-2 rounded-lg border border-border-strong text-text-primary font-label-md text-label-md hover:bg-surface-canvas transition-colors"
+                  type="button"
+                >
+                  Sign in
+                </button>
+                <button
+                  onClick={() => startGenerator(format)}
+                  className="inline-flex items-center justify-center gap-xs px-4 py-2 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2"
+                >
+                  Generate a review
+                </button>
+              </>
             )}
           </div>
         </div>
