@@ -16,6 +16,11 @@ export type HistoryItem = {
   title: string;
   content: string;
   createdAt: number;
+  /**
+   * 结构化原文（目前只有 scored 模式用：存 ScoreDoc，编辑页据此还原记分卡表格）。
+   * 旧记录没有这个字段 —— 读的时候要按 undefined 处理。
+   */
+  data?: unknown;
 };
 
 /** 每人最多保留的条数，超出丢弃最旧的，避免撑爆 localStorage（5MB 上限） */
@@ -49,17 +54,18 @@ export function loadHistory(scope: string): HistoryItem[] {
 
 export function saveHistory(
   scope: string,
-  input: { kind: HistoryKind; title: string; content: string }
-): void {
-  if (typeof window === "undefined") return;
-  const list = loadHistory(scope);
+  input: { kind: HistoryKind; title: string; content: string; data?: unknown }
+): HistoryItem {
   const item: HistoryItem = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     kind: input.kind,
     title: (input.title || "Untitled").slice(0, 120),
     content: input.content.slice(0, MAX_CHARS),
     createdAt: Date.now(),
+    data: input.data,
   };
+  if (typeof window === "undefined") return item;
+  const list = loadHistory(scope);
   const next = [item, ...list].slice(0, MAX_ITEMS);
   try {
     window.localStorage.setItem(keyOf(scope), JSON.stringify(next));
@@ -73,6 +79,37 @@ export function saveHistory(
     } catch {
       // 放弃写入，不影响主流程
     }
+  }
+  return item;
+}
+
+/**
+ * 原地更新一条记录 —— 编辑页改完回写用，避免每次编辑都新开一条历史。
+ * 找不到 id 时静默忽略（比如换了浏览器、记录已被删）。
+ */
+export function updateHistory(
+  scope: string,
+  id: string,
+  patch: { title?: string; content?: string; data?: unknown }
+): void {
+  if (typeof window === "undefined" || !id) return;
+  const list = loadHistory(scope);
+  let hit = false;
+  const next = list.map((x) => {
+    if (x.id !== id) return x;
+    hit = true;
+    return {
+      ...x,
+      title: (patch.title ?? x.title).slice(0, 120),
+      content: (patch.content ?? x.content).slice(0, MAX_CHARS),
+      data: patch.data !== undefined ? patch.data : x.data,
+    };
+  });
+  if (!hit) return;
+  try {
+    window.localStorage.setItem(keyOf(scope), JSON.stringify(next));
+  } catch {
+    // ignore
   }
 }
 

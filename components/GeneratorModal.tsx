@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { Check, Copy, Pencil, RefreshCw } from "lucide-react";
 import { downloadPDF, downloadWord, WATERMARK_LINE } from "../lib/export";
 import { saveHistory } from "../lib/history";
+import { putReviewDoc } from "../lib/reviewDoc";
 import { useAuth } from "./auth/AuthContext";
 
 type ReviewType = "self" | "manager" | "peer" | "360";
@@ -167,6 +169,7 @@ export default function GeneratorModal({
   const RESUME_KEY = "air:wizardResume";
 
   const { user, gate, setAuthOpen } = useAuth();
+  const router = useRouter();
 
   // Open with default reset; 但若存在"被登录拦下前的向导快照"（Google 回跳场景），优先恢复快照
   useEffect(() => {
@@ -284,6 +287,7 @@ export default function GeneratorModal({
     setResult("");
     setProgress(0);
     setPhase(PROGRESS_PHASES[0].label);
+    setStep(5); // 进结果视图：显示进度条 + 边生成边显示正文
     if (editing) setEditing(false);
     const finalStrengths = freeNote.trim()
       ? [...strengths, freeNote.trim()]
@@ -378,13 +382,27 @@ export default function GeneratorModal({
       setPhase("Done");
       if (fakeTimer) clearInterval(fakeTimer);
       setLoading(false);
-      setStep(5);
-      // 存进历史（游客写 guest 桶，登录后自动并到用户桶 —— 见 lib/history.ts）
-      saveHistory(user?.id || "guest", {
+      // 生成完成 → 存一份历史，然后把内容交接给结果编辑页
+      // （用户在编辑页里改完再导出 PDF / Word，见 app/review/page.tsx）
+      const scope = user?.id || "guest";
+      const docTitle =
+        [jobTitle || reviewType, employeeName].filter(Boolean).join(" — ") ||
+        "Performance review";
+      const item = saveHistory(scope, {
         kind: "narrative",
-        title: [jobTitle || reviewType, employeeName].filter(Boolean).join(" — "),
+        title: docTitle,
         content: acc,
       });
+      putReviewDoc({
+        kind: "narrative",
+        title: docTitle,
+        text: acc,
+        createdAt: Date.now(),
+        historyId: item.id,
+        scope,
+      });
+      onClose();
+      router.push("/review");
     } catch {
       setError("Network error. Please try again.");
       setLoading(false);
@@ -846,13 +864,21 @@ export default function GeneratorModal({
                       }}
                     />
                   </div>
-                  <div className="skeleton lg" />
-                  <div className="skeleton" />
-                  <div className="skeleton" />
-                  <div className="skeleton lg" />
-                  <div className="skeleton" />
+                  {/* 正文边生成边显示；首个字符到来前先用骨架屏占位 */}
+                  {result ? (
+                    <div>{renderReport(result)}</div>
+                  ) : (
+                    <>
+                      <div className="skeleton lg" />
+                      <div className="skeleton" />
+                      <div className="skeleton" />
+                      <div className="skeleton lg" />
+                      <div className="skeleton" />
+                    </>
+                  )}
                   <div className="font-body-sm text-body-sm text-text-muted mt-md">
-                    Streaming your performance review… you can close this and come back; we'll keep going.
+                    Streaming your performance review… we'll open it in the editor
+                    when it's done.
                   </div>
                 </div>
               ) : editing ? (

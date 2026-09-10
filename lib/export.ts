@@ -2,9 +2,11 @@
 
 /**
  * 纯前端导出，无需后端。
- * - PDF: 用浏览器打印（配合 globals.css 的 @media print，只打印结果区）
+ * - PDF: 用浏览器打印（配合 globals.css 的 @media print，只打印 #print-area）
  * - Word: 用 Blob 生成 .doc（HTML 包壳，零依赖）
  */
+
+import { escapeHtml } from "./reportHtml";
 
 /** 导出件上的品牌水印（免费版去不掉，订阅后可移除） */
 export const WATERMARK_TEXT = "aiwritereview.com";
@@ -14,24 +16,50 @@ export function downloadPDF(): void {
   window.print();
 }
 
-export function downloadWord(plainText: string, filename = "performance-review"): void {
-  // 把纯文本按空行分段，转成带格式的 HTML
+/**
+ * 包一层 Word 能识别的 HTML 外壳，并把水印叠三处，
+ * 保证任何版本的 Word 都至少看得到一处：
+ *   ① 页面背景层（斜向浅色大字）
+ *   ② 正文顶部一行
+ *   ③ 正文底部一行（最保底）
+ */
+export function wrapWordHtml(bodyHtml: string, filename: string): string {
+  const headLine = `<p style="margin:0 0 18px;font-size:11px;color:#9ca3af;font-family:Arial,sans-serif;">${escapeHtml(WATERMARK_LINE)}</p>`;
+  const footLine = `<p style="margin:18px 0 0;font-size:11px;color:#9ca3af;font-family:Arial,sans-serif;">${escapeHtml(WATERMARK_LINE)}</p>`;
+  return `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${escapeHtml(filename)}</title><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]--><style>@page{size:A4;margin:2.54cm;} .wm-bg{position:fixed;top:38%;left:0;width:100%;text-align:center;font-family:Arial,sans-serif;font-size:64px;color:#f0f1f3;z-index:-1;}</style></head><body style="font-family:Calibri,Arial,sans-serif;"><div class="wm-bg">${escapeHtml(WATERMARK_TEXT)}</div>${headLine}${bodyHtml}${footLine}</body></html>`;
+}
+
+/** 纯文本 → .doc（按空行分段） */
+export function downloadWord(
+  plainText: string,
+  filename = "performance-review"
+): void {
   const paragraphs = plainText
     .split(/\n{2,}/)
     .map((p) => p.trim())
     .filter(Boolean)
-    .map((p) => `<p style="margin:0 0 14px;line-height:1.7;font-size:14px;">${escapeHtml(p).replace(/\n/g, "<br/>")}</p>`)
+    .map(
+      (p) =>
+        `<p style="margin:0 0 14px;line-height:1.7;font-size:14px;">${escapeHtml(
+          p
+        ).replace(/\n/g, "<br/>")}</p>`
+    )
     .join("");
+  saveBlob(wrapWordHtml(paragraphs, filename), filename);
+}
 
-  // 水印三处叠加，保证任何版本的 Word 都至少看得到一处：
-  //   ① 页面背景层（斜向浅色大字）
-  //   ② 正文顶部一行
-  //   ③ 正文底部一行（最保底）
-  const headLine = `<p style="margin:0 0 18px;font-size:11px;color:#9ca3af;font-family:Arial,sans-serif;">${escapeHtml(WATERMARK_LINE)}</p>`;
-  const footLine = `<p style="margin:18px 0 0;font-size:11px;color:#9ca3af;font-family:Arial,sans-serif;">${escapeHtml(WATERMARK_LINE)}</p>`;
+/**
+ * 已经排好版的 HTML → .doc。
+ * 编辑页用这个：用户在页面上改完（含小标题），导出件保留同样的结构。
+ */
+export function downloadWordFromHtml(
+  innerHtml: string,
+  filename = "performance-review"
+): void {
+  saveBlob(wrapWordHtml(innerHtml || "", filename), filename);
+}
 
-  const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${escapeHtml(filename)}</title><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]--><style>@page{size:A4;margin:2.54cm;} .wm-bg{position:fixed;top:38%;left:0;width:100%;text-align:center;font-family:Arial,sans-serif;font-size:64px;color:#f0f1f3;z-index:-1;}</style></head><body style="font-family:Calibri,Arial,sans-serif;"><div class="wm-bg">${escapeHtml(WATERMARK_TEXT)}</div>${headLine}${paragraphs}${footLine}</body></html>`;
-
+function saveBlob(html: string, filename: string): void {
   const blob = new Blob([html], { type: "application/msword" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -41,11 +69,4 @@ export function downloadWord(plainText: string, filename = "performance-review")
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
 }

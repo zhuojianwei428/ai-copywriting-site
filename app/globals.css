@@ -121,4 +121,56 @@ body {
     z-index: 9999;
     pointer-events: none;
   }
+
+  /* 编辑页：表格横向滚动容器在打印时不能裁切内容 */
+  #print-area,
+  #print-area .overflow-x-auto {
+    overflow: visible !important;
+  }
 }
+
+/* ===================== 结果编辑页（/review） ===================== */
+
+/* 可编辑正文块：保留阅读排版，去掉 contentEditable 的默认焦点框 */
+.rv-doc {
+  min-height: 55vh;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-primary, #111827);
+  outline: none;
+}
+.rv-doc:focus,
+.rv-cell:focus {
+  outline: none;
+}
+
+/* 记分卡里的 justification 单元格 */
+.rv-cell {
+  display: block;
+  min-width: 180px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  outline: none;
+}
+
+.rv-doc:focus-visible,
+.rv-cell:focus-visible {
+  box-shadow: 0 0 0 2px var(--primary-container, #6366f1);
+}
+
+/* 空的可编辑块显示占位提示 */
+[contenteditable][data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-muted, #9ca3af);
+}
+
+/* 只在打印时出现（编辑页标题在屏幕上是 input，打印要的是纯文本标题） */
+.print-only {
+  display: none;
+}
+@media print {
+  .print-only {
+    display: block !important;
+  }
+}
+

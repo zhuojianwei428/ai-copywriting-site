@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { RefreshCw } from "lucide-react";
 import { downloadPDF, downloadWord, WATERMARK_LINE } from "../lib/export";
 import { saveHistory } from "../lib/history";
+import { putReviewDoc, scoreDocToText, type ScoreDoc } from "../lib/reviewDoc";
 import { weightError, type KraInput, type ScoredKra } from "../lib/score";
 import { useAuth } from "./auth/AuthContext";
 
@@ -126,6 +128,7 @@ export default function ScoreGeneratorModal({
   const RESUME_KEY = "air:scoreWizardResume";
 
   const { user, gate, setAuthOpen } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (!open) return;
@@ -305,24 +308,51 @@ export default function ScoreGeneratorModal({
       }
       setResp(data);
       setLoading(false);
-      setStep("result");
+      // 出分后直接交接给结果编辑页：justification 和四个总结段落都能改，
+      // 星级 / 权重 / 加权分是本地算出来的，锁定不可改（见 components/ReviewEditor.tsx）
+      const sdoc: ScoreDoc = {
+        items: data.items,
+        total: data.total,
+        percent: data.percent,
+        grade: data.grade,
+        gradeLabel: data.gradeLabel,
+        weightSum: data.weightSum,
+        overall: data.overall,
+        strengths: data.strengths,
+        growth: data.growth,
+        nextSteps: data.nextSteps,
+        reviewType,
+        jobTitle: jobTitle || undefined,
+        cycle: cycle || undefined,
+      };
+      const scope = user?.id || "guest";
+      const docTitle =
+        [jobTitle || reviewType, cycle].filter(Boolean).join(" — ") ||
+        "Performance scorecard";
+      const item = saveHistory(scope, {
+        kind: "scored",
+        title: docTitle,
+        content: scoreDocToText(sdoc),
+        data: sdoc,
+      });
+      putReviewDoc({
+        kind: "scored",
+        title: docTitle,
+        score: sdoc,
+        createdAt: Date.now(),
+        historyId: item.id,
+        scope,
+      });
+      onClose();
+      router.push("/review");
     } catch {
       setError("Network error. Please try again.");
       setLoading(false);
     }
   }
 
-  // 出分后存历史（等 resp 落进 state 再存，才能拿到完整的记分卡文本）
-  useEffect(() => {
-    if (step !== "result" || !resp) return;
-    saveHistory(user?.id || "guest", {
-      kind: "scored",
-      title: [jobTitle || reviewType, cycle].filter(Boolean).join(" — "),
-      content: buildWordText(),
-    });
-    // buildWordText 依赖 resp，此处只在出分这一刻存一次
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, resp]);
+  // 历史记录改在 runGenerate 出分那一刻直接写入（连同结构化数据一起），
+  // 因为紧接着就会跳到 /review 编辑页，这个组件会被卸载、effect 不会再跑。
 
   function renderStars(score: number): string {
     // AI returns 1-5 (integer or half). Fill stars up to nearest integer.

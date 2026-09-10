@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Trash2, X } from "lucide-react";
 import {
   deleteHistory,
@@ -9,6 +10,7 @@ import {
   type HistoryItem,
 } from "../lib/history";
 import { downloadWord } from "../lib/export";
+import { putReviewDoc, type ScoreDoc } from "../lib/reviewDoc";
 
 type Props = {
   open: boolean;
@@ -35,6 +37,41 @@ export default function HistoryModal({ open, onClose, scope }: Props) {
   const [items, setItems] = useState<HistoryItem[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  const router = useRouter();
+
+  /**
+   * 在结果编辑页打开这条记录。
+   * - narrative：直接把文本交给编辑页
+   * - scored 且存了结构化数据（data）：还原成可编辑的记分卡表格
+   * - scored 但没有 data（早期记录）：退化成纯文本编辑，仍然可改可导出
+   */
+  function openInEditor(it: HistoryItem) {
+    const sc = scope || "guest";
+    const structured =
+      it.kind === "scored" && !!it.data && typeof it.data === "object";
+    if (structured) {
+      putReviewDoc({
+        kind: "scored",
+        title: it.title,
+        createdAt: it.createdAt,
+        historyId: it.id,
+        scope: sc,
+        score: it.data as ScoreDoc,
+      });
+    } else {
+      putReviewDoc({
+        kind: "narrative",
+        title: it.title,
+        createdAt: it.createdAt,
+        historyId: it.id,
+        scope: sc,
+        text: it.content,
+      });
+    }
+    onClose();
+    router.push("/review");
+  }
 
   const refresh = useCallback(() => {
     setItems(loadHistory(scope || "guest"));
@@ -115,6 +152,13 @@ export default function HistoryModal({ open, onClose, scope }: Props) {
                     </div>
                   </button>
                   <div className="flex shrink-0 items-center gap-1">
+                    <button
+                      onClick={() => openInEditor(it)}
+                      className="rounded px-2 py-1 font-label-sm text-label-sm text-text-muted hover:bg-surface-card hover:text-text-primary"
+                      type="button"
+                    >
+                      Edit
+                    </button>
                     <button
                       onClick={() =>
                         downloadWord(it.content, `history-${it.id.slice(-6)}`)
