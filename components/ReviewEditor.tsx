@@ -6,6 +6,7 @@ import { ArrowLeft, Check, Copy, Download, Save } from "lucide-react";
 import Editable from "./Editable";
 import { useAuth } from "./auth/AuthContext";
 import {
+  DISCLAIMER_LINE,
   downloadPDF,
   downloadWord,
   downloadWordFromHtml,
@@ -438,6 +439,17 @@ export default function ReviewEditor() {
                         />
                       </div>
                     ))}
+
+                    {/* 免责声明（仅供打印）：scored 模式的正文是结构化表格，声明只存在于
+                        scoreDocToText() 的文本序列化里 —— Word / 复制 / 历史 都有，但 DOM 里
+                        没有。而打印样式是 body * {visibility:hidden} + 仅 #print-area 放行，
+                        所以 PDF 导出会把整段声明丢掉（narrative 因为正文里带着它，没这个问题）。
+                        这里补一份 print-only 副本：屏幕上 display:none，不改变任何观感。
+                        它不在可编辑单元格内，因此不会重复进入 Word 导出或历史。
+                        措辞取自 lib/export.ts 的 DISCLAIMER_LINE，避免字面量漂移。 */}
+                    <p className="print-only mt-lg font-label-sm text-label-sm text-text-muted">
+                      {DISCLAIMER_LINE}
+                    </p>
                   </div>
                 )
               )}
