@@ -4,12 +4,12 @@ import { useEffect, useState, type FormEvent } from "react";
 import { createClient } from "../../lib/supabase/client";
 import { useAuth } from "./AuthContext";
 
-type Mode = "signin" | "signup" | "reset";
+type Mode = "signin" | "signup" | "reset" | "verify";
 
 /**
  * 登录/注册弹窗：
  * - Google 一键登录（需在 Supabase Auth → Providers 启用 Google）
- * - 邮箱 + 密码 注册/登录
+ * - 邮箱 + 密码 注册/登录；注册后需填入邮件里的 6 位验证码完成确认
  * - 忘记密码 → 发送重置邮件
  * 会话由 @supabase/ssr 通过 cookie 自动维持。
  */
@@ -24,6 +24,8 @@ export default function AuthModal({
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
+  const [resendIn, setResendIn] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -42,6 +44,25 @@ export default function AuthModal({
       window.removeEventListener("keydown", onKey);
     };
   }, [open, onClose]);
+
+  // 重发验证码的 60 秒冷却倒计时
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendIn]);
+
+  // 关闭时清掉验证码与倒计时，下次打开是干净的
+  useEffect(() => {
+    if (!open) {
+      setMode("signin");
+      setOtp("");
+      setResendIn(0);
+      setError("");
+      setNotice("");
+      setPassword("");
+    }
+  }, [open]);
 
   if (!open) return null;
 
@@ -64,6 +85,27 @@ export default function AuthModal({
     }
   }
 
+  /** 重发注册验证码 */
+  async function handleResend() {
+    setBusy(true);
+    setError("");
+    setNotice("");
+    try {
+      const supabase = createClient();
+      const { error: e } = await supabase.auth.resend({ type: "signup", email });
+      if (e) {
+        setError(e.message);
+      } else {
+        setNotice(`A new code was sent to ${email}.`);
+        setResendIn(60);
+      }
+    } catch {
+      setError("Couldn't resend the code. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleSubmit(ev: FormEvent) {
     ev.preventDefault();
     setBusy(true);
@@ -73,17 +115,37 @@ export default function AuthModal({
       const supabase = createClient();
       const redirectTo = window.location.origin + "/auth";
 
-      if (mode === "signup") {
-        const { error: e } = await supabase.auth.signUp({
+      if (mode === "verify") {
+        const token = otp.replace(/\D/g, "");
+        if (token.length < 6) {
+          setError("Enter the 6-digit code from your email.");
+          return;
+        }
+        const { error: e } = await supabase.auth.verifyOtp({
+          email,
+          token,
+          type: "signup",
+        });
+        if (e) setError(e.message);
+        // 成功即建立会话 → AuthContext 会关闭弹窗并继续原动作
+      } else if (mode === "signup") {
+        const { data, error: e } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: redirectTo },
         });
-        if (e) setError(e.message);
-        else
-          setNotice(
-            "Account created. Check your inbox to confirm your email, then sign in."
-          );
+        if (e) {
+          setError(e.message);
+        } else if (data.session) {
+          // 邮箱确认被关闭时，注册即登录
+          setNotice("Account created. You're signed in.");
+        } else {
+          // 需要邮箱确认 → 进入验证码步骤
+          setMode("verify");
+          setOtp("");
+          setResendIn(60);
+          setNotice(`We emailed a 6-digit code to ${email}.`);
+        }
       } else if (mode === "reset") {
         const { error: e } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo,
@@ -98,7 +160,28 @@ export default function AuthModal({
           email,
           password,
         });
-        if (e) setError(e.message);
+        if (e) {
+          // 账号还没验证过 → 直接引导到验证码步骤
+          if (
+            e.code === "email_not_confirmed" ||
+            /not confirmed/i.test(e.message)
+          ) {
+            setMode("verify");
+            setOtp("");
+            setPassword("");
+            setResendIn(60);
+            setNotice(
+              `Your email isn't confirmed yet. We sent a fresh 6-digit code to ${email}.`
+            );
+            try {
+              await supabase.auth.resend({ type: "signup", email });
+            } catch {
+              // 重发失败不阻塞：用户可用界面上的重发按钮
+            }
+          } else {
+            setError(e.message);
+          }
+        }
         // 成功会触发 onAuthStateChange，登录弹窗由父级关闭
       }
     } catch {
@@ -128,7 +211,15 @@ export default function AuthModal({
                 AI Review Writer
               </span>
               <h2 className="font-title-md text-title-md text-text-primary mt-xs">
-                {user ? "Signed in" : "Continue to your full review"}
+                {user
+                  ? "Signed in"
+                  : mode === "verify"
+                  ? "Confirm your email"
+                  : mode === "signup"
+                  ? "Create your account"
+                  : mode === "reset"
+                  ? "Reset your password"
+                  : "Continue to your full review"}
               </h2>
             </div>
             <button
@@ -193,7 +284,60 @@ export default function AuthModal({
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-sm">
-                {mode === "reset" ? (
+                {mode === "verify" ? (
+                  <>
+                    <p className="font-body-sm text-body-sm text-text-muted">
+                      Enter the 6-digit code we sent to{" "}
+                      <span className="font-medium text-text-primary">
+                        {email}
+                      </span>
+                      . It may take a minute to arrive — check your spam folder
+                      too.
+                    </p>
+                    <label className="block">
+                      <span className="font-title-md text-title-md text-text-primary mb-xs block">
+                        Verification code
+                      </span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        required
+                        value={otp}
+                        onChange={(e) =>
+                          setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                        }
+                        placeholder="123456"
+                        className={`${inputCls} tracking-[0.4em] text-center`}
+                        style={{ fontSize: 18, fontVariantNumeric: "tabular-nums" }}
+                      />
+                    </label>
+                    <div className="flex items-center justify-between">
+                      <button
+                        type="button"
+                        disabled={busy || resendIn > 0}
+                        onClick={handleResend}
+                        className="font-label-sm text-label-sm text-primary-container hover:text-primary disabled:text-text-muted disabled:cursor-default"
+                      >
+                        {resendIn > 0
+                          ? `Resend code in ${resendIn}s`
+                          : "Resend code"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMode("signup");
+                          setOtp("");
+                          setError("");
+                          setNotice("");
+                        }}
+                        className="font-label-sm text-label-sm text-text-muted hover:text-text-primary"
+                      >
+                        ← Use a different email
+                      </button>
+                    </div>
+                  </>
+                ) : mode === "reset" ? (
                   <label className="block">
                     <span className="font-title-md text-title-md text-text-primary mb-xs block">
                       Email
@@ -260,6 +404,8 @@ export default function AuthModal({
                 >
                   {busy
                     ? "Please wait…"
+                    : mode === "verify"
+                    ? "Confirm & sign in"
                     : mode === "signup"
                     ? "Create account"
                     : mode === "reset"
@@ -303,6 +449,15 @@ export default function AuthModal({
                     className="text-left text-primary-container hover:text-primary"
                   >
                     Back to sign in
+                  </button>
+                )}
+                {mode === "verify" && (
+                  <button
+                    type="button"
+                    onClick={() => { setMode("signin"); setOtp(""); setError(""); setNotice(""); }}
+                    className="text-left text-primary-container hover:text-primary"
+                  >
+                    Already confirmed? Sign in
                   </button>
                 )}
               </div>
