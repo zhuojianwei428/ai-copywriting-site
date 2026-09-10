@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RefreshCw } from "lucide-react";
-import { downloadPDF, WATERMARK_LINE, DISCLAIMER_LINE } from "../lib/export";
+import { downloadPDF } from "../lib/export";
 import { saveHistory } from "../lib/history";
 import {
   defaultDocTitle,

@@ -4,19 +4,15 @@
  * 纯前端导出，无需后端。
  * - PDF: 用 html2canvas 把 #print-area 截成图片，再用 jsPDF 装进 A4 页直接下载
  *   （不再弹浏览器打印对话框 —— 用户点一下就直接拿到 .pdf 文件）。
- * - 字体/水印/免责声明照旧，只是下载方式从「打印对话框」变成「直接落盘」。
+ * - 字体/免责声明照旧，只是下载方式从「打印对话框」变成「直接落盘」。
  */
 
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import {
-  WATERMARK_TEXT,
-  WATERMARK_LINE,
-  DISCLAIMER_LINE,
-} from "./constants";
+import { DISCLAIMER_LINE } from "./constants";
 
 // 转发常量，保持既有 `import { DISCLAIMER_LINE } from "../lib/export"` 这类引用不破
-export { WATERMARK_TEXT, WATERMARK_LINE, DISCLAIMER_LINE };
+export { DISCLAIMER_LINE };
 
 // ===================== A4 尺寸常量（jsPDF 用 mm；html2canvas 用 px @96dpi） =====================
 const A4_WIDTH_MM = 210;
@@ -141,7 +137,6 @@ export async function downloadPDF(
  * 这些规则本来只活在 @media print 里，html2canvas 看不到，得手动搬到克隆体：
  *   - .print-only 元素（编辑页标题 h1、scored 的免责声明）从 display:none 恢复
  *   - .rv-doc 的 min-height:55vh 清零（否则截图撑半页高）
- *   - 注入顶部水印署名（对应 @media print 的 #print-area::before）
  */
 async function applyPrintStyles(clone: HTMLElement): Promise<void> {
   // .print-only → 恢复显示
@@ -153,13 +148,6 @@ async function applyPrintStyles(clone: HTMLElement): Promise<void> {
   clone.querySelectorAll(".rv-doc").forEach((el) => {
     (el as HTMLElement).style.minHeight = "0";
   });
-
-  // 顶部水印署名行（与 @media print 的 ::before 内容一致）
-  const wm = document.createElement("div");
-  wm.textContent = WATERMARK_LINE;
-  wm.style.cssText =
-    "margin:0 0 14px;font-family:Arial,sans-serif;font-size:10px;color:#9ca3af;text-align:center;";
-  clone.insertBefore(wm, clone.firstChild);
 
   // 确保克隆体用白色背景、正常字号（脱离原容器的 inherited 样式后仍一致）
   clone.style.background = "#ffffff";

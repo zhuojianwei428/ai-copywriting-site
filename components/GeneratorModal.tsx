@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Copy, RefreshCw } from "lucide-react";
 import {
   downloadPDF,
-  WATERMARK_LINE,
   DISCLAIMER_LINE,
 } from "../lib/export";
 import { saveHistory } from "../lib/history";
@@ -445,11 +444,10 @@ export default function GeneratorModal({
 
   async function handleCopy() {
     try {
-      // 剪贴板加不了视觉水印，但追加署名与免责声明：
-      // 复制出去的内容同样会被当成正式评估用，声明不能留在页面上。
+      // 复制出去的内容同样会被当成正式评估用，免责声明不能留在页面上。
       const body = table ? evalTableToText(table) : result;
       await navigator.clipboard.writeText(
-        `${body}\n\n${DISCLAIMER_LINE}\n\n— ${WATERMARK_LINE}`
+        `${body}\n\n${DISCLAIMER_LINE}`
       );
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
@@ -924,6 +922,34 @@ export default function GeneratorModal({
                     >
                       <RefreshCw size={16} /> <span>Retry</span>
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {!loading && !error && table && (
+                <div
+                  className="mt-lg p-md rounded border"
+                  style={{
+                    borderColor: "var(--primary-container)",
+                    background: "var(--surface-canvas)",
+                  }}
+                >
+                  <div className="flex items-start gap-sm">
+                    <span
+                      className="material-symbols-outlined text-[20px] shrink-0"
+                      style={{ color: "var(--primary-container)" }}
+                    >
+                      edit_note
+                    </span>
+                    <div>
+                      <p className="font-title-sm text-title-sm text-text-primary">
+                        Every section is editable
+                      </p>
+                      <p className="font-body-sm text-body-sm text-text-muted mt-xs leading-relaxed">
+                        This draft is fully editable — click any text to refine
+                        it before exporting.
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
