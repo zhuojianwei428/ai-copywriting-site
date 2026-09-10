@@ -214,6 +214,8 @@ async function handlePost(req: Request) {
     });
 
     const raw = completion.choices?.[0]?.message?.content || "";
+    const finishReason: string | null =
+      (completion.choices?.[0] as any)?.finish_reason ?? null;
     const parsed = extractJson(raw);
     const usage = (completion as any)?.usage;
 
@@ -224,6 +226,9 @@ async function handlePost(req: Request) {
         ip,
         keyHint: maskKey(apiKey),
         model,
+        // 预算与模型的实际生效值 —— 核查 env 时看这两个就够，不用翻面板
+        maxOutputTokens: MAX_OUTPUT_TOKENS,
+        finishReason,
         inputChars,
         outputChars: raw.length,
         durationMs: Date.now() - startedAt,
@@ -258,9 +263,13 @@ async function handlePost(req: Request) {
 
     logCall({
       event: "score_done",
+      // finish_reason=length 说明 JSON 已被截断（这次侥幸解析成功，下次未必）
+      level: finishReason === "length" ? "warn" : undefined,
       ip,
       keyHint: maskKey(apiKey),
       model,
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
+      finishReason,
       inputChars,
       outputChars: raw.length,
       promptTokens: usage?.prompt_tokens ?? null,

@@ -368,11 +368,21 @@ async function handlePost(req: Request) {
           outputChars += tail.length;
           controller.enqueue(encoder.encode(tail));
 
+          const incomplete =
+            aiChars === 0 ||
+            markersHit < BLOCK_MARKERS.length ||
+            finishReason === "length";
+
           logCall({
             event: "generate_done",
+            // 不完整的调用升到 warn：在 Vercel 面板按 level:warning 过滤即可
+            // 只看到出问题的那些，不必在 info 洪流里逐条翻。
+            level: incomplete ? "warn" : undefined,
             ip,
             keyHint: maskKey(apiKey),
             model,
+            // 预算与模型的实际生效值 —— 核查 env 时看这两个就够，不用翻面板
+            maxOutputTokens: MAX_OUTPUT_TOKENS,
             inputChars,
             outputChars,
             markersHit,
@@ -380,7 +390,7 @@ async function handlePost(req: Request) {
             aiChars,
             reasoningChars,
             finishReason: finishReason || null,
-            incomplete: aiChars === 0 || markersHit < BLOCK_MARKERS.length,
+            incomplete,
             aiTokens: usage?.completion_tokens ?? null,
             promptTokens: usage?.prompt_tokens ?? null,
             completionTokens: usage?.completion_tokens ?? null,
