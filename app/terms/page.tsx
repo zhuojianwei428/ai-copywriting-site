@@ -16,8 +16,9 @@ export default function Terms() {
 
           <p className="font-body-md text-body-md text-text-muted leading-relaxed mb-md">
             AI Review Writer generates performance-review drafts to assist your own
-            professional judgment. The service is provided free of charge and
-            without creating an account.
+            professional judgment. The service is provided free of charge and does
+            not require you to create an account. A free daily usage allowance
+            applies, and signing in raises that allowance.
           </p>
 
           <h2 className="font-headline-sm text-headline-sm text-text-primary tracking-tight mt-xl mb-sm">

@@ -5,12 +5,12 @@ export interface FaqItem {
 
 export const FAQ_ITEMS: FaqItem[] = [
   {
-    q: "How does the AI ensure objectivity and reduce bias in reviews?",
-    a: "Our evaluation models run a dedicated bias verification pass on every generated draft. The system explicitly flags and converts subjective personality characterizations (e.g., \"too aggressive,\" \"passive,\" \"likable\") into verifiable, behavioral descriptions tied directly to project deliverables, observable work, and your rubric.",
+    q: "How does AI Review Writer help reduce bias-prone language in reviews?",
+    a: "The engine is prompted to be specific rather than generic, to use only the details you provide, and to keep developmental comments constructive and forward-looking rather than punitive. It does not run an automated bias check — AI output can still reflect bias, so always review the draft before use and treat it as a starting point rather than a final evaluation.",
   },
   {
-    q: "Can I customize the review tone to match our company's rating rubric?",
-    a: "Yes. You can select standard enterprise scales (e.g., 5-point Likert, Meets/Exceeds, or Radical Candor grids) or upload custom rubric parameters. You can calibrate tone from \"Supportive & Developmental\" to \"Direct & Rigorous\" depending on seniority and context.",
+    q: "Can I customize the review tone to match my team's needs?",
+    a: "Yes. You can set the tone to Formal (neutral and professional), Encouraging (warm and supportive), or Direct (blunt and to the point), and describe the role, tenure, and context in Steps 2\u20133 to shape the output. Narrative drafts rate competencies on a 1\u20135 scale; the scorecard mode adds weighted KRAs and an A\u2013D grade. Custom rubric import is not available yet.",
   },
   {
     q: "Is confidential company performance data kept private and secure?",
@@ -18,15 +18,15 @@ export const FAQ_ITEMS: FaqItem[] = [
   },
   {
     q: "Does this work for both tech roles and non-technical business functions?",
-    a: "Absolutely. Pre-configured career tracks cover Software Engineering, Product Management, Product Design, Sales, Marketing, HR, Finance, and Customer Operations. Each track features dedicated competency models reflecting actual day-to-day deliverables.",
+    a: "Yes. The engine is role-agnostic — you provide the role, level, and context in Step 2, and it adapts the language to that function. It works for technical roles (engineering, product, design) as well as non-technical functions (sales, marketing, HR, finance, operations). For the strongest output, describe the person's actual deliverables when you paste your notes in Step 3.",
   },
   {
-    q: "Can I edit and regenerate specific sections of the review draft?",
-    a: "Yes. AI Review Writer provides granular sectional regeneration. If an executive summary is accurate but developmental goals require greater specificity, you can prompt the engine to rewrite solely that subsection without altering the rest of your document.",
+    q: "Can I edit or regenerate the review draft?",
+    a: "You can regenerate a complete draft as many times as you like, adjusting format, role, tone, and inputs between runs. Each draft opens on its own page where you can edit the text in place, then export it as PDF or Word. Fine-grained, section-by-section regeneration is on our roadmap.",
   },
   {
     q: "How does the 360° feedback synthesis handle conflicting peer feedback?",
-    a: "When divergent perspectives occur (e.g., praise for rapid execution from one peer vs. concern over documentation pace from another), the engine transparently surfaces this tension as a situational trade-off rather than an irreconcilable contradiction.",
+    a: "When you paste divergent peer input (e.g., praise for rapid execution alongside concern over documentation pace), you can ask the engine to surface both perspectives as a situational trade-off rather than flatten them into a single judgment. Review the synthesis carefully — conflicting feedback often signals a real tension worth discussing with the employee directly.",
   },
 ];
 
@@ -37,7 +37,7 @@ export function webApplicationLd() {
     name: "AI Performance Review Generator",
     url: "https://aiwritereview.com/",
     description:
-      "Generate objective, balanced performance reviews across self, manager, peer, and 360° formats in minutes. Free to use.",
+      "Generate balanced, evidence-based performance reviews across self, manager, peer, and 360° formats in minutes. Free to use.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Any",
     offers: {

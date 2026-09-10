@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Copy, Pencil, RefreshCw } from "lucide-react";
-import { downloadPDF, downloadWord, WATERMARK_LINE } from "../lib/export";
+import { downloadPDF, downloadWord, WATERMARK_LINE, DISCLAIMER_LINE } from "../lib/export";
 import { saveHistory } from "../lib/history";
 import { defaultDocTitle, putReviewDoc } from "../lib/reviewDoc";
 import { useAuth } from "./auth/AuthContext";
@@ -414,15 +414,19 @@ export default function GeneratorModal({
       // （用户在编辑页里改完再导出 PDF / Word，见 app/review/page.tsx）
       const scope = user?.id || "guest";
       const docTitle = defaultDocTitle({ reviewType, jobTitle, employeeName });
+      // 免责声明必须成为「文档正文」的一部分，而不只是界面上的一块 UI：
+      // 只有写进正文，它才会跟着历史记录、编辑页、PDF/Word 导出一起走。
+      // scored 模式的 scoreDocToText() 一直是这么做的，narrative 这里原先漏了。
+      const docText = `${acc}\n\n${DISCLAIMER_LINE}`;
       const item = saveHistory(scope, {
         kind: "narrative",
         title: docTitle,
-        content: acc,
+        content: docText,
       });
       putReviewDoc({
         kind: "narrative",
         title: docTitle,
-        text: acc,
+        text: docText,
         createdAt: Date.now(),
         historyId: item.id,
         scope,
@@ -438,8 +442,11 @@ export default function GeneratorModal({
 
   async function handleCopy() {
     try {
-      // 剪贴板加不了视觉水印，但追加一行署名：既是品牌痕迹，也方便溯源
-      await navigator.clipboard.writeText(`${result}\n\n— ${WATERMARK_LINE}`);
+      // 剪贴板加不了视觉水印，但追加署名与免责声明：
+      // 复制出去的内容同样会被当成正式评估用，声明不能留在页面上。
+      await navigator.clipboard.writeText(
+        `${result}\n\n${DISCLAIMER_LINE}\n\n— ${WATERMARK_LINE}`
+      );
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {}
@@ -1001,7 +1008,7 @@ export default function GeneratorModal({
                   <button
                     className="inline-flex items-center justify-center gap-xs px-4 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card hover:bg-surface-canvas transition-colors"
                     onClick={() =>
-                      downloadWord(result)
+                      downloadWord(`${result}\n\n${DISCLAIMER_LINE}`)
                     }
                     type="button"
                   >

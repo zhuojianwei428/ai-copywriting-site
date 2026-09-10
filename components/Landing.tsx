@@ -27,19 +27,19 @@ const FORMATS: {
     key: "manager",
     label: "Manager Review",
     desc: "Structured evaluation of performance, competencies, and forward-looking developmental goals.",
-    badge: "Leadership view",
+    badge: "Manager view",
   },
   {
     key: "peer",
     label: "Peer Review",
     desc: "Constructive feedback on collaboration, technical execution, and cross-team contributions.",
-    badge: "Lateral feedback",
+    badge: "Peer view",
   },
   {
     key: "360",
     label: "360° Feedback",
-    desc: "Holistic multi-perspective assessment synthesized directly against organization rubrics.",
-    badge: "Multi-source",
+    desc: "Holistic multi-perspective assessment synthesized from the context and goals you provide.",
+    badge: "360° view",
   },
 ];
 
@@ -169,7 +169,7 @@ export default function Landing() {
           <div className="inline-flex items-center gap-xs px-3 py-1 rounded-full border border-border-strong bg-surface-canvas mb-lg">
             <span className="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
             <span className="font-label-sm text-label-sm uppercase tracking-widest text-text-primary">
-              AI Performance Review Generator
+              AI Review Writer · Free Performance Review Tool
             </span>
           </div>
           {/* Headline */}
@@ -183,8 +183,8 @@ export default function Landing() {
           {/* Brand tagline subtitle */}
           <p className="font-body-lg text-body-lg text-text-muted max-w-2xl">
             Reviews written with rigor, precision, and nuance — calibrated to
-            your rubric, role level, and documented impact. Sign in with
-            Google or your email to start.
+            your rubric, role level, and documented impact. Free to start — no
+            signup required.
           </p>
 
           {/* Interactive Generator Box */}
@@ -421,30 +421,31 @@ export default function Landing() {
                 Structured, evidence-based review drafts
               </h2>
               <p className="font-body-lg text-body-lg text-text-muted">
-                Every generated output enforces clear competency taxonomy,
-                concrete metrics, and actionable developmental paths without
-                generic corporate filler.
+                Every generated output is built around a clear competency
+                taxonomy, concrete metrics, and actionable developmental paths —
+                without generic corporate filler.
               </p>
             </div>
             <div className="flex items-center gap-md p-md bg-surface-card border border-border-subtle rounded-xl shadow-sm shrink-0">
               <div className="w-16 h-16 rounded-lg overflow-hidden border border-border-subtle shrink-0 bg-surface-canvas">
                 <img
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCL_uurcKAhOe8nPwzoAiqZOqF0VcWxNTU9He0rWz_uuc0xpa9KBuMCqbrlHylSpnX1v3AOf9TOpnDhwCdOEylBRldPjBEolrtrL4lpDPvffeHfnvYv58wW9SEG4M_kOb1_SbbxqomXF_w0O6BLzzS192QlSGdQ23vNnPjQigNk-stBlDo8SLKMbNrxGc44ueqkKey7QIeWzyh5Rl5cuZGZJn8bwgt9qtzJd1h1IKTESgGaFLCTrHcMw"
-                  alt="Diverse reviewers"
+                  alt="Managers and individual contributors"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-1">
                   <span className="material-symbols-outlined text-[16px] text-primary-container">
-                    verified
+                    group
                   </span>
                   <span className="font-title-md text-title-md text-text-primary font-semibold">
-                    Managers &amp; ICs
+                    Built for managers &amp; ICs
                   </span>
                 </div>
                 <span className="font-body-sm text-body-sm text-text-muted">
-                  Calibrated across engineering, product &amp; design
+                  Aligned with competency frameworks common across engineering,
+                  product &amp; design
                 </span>
               </div>
             </div>
@@ -705,8 +706,8 @@ export default function Landing() {
               {
                 n: "01",
                 t: "Select format & rubric",
-                d: "Choose self, manager, peer, or 360° review. Load your company's core competency criteria or select from industry-standard rating scales.",
-                f: "Configurable Rubrics",
+                d: "Choose self, manager, peer, or 360° review, then rate competencies on a standard 1–5 scale.",
+                f: "Standard Rating Scales",
               },
               {
                 n: "02",
@@ -717,8 +718,8 @@ export default function Landing() {
               {
                 n: "03",
                 t: "Calibrate tone & level",
-                d: "Adjust seniority level (Associate to Director), calibrate directness, and ensure growth feedback is actionable, respectful, and free of cognitive bias.",
-                f: "Bias & Tone Guard",
+                d: "Set the role, tenure, and tone (Formal, Encouraging, or Direct) so growth feedback stays actionable, respectful, and free of bias-prone phrasing.",
+                f: "Tone Calibration",
               },
               {
                 n: "04",
@@ -767,8 +768,8 @@ export default function Landing() {
               Designed for leaders, teams, and individuals
             </h2>
             <p className="font-body-lg text-body-lg text-text-muted">
-              Purpose-built interfaces tailored to each stakeholder in the annual
-              performance cycle.
+              One workflow, adapted to each stakeholder in the annual performance
+              cycle.
             </p>
           </div>
 
@@ -795,7 +796,8 @@ export default function Landing() {
                 <p className="font-body-md text-body-md text-text-muted leading-relaxed">
                   AI Review Writer synthesizes qualitative feedback and concrete
                   deliverables before review meetings, giving managers and ICs a
-                  shared, unbiased baseline for meaningful 1-on-1 discussions.
+                  shared, evidence-grounded baseline for meaningful 1-on-1
+                  discussions.
                 </p>
               </div>
               <div className="pt-md border-t border-border-subtle flex items-center justify-between font-label-sm text-label-sm text-text-muted">
@@ -837,7 +839,7 @@ export default function Landing() {
                 t: "Cross-Functional Peers",
                 d: "Provide respectful, actionable peer reviews in minutes instead of hours. Surface nuanced collaborative praise and constructive feedback without creating awkward team dynamics.",
                 items: [
-                  "SBI framework (Situation-Behavior-Impact) prompts",
+                  "Structured SBI (Situation-Behavior-Impact) prompts are on our roadmap — not available yet",
                   "Protects candor while maintaining a professional tone",
                 ],
               },
@@ -848,7 +850,7 @@ export default function Landing() {
                 d: "Standardize evaluation quality across departments and reduce unhelpful one-line reviews. Supports consistent, well-documented evaluations and helps reduce unconscious bias in your review cycle.",
                 items: [
                   "Prompts you to support claims with concrete, specific language",
-                  "Secure sign-in — generate and export as often as you need",
+                  "Free daily allowance — no signup required",
                 ],
               },
             ].map((a) => (
@@ -904,8 +906,8 @@ export default function Landing() {
               Frequently asked questions
             </h2>
             <p className="font-body-lg text-body-lg text-text-muted">
-              Transparent answers about our rubric calibration, security
-              protocols, and bias prevention guardrails.
+              Transparent answers about how drafts are generated, how your text
+              is handled, and what to check before you submit.
             </p>
           </div>
           <div className="flex flex-col border-t border-border-subtle" id="faq-accordion">
@@ -1004,7 +1006,7 @@ export default function Landing() {
                 className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
                 href="#faq"
               >
-                Bias Guard
+                Bias &amp; Tone
               </a>
               <a
                 className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
@@ -1047,18 +1049,17 @@ export default function Landing() {
             <span className="font-body-sm text-body-sm text-text-muted">
               © 2026 AI Review Writer
             </span>
+            {/* TODO: 历史记录目前存在浏览器 localStorage（见 lib/history.ts），服务端确实不存 review 文本。
+                若将来把历史迁到服务端（Vercel KV / Upstash），必须同步改写本区块所有"不存储"声明与隐私说明。 */}
             <div className="flex flex-wrap items-center gap-lg">
               <span className="font-label-sm text-label-sm text-text-muted">
-                Currently free, no credit card required
+                Currently free — no signup, no credit card required
               </span>
               <span className="font-label-sm text-label-sm text-text-muted">
-                Your reviews are never stored on our servers
+                We don&apos;t store your reviews on our servers
               </span>
               <span className="font-label-sm text-label-sm text-text-muted">
                 We don&apos;t sell your data
-              </span>
-              <span className="font-label-sm text-label-sm text-text-muted">
-                We don&apos;t store your reviews
               </span>
               <span className="font-label-sm text-label-sm text-text-muted">
                 Powered by DeepSeek
@@ -1067,7 +1068,8 @@ export default function Landing() {
             <p className="font-body-sm text-body-sm text-text-muted pt-sm max-w-3xl">
               Your text is sent to our AI provider (DeepSeek) via API to generate
               your review. We don&apos;t store your reviews on our servers, and
-              we don&apos;t sell your data. See our{" "}
+              we don&apos;t sell your data. Drafts you save to History stay in
+              your own browser&apos;s local storage, on your device. See our{" "}
               <a
                 href="/privacy"
                 className="text-primary-container hover:text-primary underline underline-offset-2"

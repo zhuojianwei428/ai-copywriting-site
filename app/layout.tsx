@@ -6,13 +6,13 @@ import { webApplicationLd, faqLd } from "../lib/jsonld";
 export const metadata: Metadata = {
   title: "AI Review Writer — AI Performance Review Generator",
   description:
-    "Generate objective, balanced performance reviews across self, manager, peer, and 360° formats in minutes. Calibrated to your rubric, role level, and documented impact.",
+    "Generate balanced, evidence-based performance reviews across self, manager, peer, and 360° formats in minutes. Calibrated to your rubric, role level, and documented impact.",
   robots: { index: true, follow: true },
   metadataBase: new URL("https://aiwritereview.com"),
   openGraph: {
     title: "AI Review Writer — AI Performance Review Generator",
     description:
-      "Generate objective, balanced performance reviews across self, manager, peer, and 360° formats in minutes. Calibrated to your rubric, role level, and documented impact.",
+      "Generate balanced, evidence-based performance reviews across self, manager, peer, and 360° formats in minutes. Calibrated to your rubric, role level, and documented impact.",
     type: "website",
     images: [
       {
