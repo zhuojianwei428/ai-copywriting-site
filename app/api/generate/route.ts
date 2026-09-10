@@ -3,14 +3,8 @@
 // The only upstream service called is DeepSeek; no other provider credential
 // is read or used anywhere in this route.
 import DeepSeekClient from "openai";
-import {
-  SYSTEM_PROMPT,
-  buildPrompt,
-  BLOCK_MARKERS,
-  conductedText,
-  overviewMetaLine,
-} from "../../../lib/prompt";
-import { SECTION_TITLE } from "../../../lib/reportSections";
+import { SYSTEM_PROMPT, buildPrompt } from "../../../lib/prompt";
+import { EVAL_MARKERS, parseEvalStream } from "../../../lib/evalTable";
 import { currentUserId } from "../../../lib/clerk/requireUser";
 import { consumeQuota, withQuotaCookie } from "../../../lib/quotas";
 import { estimateCost, cacheHitTokens } from "../../../lib/cost";
@@ -166,7 +160,7 @@ async function handlePost(req: Request) {
     return Response.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { reviewType, jobTitle, employeeName, tenure, strengths, growthAreas, tone } = body;
+  const { reviewType, jobTitle, employeeName, tenure, cycle, strengths, growthAreas, tone } = body;
 
   if (!reviewType || !tone) {
     logCall({ event: "missing_fields", ip, keyHint: maskKey(apiKey) });
@@ -185,6 +179,7 @@ async function handlePost(req: Request) {
     jobTitle,
     employeeName,
     tenure,
+    cycle,
     tone,
     ...safeStrengths,
     ...safeGrowth,
@@ -212,85 +207,27 @@ async function handlePost(req: Request) {
     jobTitle,
     employeeName,
     tenure,
+    cycle,
     strengths: safeStrengths,
     growthAreas: safeGrowth,
     tone,
   });
-
-  // 模板化章节由服务端拼装，模型不写（省 12-18% 输出 token）：
-  // 标题编号、第 2 部分流程说明、第 1 部分的姓名/职位/任期骨架、第 7 部分。
-  const metaLine = overviewMetaLine({
-    reviewType,
-    jobTitle,
-    employeeName,
-    tenure,
-    strengths: safeStrengths,
-    growthAreas: safeGrowth,
-    tone,
-  });
-  // 章节标题一律取自 lib/reportSections.ts（正典）—— 前端 lib/reportProgress.ts
-  // 要用**同样的字符串**在流里检测"第几章开始了"来驱动分段进度，两处必须逐字一致。
-  const blockReplacements: Record<string, string> = {
-    "[[OVERVIEW]]": `${SECTION_TITLE.overview}\n${metaLine ? `${metaLine}\n\n` : ""}`,
-    "[[FRAMEWORK]]": `\n\n${SECTION_TITLE.conducted}\n${conductedText(
-      reviewType
-    )}\n\n${SECTION_TITLE.framework}\n`,
-    "[[GOALS]]": `\n\n${SECTION_TITLE.goals}\n`,
-    "[[CHALLENGES]]": `\n\n${SECTION_TITLE.challenges}\n`,
-    "[[CONCLUSION]]": `\n\n${SECTION_TITLE.conclusion}\n`,
-  };
-  const REPORT_TAIL = `\n\n${SECTION_TITLE.notes}\nNone.`;
 
   /**
-   * 把模型输出里的块标记替换成模板文本。
-   * 标记可能被切到两个 chunk 里（"[[FRAM" + "EWORK]]"），所以尾部要留一段缓冲。
-   * 模型若完全没用标记（降级），输出原样透传 —— 内容不丢，只是少了标题编号。
+   * 不再做「标记 → 章节标题」的替换 —— 那是长报告时代的产物。
+   * 现在模型只吐「分值|评语」数据行，维度名 / 表头 / 评分说明 / 总评分全部由前端按
+   * lib/evalTable.ts 的正典确定性渲染，路由纯透传。少一层字符串改写就少一处漂移源。
+   *
+   * 标记仍然要统计：它是「模型有没有按协议输出」的判据 —— 缺标记意味着前端
+   * 渲染不出表格，这种调用要升到 warn，便于在 Vercel 面板按 level:warning 过滤。
    */
-  let carry = "";
-  let markersHit = 0;
-  function transform(text: string, flush = false): string {
-    carry += text;
-    let out = "";
-    for (;;) {
-      let idx = -1;
-      let mark = "";
-      for (const m of BLOCK_MARKERS) {
-        const i = carry.indexOf(m);
-        if (i >= 0 && (idx === -1 || i < idx)) {
-          idx = i;
-          mark = m;
-        }
-      }
-      if (idx === -1) break;
-      out += carry.slice(0, idx) + (blockReplacements[mark] ?? "");
-      markersHit += 1;
-      carry = carry.slice(idx + mark.length);
-    }
-    if (flush) {
-      out += carry;
-      carry = "";
-      return out;
-    }
-    // 尾部若是不完整标记的前缀，留到下一个 chunk 再判定
-    let keep = 0;
-    for (const m of BLOCK_MARKERS) {
-      const max = Math.min(m.length - 1, carry.length);
-      for (let n = max; n > 0; n--) {
-        if (carry.endsWith(m.slice(0, n))) {
-          if (n > keep) keep = n;
-          break;
-        }
-      }
-    }
-    if (keep > 0) {
-      out += carry.slice(0, carry.length - keep);
-      carry = carry.slice(carry.length - keep);
-    } else {
-      out += carry;
-      carry = "";
-    }
-    return out;
-  }
+  const ALL_MARKERS = [
+    EVAL_MARKERS.rows,
+    EVAL_MARKERS.overall,
+    EVAL_MARKERS.strengths,
+    EVAL_MARKERS.improvements,
+    EVAL_MARKERS.next,
+  ];
 
   const deepseek = new DeepSeekClient({
     apiKey,
@@ -333,6 +270,8 @@ async function handlePost(req: Request) {
 
     const encoder = new TextEncoder();
     let outputChars = 0;
+    /** 原样累积的模型输出 —— 输出很短（<320 词），留一份用于结构完整性判定 */
+    let raw = "";
     let usage: any = null;
     /** 模型真正吐出的正文字符数（0 = 正文为空，全被推理吃掉或上游异常） */
     let aiChars = 0;
@@ -358,23 +297,19 @@ async function handlePost(req: Request) {
             const text = delta.content || "";
             if (text) {
               aiChars += text.length;
-              const rendered = transform(text);
-              if (rendered) {
-                outputChars += rendered.length;
-                controller.enqueue(encoder.encode(rendered));
-              }
+              raw += text;
+              outputChars += text.length;
+              controller.enqueue(encoder.encode(text));
             }
           }
 
-          // 收尾：吐出残留缓冲 + 追加模板化的第 7 部分
-          const tail = transform("", true) + REPORT_TAIL;
-          outputChars += tail.length;
-          controller.enqueue(encoder.encode(tail));
-
+          // 纯透传，没有再要补的模板尾（旧版这里会追加「7. Other Notes」）。
+          const markersHit = ALL_MARKERS.filter((m) => raw.includes(m)).length;
+          // 结构完整性判据：行数够 + 四个总结块都有内容。
+          // 比单纯数标记更准 —— 标记齐了但只写了 3 行维度，表格仍然是缺的。
+          const parsed = parseEvalStream(raw, reviewType);
           const incomplete =
-            aiChars === 0 ||
-            markersHit < BLOCK_MARKERS.length ||
-            finishReason === "length";
+            aiChars === 0 || !parsed.complete || finishReason === "length";
 
           logCall({
             event: "generate_done",
@@ -389,6 +324,8 @@ async function handlePost(req: Request) {
             inputChars,
             outputChars,
             markersHit,
+            /** 真正解析出的维度行数（应等于该评估类型的维度数，6 或 5） */
+            rowsSeen: parsed.rowsSeen,
             // 诊断三元组：正文为空 / 被截断时靠这三个字段定位原因
             aiChars,
             reasoningChars,

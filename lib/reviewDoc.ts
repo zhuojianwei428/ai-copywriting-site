@@ -7,6 +7,7 @@
  */
 
 import type { ScoredKra } from "./score";
+import type { EvalTable } from "./evalTable";
 import { DISCLAIMER_LINE } from "./export";
 export type ReviewDocKind = "narrative" | "scored";
 
@@ -32,8 +33,10 @@ export interface ReviewDoc {
   kind: ReviewDocKind;
   title: string;
   createdAt: number;
-  /** narrative 模式：报告全文 */
+  /** narrative 模式：A4 评估表的纯文本序列化（历史正文 / 复制 / 降级 Word） */
   text?: string;
+  /** narrative 模式：结构化 A4 评估表（渲染 + Word 导出的正源） */
+  table?: EvalTable;
   /** scored 模式：结构化记分卡 */
   score?: ScoreDoc;
   /** 对应的历史记录 id —— 编辑后原地更新，不新开一条 */

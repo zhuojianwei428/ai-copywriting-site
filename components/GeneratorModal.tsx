@@ -1,34 +1,56 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Copy, Pencil, RefreshCw } from "lucide-react";
-import { downloadPDF, downloadWord, WATERMARK_LINE, DISCLAIMER_LINE } from "../lib/export";
+import { Copy, RefreshCw } from "lucide-react";
+import {
+  downloadPDF,
+  downloadWordFromHtml,
+  WATERMARK_LINE,
+  DISCLAIMER_LINE,
+} from "../lib/export";
+import { evalTableToHtml } from "../lib/reportHtml";
 import { saveHistory } from "../lib/history";
 import { defaultDocTitle, putReviewDoc } from "../lib/reviewDoc";
 import {
   computeProgress,
-  PROGRESS_SECTIONS,
-  PROGRESS_TOTAL,
+  progressSections,
   type ProgressState,
 } from "../lib/reportProgress";
+import {
+  parseEvalStream,
+  evalTableToText,
+  type EvalTable,
+} from "../lib/evalTable";
 import FishboneSteps from "./FishboneSteps";
 import GenerationProgress from "./GenerationProgress";
+import A4EvaluationTable from "./A4EvaluationTable";
 import { useAuth } from "./auth/AuthContext";
 
 type ReviewType = "self" | "manager" | "peer" | "360";
 type Tone = "Formal" | "Encouraging" | "Direct";
 
+/** 导出文件名用（与 ReviewEditor 的 slug 保持一致） */
+function slug(s: string): string {
+  const base = (s || "performance-review")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+  return base || "performance-review";
+}
+
 /** 向导的 4 步，鱼骨步骤标签直接用它 */
 const WIZARD_STEPS = ["Format", "Role & Level", "Inputs", "Draft"];
 
 /** 生成中面板的初始值 */
-function initialProgress(): ProgressState {
+function initialProgress(reviewType: string): ProgressState {
+  const total = progressSections(reviewType).length;
   return {
     completed: 0,
-    total: PROGRESS_TOTAL,
+    total,
     activeIndex: 0,
-    label: PROGRESS_SECTIONS[0].label,
+    label: progressSections(reviewType)[0],
     percent: 0,
     degraded: false,
     chars: 0,
@@ -36,52 +58,14 @@ function initialProgress(): ProgressState {
 }
 
 /**
- * 判断流式结果是否完整。
+ * 判断流式结果是否完整（A4 表格版）。
  *
- * 上游偶发把正文截断在句子中间（推理 token 挤占了 max_tokens 预算），此时服务端
- * 只会补上模板尾，用户拿到半截报告。命中下面任一特征就自动重跑一次。
+ * 上游偶发把正文截断在句子中间（推理 token 挤占 max_tokens 预算），此时缺维度行
+ * 或缺总结块。命中任一特征就自动重跑一次。
  */
-function isIncompleteReport(text: string): boolean {
-  if (!text || text.length < 1200) return true;
-  if (text.includes("[Generation interrupted")) return true;
-  return (
-    !text.includes("6. Conclusion & Recommendations") &&
-    !text.includes("Conclusion & Recommendations")
-  );
-}
-
-/**
- * Renders the streamed report so that part headings (e.g. "1. Basic Overview")
- * become bold sub-headings instead of plain text lines.
- */
-function renderReport(text: string): ReactNode {
-  const lines = text.split("\n");
-  return lines.map((line, i) => {
-    const t = line.trim();
-    const m = t.match(/^(\d)\.\s+(.+)/);
-    if (m && t.length < 80) {
-      return (
-        <div key={i} style={{ marginTop: 16, marginBottom: 6 }}>
-          <h3
-            className="font-title-md text-title-md text-text-primary"
-            style={{ fontWeight: 700, margin: 0 }}
-          >
-            {t}
-          </h3>
-        </div>
-      );
-    }
-    if (t === "") return <div key={i} style={{ height: 8 }} />;
-    return (
-      <p
-        key={i}
-        className="font-body-md text-body-md text-text-primary"
-        style={{ margin: 0, marginBottom: 8, lineHeight: 1.7 }}
-      >
-        {line}
-      </p>
-    );
-  });
+function isIncompleteTable(t: EvalTable): boolean {
+  if (t.rowsSeen < t.rows.length) return true;
+  return !(t.overall && t.strengths && t.improvements && t.nextSteps);
 }
 
 const REVIEW_TYPES = [
@@ -167,6 +151,7 @@ export default function GeneratorModal({
   const [jobTitle, setJobTitle] = useState("");
   const [isCustomJobTitle, setIsCustomJobTitle] = useState(false);
   const [tenure, setTenure] = useState<string | null>(null);
+  const [cycle, setCycle] = useState("");
   const [strengths, setStrengths] = useState<string[]>([]);
   const [freeNote, setFreeNote] = useState("");
   const [growthAreas, setGrowthAreas] = useState<string[]>([]);
@@ -175,13 +160,14 @@ export default function GeneratorModal({
   const [tone, setTone] = useState<Tone | null>(null);
 
   const [loading, setLoading] = useState(false);
-  /** 生成中的分段进度 —— 由流里的真实章节标题驱动，见 lib/reportProgress.ts */
-  const [prog, setProg] = useState<ProgressState>(initialProgress);
+  /** 生成中的分段进度 —— 由流里已解析出的维度行驱动，见 lib/reportProgress.ts */
+  const [prog, setProg] = useState<ProgressState>(() => initialProgress(defaultFormat));
+  /** 生成结果的纯文本（用于复制 / 历史 / 降级 Word）；结构化表格见 table */
   const [result, setResult] = useState("");
+  /** 生成结果的结构化 A4 表格（渲染 + 编辑 + 导出） */
+  const [table, setTable] = useState<EvalTable | null>(null);
   const [error, setError] = useState("");
 
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState("");
   const [copied, setCopied] = useState(false);
   /** 本轮的自动重试次数（最多 1 次，防止失败时无限重跑烧额度） */
   const retriedRef = useRef(0);
@@ -208,6 +194,7 @@ export default function GeneratorModal({
           setJobTitle((w.jobTitle as string) ?? "");
           setIsCustomJobTitle(Boolean(w.isCustomJobTitle));
           setTenure((w.tenure as string | null) ?? null);
+          setCycle((w.cycle as string) ?? "");
           setStrengths(Array.isArray(w.strengths) ? (w.strengths as string[]) : []);
           setFreeNote((w.freeNote as string) ?? "");
           setGrowthAreas(Array.isArray(w.growthAreas) ? (w.growthAreas as string[]) : []);
@@ -215,10 +202,10 @@ export default function GeneratorModal({
           setShowGrowthNote(Boolean(w.showGrowthNote));
           setTone((w.tone as Tone) ?? null);
           setResult("");
+          setTable(null);
           setError("");
-          setEditing(false);
           setLoading(false);
-          setProg(initialProgress());
+          setProg(initialProgress((w.reviewType as ReviewType) ?? defaultFormat));
           return;
         }
       }
@@ -228,15 +215,16 @@ export default function GeneratorModal({
     setStep(1);
     setReviewType(defaultFormat);
     setResult("");
+    setTable(null);
     setError("");
-    setEditing(false);
     setLoading(false);
     setIsCustomJobTitle(false);
     setJobTitle("");
     setEmployeeName("");
+    setCycle("");
     setGrowthNote("");
     setShowGrowthNote(false);
-    setProg(initialProgress());
+    setProg(initialProgress(defaultFormat));
   }, [open, defaultFormat]);
 
   // Lock body scroll + close on Escape
@@ -272,6 +260,7 @@ export default function GeneratorModal({
           jobTitle,
           isCustomJobTitle,
           tenure,
+          cycle,
           strengths,
           freeNote,
           growthAreas,
@@ -306,9 +295,9 @@ export default function GeneratorModal({
     setLoading(true);
     setError("");
     setResult("");
-    setProg(initialProgress());
-    setStep(5); // 进结果视图：显示分段进度 + 边生成边显示正文
-    if (editing) setEditing(false);
+    setTable(null);
+    setProg(initialProgress(reviewType));
+    setStep(5); // 进结果视图：显示分段进度 + 边生成边显示表格
     const finalStrengths = freeNote.trim()
       ? [...strengths, freeNote.trim()]
       : strengths;
@@ -335,6 +324,7 @@ export default function GeneratorModal({
           employeeName: employeeName.trim() || undefined,
           jobTitle,
           tenure,
+          cycle: cycle.trim() || undefined,
           strengths: finalStrengths,
           growthAreas: finalGrowth,
           tone,
@@ -389,22 +379,36 @@ export default function GeneratorModal({
           fakeTimer = null;
         }
         setResult(acc);
-        // 真进度：从流里已出现的章节标题推算走到第几段（不再按字符数估算）
-        setProg(computeProgress(acc));
+        // 真进度：从流里已解析出的维度行推算走到第几段（不再按字符数估算）
+        setProg(computeProgress(acc, reviewType));
+        // 边生成边渲染表格（半截流安全：未闭合的最后一行会被解析器丢弃）
+        setTable(
+          parseEvalStream(acc, reviewType, {
+            employeeName,
+            jobTitle,
+            cycle: cycle.trim() || undefined,
+          })
+        );
       }
       setProg((p) => ({
         ...p,
-        completed: PROGRESS_TOTAL,
+        completed: progressSections(reviewType).length,
         percent: 100,
         label: "Finishing up",
       }));
       if (fakeTimer) clearInterval(fakeTimer);
       setLoading(false);
 
-      // 完整性校验：半截报告不如静默重跑一次（只重试 1 次，避免烧额度）
-      if (isIncompleteReport(acc) && retriedRef.current < 1) {
+      // 完整性校验：缺维度行或缺总结块 → 静默重跑一次（只重试 1 次，避免烧额度）
+      const finalTable = parseEvalStream(acc, reviewType, {
+        employeeName,
+        jobTitle,
+        cycle: cycle.trim() || undefined,
+      });
+      if (isIncompleteTable(finalTable) && retriedRef.current < 1) {
         retriedRef.current += 1;
         setResult("");
+        setTable(null);
         await runGenerate();
         return;
       }
@@ -413,20 +417,21 @@ export default function GeneratorModal({
       // 生成完成 → 存一份历史，然后把内容交接给结果编辑页
       // （用户在编辑页里改完再导出 PDF / Word，见 app/review/page.tsx）
       const scope = user?.id || "guest";
-      const docTitle = defaultDocTitle({ reviewType, jobTitle, employeeName });
-      // 免责声明必须成为「文档正文」的一部分，而不只是界面上的一块 UI：
-      // 只有写进正文，它才会跟着历史记录、编辑页、PDF/Word 导出一起走。
-      // scored 模式的 scoreDocToText() 一直是这么做的，narrative 这里原先漏了。
-      const docText = `${acc}\n\n${DISCLAIMER_LINE}`;
+      const docTitle = defaultDocTitle({ reviewType, jobTitle, employeeName, cycle });
+      // 纯文本序列化带免责声明，作为历史正文 / 复制 / 降级 Word 的底本；
+      // 结构化表格单独存进 table，供编辑页渲染与 Word 导出。
+      const docText = `${evalTableToText(finalTable)}\n\n${DISCLAIMER_LINE}`;
       const item = saveHistory(scope, {
         kind: "narrative",
         title: docTitle,
         content: docText,
+        data: finalTable,
       });
       putReviewDoc({
         kind: "narrative",
         title: docTitle,
         text: docText,
+        table: finalTable,
         createdAt: Date.now(),
         historyId: item.id,
         scope,
@@ -444,21 +449,13 @@ export default function GeneratorModal({
     try {
       // 剪贴板加不了视觉水印，但追加署名与免责声明：
       // 复制出去的内容同样会被当成正式评估用，声明不能留在页面上。
+      const body = table ? evalTableToText(table) : result;
       await navigator.clipboard.writeText(
-        `${result}\n\n${DISCLAIMER_LINE}\n\n— ${WATERMARK_LINE}`
+        `${body}\n\n${DISCLAIMER_LINE}\n\n— ${WATERMARK_LINE}`
       );
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {}
-  }
-
-  function startEdit() {
-    setDraft(result);
-    setEditing(true);
-  }
-  function saveEdit() {
-    setResult(draft);
-    setEditing(false);
   }
 
   return (
@@ -653,6 +650,17 @@ export default function GeneratorModal({
                   </button>
                 ))}
               </div>
+              <label className="block font-title-md text-title-md text-text-primary mb-xs">
+                Review period (optional)
+              </label>
+              <input
+                type="text"
+                value={cycle}
+                onChange={(e) => setCycle(e.target.value)}
+                placeholder="e.g. 2026 Q3 Review"
+                className="w-full px-3.5 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container mb-lg"
+                style={{ fontSize: 14 }}
+              />
               <div className="flex flex-col sm:flex-row gap-sm">
                 <button
                   className="inline-flex items-center justify-center gap-xs px-4 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card hover:bg-surface-canvas transition-colors"
@@ -861,22 +869,25 @@ export default function GeneratorModal({
               {loading ? (
                 <div>
                   <GenerationProgress
-                    sections={PROGRESS_SECTIONS.map((s) => s.label)}
+                    sections={progressSections(reviewType || "manager")}
                     completed={prog.completed}
                     label={prog.label}
                     percent={prog.percent}
                     degraded={prog.degraded}
                     notice={
                       retriedRef.current > 0
-                        ? "The first draft came back incomplete, so we're regenerating a full report. This restarts the progress above."
+                        ? "The first draft came back incomplete, so we're regenerating the full table. This restarts the progress above."
                         : undefined
                     }
-                    hint="Streaming your performance review — we'll open it in the editor when it's done."
+                    hint="Streaming your evaluation table — we'll open it in the editor when it's done."
                   />
-                  {/* 正文边生成边显示；首个字符到来前先用骨架屏占位 */}
+                  {/* 表格边生成边显示；首个字符到来前先用骨架屏占位 */}
                   <div className="mt-lg">
-                    {result ? (
-                      <div>{renderReport(result)}</div>
+                    {table ? (
+                      <A4EvaluationTable
+                        table={table}
+                        title={defaultDocTitle({ reviewType: reviewType || "manager", jobTitle, employeeName, cycle })}
+                      />
                     ) : (
                       <>
                         <div className="skeleton lg" />
@@ -888,28 +899,13 @@ export default function GeneratorModal({
                     )}
                   </div>
                 </div>
-              ) : editing ? (
-                <div>
-                  <textarea
-                    value={draft}
-                    onChange={(e) => setDraft(e.target.value)}
-                    className="w-full min-h-[320px] px-3.5 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container resize-y"
-                    style={{ fontSize: 15, lineHeight: 1.7 }}
-                  />
-                  <div className="mt-md">
-                    <button
-                      className="inline-flex items-center justify-center gap-xs px-5 py-2.5 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary transition-colors"
-                      onClick={saveEdit}
-                      type="button"
-                    >
-                      <Check size={16} /> <span>Save</span>
-                    </button>
-                  </div>
-                </div>
               ) : (
-                <div>
-                  {renderReport(result)}
-                </div>
+                table && (
+                  <A4EvaluationTable
+                    table={table}
+                    title={defaultDocTitle({ reviewType: reviewType || "manager", jobTitle, employeeName, cycle })}
+                  />
+                )
               )}
 
               {error && (
@@ -930,7 +926,7 @@ export default function GeneratorModal({
                 </div>
               )}
 
-              {!loading && !error && result && (
+              {!loading && !error && table && (
                 <div
                   className="mt-lg p-md rounded border border-dashed"
                   style={{
@@ -948,7 +944,7 @@ export default function GeneratorModal({
                 </div>
               )}
 
-              {!loading && !error && (
+              {!loading && !error && table && (
                 <div className="flex flex-wrap gap-sm mt-lg">
                   <button
                     className="inline-flex items-center justify-center gap-xs px-4 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card hover:bg-surface-canvas transition-colors"
@@ -956,13 +952,6 @@ export default function GeneratorModal({
                     type="button"
                   >
                     <Copy size={16} /> <span>{copied ? "Copied" : "Copy"}</span>
-                  </button>
-                  <button
-                    className="inline-flex items-center justify-center gap-xs px-4 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card hover:bg-surface-canvas transition-colors"
-                    onClick={startEdit}
-                    type="button"
-                  >
-                    <Pencil size={16} /> <span>Edit</span>
                   </button>
                   <button
                     className="inline-flex items-center justify-center gap-xs px-4 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card hover:bg-surface-canvas transition-colors"
@@ -982,7 +971,10 @@ export default function GeneratorModal({
                   <button
                     className="inline-flex items-center justify-center gap-xs px-4 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card hover:bg-surface-canvas transition-colors"
                     onClick={() =>
-                      downloadWord(`${result}\n\n${DISCLAIMER_LINE}`)
+                      downloadWordFromHtml(
+                        evalTableToHtml(table),
+                        slug(defaultDocTitle({ reviewType: reviewType || "manager", jobTitle, employeeName, cycle }))
+                      )
                     }
                     type="button"
                   >

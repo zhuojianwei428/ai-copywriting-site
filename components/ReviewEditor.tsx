@@ -12,7 +12,12 @@ import {
   downloadWordFromHtml,
   WATERMARK_LINE,
 } from "../lib/export";
-import { escapeHtml, reportToHtml, textToBlocks } from "../lib/reportHtml";
+import {
+  escapeHtml,
+  evalTableToHtml,
+  reportToHtml,
+  textToBlocks,
+} from "../lib/reportHtml";
 import { saveHistory, updateHistory } from "../lib/history";
 import {
   patchReviewDoc,
@@ -21,6 +26,8 @@ import {
   type ReviewDoc,
   type ScoreDoc,
 } from "../lib/reviewDoc";
+import { evalTableToText, type EvalTable } from "../lib/evalTable";
+import A4EvaluationTable from "./A4EvaluationTable";
 
 /** 编辑后多久自动回写历史（毫秒） */
 const AUTOSAVE_MS = 1200;
@@ -90,6 +97,25 @@ export default function ReviewEditor() {
     };
   }, []);
 
+  /** 把编辑中的单元格回写成 EvalTable（narrative/A4 模式回写/导出用） */
+  const collectTable = useCallback((): EvalTable | null => {
+    const t = docRef.current?.table;
+    if (!t) return null;
+    const read = (key: string, fallback: string) =>
+      edited.current[key]?.innerText?.trim() || fallback;
+    return {
+      ...t,
+      rows: t.rows.map((r, i) => ({
+        ...r,
+        comment: read(`comment-${i}`, r.comment),
+      })),
+      overall: read("overall", t.overall),
+      strengths: read("strengths", t.strengths),
+      improvements: read("improvements", t.improvements),
+      nextSteps: read("nextSteps", t.nextSteps),
+    };
+  }, []);
+
   /** 当前文档的纯文本形态（存历史、复制、Word 用） */
   const currentText = useCallback((): string => {
     const d = docRef.current;
@@ -98,8 +124,11 @@ export default function ReviewEditor() {
       const s = collectScore();
       return s ? scoreDocToText(s) : "";
     }
+    // narrative / A4 表格：优先用结构化表格序列化，退化到旧文本
+    const t = collectTable();
+    if (t) return evalTableToText(t);
     return edited.current.body?.innerText?.trim() || d.text || "";
-  }, [collectScore]);
+  }, [collectScore, collectTable]);
 
   /** 写回历史：原地更新那一条，不新开记录 */
   const persist = useCallback(
@@ -109,7 +138,7 @@ export default function ReviewEditor() {
       const scope = d.scope || "guest";
       const t = titleRef.current || d.title;
       const content = currentText();
-      const data = d.kind === "scored" ? collectScore() : undefined;
+      const data = d.kind === "scored" ? collectScore() : collectTable();
       if (historyId.current) {
         updateHistory(scope, historyId.current, { title: t, content, data });
       } else {
@@ -122,7 +151,7 @@ export default function ReviewEditor() {
         setTimeout(() => setSaved(false), 1500);
       }
     },
-    [collectScore, currentText]
+    [collectScore, collectTable, currentText]
   );
 
   // 编辑时防抖自动保存，离开页面前把挂起的写入落地
@@ -158,7 +187,13 @@ export default function ReviewEditor() {
     persist();
     const name = slug(titleRef.current);
     if (d.kind === "narrative") {
-      // 用页面上排好版的 HTML，标题层级原样带进 Word
+      // A4 表格模式：用结构化表格渲染成内联 HTML（三列表格原样进 Word）
+      const t = collectTable();
+      if (t) {
+        downloadWordFromHtml(evalTableToHtml(t), name);
+        return;
+      }
+      // 旧数据退化：用页面上排好版的 HTML
       const html =
         edited.current.body?.innerHTML || reportToHtml(d.text || "");
       downloadWordFromHtml(html, name);
@@ -294,13 +329,21 @@ export default function ReviewEditor() {
               </h1>
 
               {doc.kind === "narrative" ? (
-                <Editable
-                  initialHtml={reportToHtml(doc.text || "")}
-                  onInput={onEdit("body")}
-                  className="rv-doc"
-                  ariaLabel="Review body"
-                  placeholder="Start writing…"
-                />
+                doc.table ? (
+                  <A4EvaluationTable
+                    table={doc.table}
+                    title={title}
+                    onEdit={(key) => onEdit(key)}
+                  />
+                ) : (
+                  <Editable
+                    initialHtml={reportToHtml(doc.text || "")}
+                    onInput={onEdit("body")}
+                    className="rv-doc"
+                    ariaLabel="Review body"
+                    placeholder="Start writing…"
+                  />
+                )
               ) : (
                 score && (
                   <div>

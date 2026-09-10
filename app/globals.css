@@ -79,6 +79,12 @@ body {
 
 /* Print: only the generated review is printed (PDF export) */
 @media print {
+  /* A4 页面约束：绩效评估表严格 1 页 */
+  @page {
+    size: A4;
+    margin: 12mm 14mm;
+  }
+
   body * {
     visibility: hidden !important;
   }
