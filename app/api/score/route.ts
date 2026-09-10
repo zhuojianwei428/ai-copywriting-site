@@ -6,7 +6,7 @@
 import DeepSeekClient from "openai";
 import { SCORE_SYSTEM_PROMPT, buildScorePrompt } from "../../../lib/scorePrompt";
 import { computeScorecard, gradeOf, type KraInput } from "../../../lib/score";
-import { requireUser } from "../../../lib/supabase/requireUser";
+import { requireUser } from "../../../lib/clerk/requireUser";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

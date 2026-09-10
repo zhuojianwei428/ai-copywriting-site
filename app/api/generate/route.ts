@@ -4,7 +4,7 @@
 // is read or used anywhere in this route.
 import DeepSeekClient from "openai";
 import { SYSTEM_PROMPT, buildPrompt } from "../../../lib/prompt";
-import { requireUser } from "../../../lib/supabase/requireUser";
+import { requireUser } from "../../../lib/clerk/requireUser";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

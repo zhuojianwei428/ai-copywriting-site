@@ -37,7 +37,7 @@ export function webApplicationLd() {
     name: "AI Performance Review Generator",
     url: "https://aiwritereview.com/",
     description:
-      "Generate objective, balanced performance reviews across self, manager, peer, and 360° formats in minutes. Free, no signup required.",
+      "Generate objective, balanced performance reviews across self, manager, peer, and 360° formats in minutes. Free to use.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Any",
     offers: {

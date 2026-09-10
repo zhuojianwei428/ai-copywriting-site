@@ -84,10 +84,10 @@ export default function Landing() {
             {user ? (
               <>
                 <span className="hidden sm:flex items-center gap-xs font-label-md text-label-md text-text-muted">
-                  {user.user_metadata?.avatar_url ? (
+                  {user.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={user.user_metadata.avatar_url as string}
+                      src={user.imageUrl}
                       alt=""
                       className="w-6 h-6 rounded-full"
                       referrerPolicy="no-referrer"

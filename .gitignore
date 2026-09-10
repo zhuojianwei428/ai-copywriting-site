@@ -3,7 +3,7 @@ node_modules/
 .env.local
 .env*.local
 *.tsbuildinfo
-next-env.d.ts.bak
+next-env.d.ts
 .DS_Store
 
 # temp curl dumps
