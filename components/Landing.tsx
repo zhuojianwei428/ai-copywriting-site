@@ -724,7 +724,7 @@ export default function Landing() {
               {
                 n: "04",
                 t: "Review, refine & export",
-                d: "Your draft opens on its own page, where you can rewrite any sentence directly in the browser. Export as Word or PDF when it reads right — ready to drop into your review process.",
+                d: "Your draft opens on its own page, where you can rewrite any sentence directly in the browser. Export as a ready-to-print PDF when it reads right — drop it straight into your review process.",
                 f: "In-browser Editing",
               },
             ].map((s) => (

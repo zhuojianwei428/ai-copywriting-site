@@ -9,7 +9,6 @@ import {
   loadHistory,
   type HistoryItem,
 } from "../lib/history";
-import { downloadWord } from "../lib/export";
 import { putReviewDoc, type ScoreDoc } from "../lib/reviewDoc";
 
 type Props = {
@@ -158,15 +157,6 @@ export default function HistoryModal({ open, onClose, scope }: Props) {
                       type="button"
                     >
                       Edit
-                    </button>
-                    <button
-                      onClick={() =>
-                        downloadWord(it.content, `history-${it.id.slice(-6)}`)
-                      }
-                      className="rounded px-2 py-1 font-label-sm text-label-sm text-text-muted hover:bg-surface-card hover:text-text-primary"
-                      type="button"
-                    >
-                      Word
                     </button>
                     <button
                       onClick={() => {

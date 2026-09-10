@@ -5,11 +5,9 @@ import { useRouter } from "next/navigation";
 import { Copy, RefreshCw } from "lucide-react";
 import {
   downloadPDF,
-  downloadWordFromHtml,
   WATERMARK_LINE,
   DISCLAIMER_LINE,
 } from "../lib/export";
-import { evalTableToHtml } from "../lib/reportHtml";
 import { saveHistory } from "../lib/history";
 import { defaultDocTitle, putReviewDoc } from "../lib/reviewDoc";
 import {
@@ -862,51 +860,55 @@ export default function GeneratorModal({
 
           {/* ===================== RESULT (step 5) ===================== */}
           {step === 5 && (
-            <div id="print-area">
+            <div>
               <h2 className="font-headline-sm text-headline-sm text-text-primary mb-md" style={{ marginTop: 0 }}>
                 Your performance review
               </h2>
-              {loading ? (
-                <div>
-                  <GenerationProgress
-                    sections={progressSections(reviewType || "manager")}
-                    completed={prog.completed}
-                    label={prog.label}
-                    percent={prog.percent}
-                    degraded={prog.degraded}
-                    notice={
-                      retriedRef.current > 0
-                        ? "The first draft came back incomplete, so we're regenerating the full table. This restarts the progress above."
-                        : undefined
-                    }
-                    hint="Streaming your evaluation table — we'll open it in the editor when it's done."
-                  />
-                  {/* 表格边生成边显示；首个字符到来前先用骨架屏占位 */}
-                  <div className="mt-lg">
-                    {table ? (
-                      <A4EvaluationTable
-                        table={table}
-                        title={defaultDocTitle({ reviewType: reviewType || "manager", jobTitle, employeeName, cycle })}
-                      />
-                    ) : (
-                      <>
-                        <div className="skeleton lg" />
-                        <div className="skeleton" />
-                        <div className="skeleton" />
-                        <div className="skeleton lg" />
-                        <div className="skeleton" />
-                      </>
-                    )}
+              {/* 导出目标：只包住 A4 表格本身，标题/免责声明/按钮都在外面，
+                  这样 downloadPDF() 截图 #print-area 时不会把 UI 元素打进 PDF */}
+              <div id="print-area">
+                {loading ? (
+                  <div>
+                    <GenerationProgress
+                      sections={progressSections(reviewType || "manager")}
+                      completed={prog.completed}
+                      label={prog.label}
+                      percent={prog.percent}
+                      degraded={prog.degraded}
+                      notice={
+                        retriedRef.current > 0
+                          ? "The first draft came back incomplete, so we're regenerating the full table. This restarts the progress above."
+                          : undefined
+                      }
+                      hint="Streaming your evaluation table — we'll open it in the editor when it's done."
+                    />
+                    {/* 表格边生成边显示；首个字符到来前先用骨架屏占位 */}
+                    <div className="mt-lg">
+                      {table ? (
+                        <A4EvaluationTable
+                          table={table}
+                          title={defaultDocTitle({ reviewType: reviewType || "manager", jobTitle, employeeName, cycle })}
+                        />
+                      ) : (
+                        <>
+                          <div className="skeleton lg" />
+                          <div className="skeleton" />
+                          <div className="skeleton" />
+                          <div className="skeleton lg" />
+                          <div className="skeleton" />
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ) : (
-                table && (
-                  <A4EvaluationTable
-                    table={table}
-                    title={defaultDocTitle({ reviewType: reviewType || "manager", jobTitle, employeeName, cycle })}
-                  />
-                )
-              )}
+                ) : (
+                  table && (
+                    <A4EvaluationTable
+                      table={table}
+                      title={defaultDocTitle({ reviewType: reviewType || "manager", jobTitle, employeeName, cycle })}
+                    />
+                  )
+                )}
+              </div>
 
               {error && (
                 <div
@@ -962,24 +964,15 @@ export default function GeneratorModal({
                   </button>
                   <button
                     className="inline-flex items-center justify-center gap-xs px-4 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card hover:bg-surface-canvas transition-colors"
-                    onClick={() => downloadPDF()}
-                    type="button"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
-                    <span>Export PDF</span>
-                  </button>
-                  <button
-                    className="inline-flex items-center justify-center gap-xs px-4 py-2.5 border border-border-strong rounded text-text-primary bg-surface-card hover:bg-surface-canvas transition-colors"
                     onClick={() =>
-                      downloadWordFromHtml(
-                        evalTableToHtml(table),
+                      downloadPDF(
                         slug(defaultDocTitle({ reviewType: reviewType || "manager", jobTitle, employeeName, cycle }))
                       )
                     }
                     type="button"
                   >
-                    <span className="material-symbols-outlined text-[16px]">description</span>
-                    <span>Export Word</span>
+                    <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                    <span>Export PDF</span>
                   </button>
                 </div>
               )}

@@ -8,7 +8,7 @@
 
 import type { ScoredKra } from "./score";
 import type { EvalTable } from "./evalTable";
-import { DISCLAIMER_LINE } from "./export";
+import { DISCLAIMER_LINE } from "./constants";
 export type ReviewDocKind = "narrative" | "scored";
 
 /** 记分卡的结构化数据（= /api/score 的响应 + 生成时用的上下文） */

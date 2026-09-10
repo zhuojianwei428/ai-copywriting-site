@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RefreshCw } from "lucide-react";
-import { downloadPDF, downloadWord, WATERMARK_LINE, DISCLAIMER_LINE } from "../lib/export";
+import { downloadPDF, WATERMARK_LINE, DISCLAIMER_LINE } from "../lib/export";
 import { saveHistory } from "../lib/history";
 import {
   defaultDocTitle,
@@ -428,41 +428,6 @@ export default function ScoreGeneratorModal({
     let s = "";
     for (let i = 0; i < 5; i++) s += i < full ? "★" : "☆";
     return s;
-  }
-
-  function buildWordText(): string {
-    if (!resp) return "";
-    const lines: string[] = [];
-    lines.push("PERFORMANCE SCORECARD");
-    lines.push("");
-    lines.push(`Review type: ${reviewType}`);
-    lines.push(`Job title: ${jobTitle || "N/A"}`);
-    if (cycle) lines.push(`Appraisal cycle: ${cycle}`);
-    lines.push(`Overall score: ${resp.total.toFixed(2)} / 5  (${resp.grade} — ${resp.gradeLabel})`);
-    lines.push("");
-    lines.push("KRA ratings");
-    resp.items.forEach((it, i) => {
-      lines.push(
-        `${i + 1}. ${it.name}  [${it.score}/5, weight ${it.weight}% → ${it.weighted.toFixed(2)}]`
-      );
-      if (it.basis) lines.push(`   ${it.basis}`);
-    });
-    lines.push("");
-    lines.push("Overall summary");
-    lines.push(resp.overall || "");
-    lines.push("");
-    lines.push("Key strengths");
-    lines.push(resp.strengths || "");
-    lines.push("");
-    lines.push("Areas for growth");
-    lines.push(resp.growth || "");
-    lines.push("");
-    lines.push("Next steps");
-    lines.push(resp.nextSteps || "");
-    lines.push("");
-    // 免责声明统一取自 lib/export.ts 的 DISCLAIMER_LINE（正典），不本地写死字面量。
-    lines.push(DISCLAIMER_LINE);
-    return lines.join("\n\n");
   }
 
   if (!open) return null;
@@ -902,22 +867,12 @@ export default function ScoreGeneratorModal({
                   </div>
                   <div className="flex flex-col gap-2">
                     <button
-                      onClick={() => downloadPDF()}
+                      onClick={() => downloadPDF("performance-scorecard")}
                       className="inline-flex items-center justify-center gap-xs px-4 py-2 border border-border-strong rounded text-text-primary hover:bg-surface-canvas transition-colors"
                       type="button"
                     >
                       <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
                       Export PDF
-                    </button>
-                    <button
-                      onClick={() =>
-                        downloadWord(buildWordText(), "performance-scorecard")
-                      }
-                      className="inline-flex items-center justify-center gap-xs px-4 py-2 border border-border-strong rounded text-text-primary hover:bg-surface-canvas transition-colors"
-                      type="button"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">description</span>
-                      Export Word
                     </button>
                   </div>
                 </div>
