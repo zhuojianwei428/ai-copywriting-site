@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation";
 import { RefreshCw } from "lucide-react";
 import { downloadPDF, downloadWord, WATERMARK_LINE } from "../lib/export";
 import { saveHistory } from "../lib/history";
-import { putReviewDoc, scoreDocToText, type ScoreDoc } from "../lib/reviewDoc";
+import {
+  defaultDocTitle,
+  putReviewDoc,
+  scoreDocToText,
+  type ScoreDoc,
+} from "../lib/reviewDoc";
 import { weightError, type KraInput, type ScoredKra } from "../lib/score";
 import { useAuth } from "./auth/AuthContext";
 
@@ -335,9 +340,12 @@ export default function ScoreGeneratorModal({
         cycle: cycle || undefined,
       };
       const scope = user?.id || "guest";
-      const docTitle =
-        [jobTitle || reviewType, cycle].filter(Boolean).join(" — ") ||
-        "Performance scorecard";
+      const docTitle = defaultDocTitle({
+        reviewType,
+        jobTitle,
+        cycle,
+        scored: true,
+      });
       const item = saveHistory(scope, {
         kind: "scored",
         title: docTitle,

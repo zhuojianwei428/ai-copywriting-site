@@ -7,7 +7,6 @@
  */
 
 import type { ScoredKra } from "./score";
-
 export type ReviewDocKind = "narrative" | "scored";
 
 /** 记分卡的结构化数据（= /api/score 的响应 + 生成时用的上下文） */
@@ -43,6 +42,34 @@ export interface ReviewDoc {
 }
 
 const KEY = "air:reviewDoc";
+
+const TYPE_LABEL: Record<string, string> = {
+  self: "Self Review",
+  manager: "Manager Review",
+  peer: "Peer Review",
+  "360": "360° Feedback",
+};
+
+/**
+ * 文档默认标题：有职位/姓名时用"谁 — 什么类型"，否则退回类型名。
+ * 这个标题会显示在编辑页顶部，也决定导出文件名。
+ */
+export function defaultDocTitle(input: {
+  reviewType?: string;
+  jobTitle?: string;
+  employeeName?: string;
+  cycle?: string;
+  scored?: boolean;
+}): string {
+  const label =
+    TYPE_LABEL[input.reviewType || ""] ||
+    (input.scored ? "Performance scorecard" : "Performance review");
+  const who = [input.jobTitle, input.employeeName, input.cycle]
+    .map((s) => (s || "").trim())
+    .filter(Boolean)
+    .join(" · ");
+  return who ? `${who} — ${label}` : label;
+}
 
 let mem: ReviewDoc | null = null;
 

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check, Copy, Pencil, RefreshCw } from "lucide-react";
 import { downloadPDF, downloadWord, WATERMARK_LINE } from "../lib/export";
 import { saveHistory } from "../lib/history";
-import { putReviewDoc } from "../lib/reviewDoc";
+import { defaultDocTitle, putReviewDoc } from "../lib/reviewDoc";
 import { useAuth } from "./auth/AuthContext";
 
 type ReviewType = "self" | "manager" | "peer" | "360";
@@ -413,9 +413,7 @@ export default function GeneratorModal({
       // 生成完成 → 存一份历史，然后把内容交接给结果编辑页
       // （用户在编辑页里改完再导出 PDF / Word，见 app/review/page.tsx）
       const scope = user?.id || "guest";
-      const docTitle =
-        [jobTitle || reviewType, employeeName].filter(Boolean).join(" — ") ||
-        "Performance review";
+      const docTitle = defaultDocTitle({ reviewType, jobTitle, employeeName });
       const item = saveHistory(scope, {
         kind: "narrative",
         title: docTitle,
