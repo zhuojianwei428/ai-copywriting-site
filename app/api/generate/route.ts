@@ -3,7 +3,13 @@
 // The only upstream service called is DeepSeek; no other provider credential
 // is read or used anywhere in this route.
 import DeepSeekClient from "openai";
-import { SYSTEM_PROMPT, buildPrompt } from "../../../lib/prompt";
+import {
+  SYSTEM_PROMPT,
+  buildPrompt,
+  BLOCK_MARKERS,
+  conductedText,
+  overviewMetaLine,
+} from "../../../lib/prompt";
 import { currentUserId } from "../../../lib/clerk/requireUser";
 import { consumeQuota, withQuotaCookie } from "../../../lib/quotas";
 import { estimateCost, cacheHitTokens } from "../../../lib/cost";
@@ -199,6 +205,79 @@ async function handlePost(req: Request) {
     tone,
   });
 
+  // 模板化章节由服务端拼装，模型不写（省 12-18% 输出 token）：
+  // 标题编号、第 2 部分流程说明、第 1 部分的姓名/职位/任期骨架、第 7 部分。
+  const metaLine = overviewMetaLine({
+    reviewType,
+    jobTitle,
+    employeeName,
+    tenure,
+    strengths: safeStrengths,
+    growthAreas: safeGrowth,
+    tone,
+  });
+  const blockReplacements: Record<string, string> = {
+    "[[OVERVIEW]]": `1. Basic Overview\n${metaLine ? `${metaLine}\n\n` : ""}`,
+    "[[FRAMEWORK]]": `\n\n2. How This Evaluation Was Conducted\n${conductedText(
+      reviewType
+    )}\n\n3. Evaluation Framework\n`,
+    "[[GOALS]]": "\n\n4. Progress Against Goals\n",
+    "[[CHALLENGES]]": "\n\n5. Challenges & Analysis of Causes\n",
+    "[[CONCLUSION]]": "\n\n6. Conclusion & Recommendations\n",
+  };
+  const REPORT_TAIL = "\n\n7. Other Notes\nNone.";
+
+  /**
+   * 把模型输出里的块标记替换成模板文本。
+   * 标记可能被切到两个 chunk 里（"[[FRAM" + "EWORK]]"），所以尾部要留一段缓冲。
+   * 模型若完全没用标记（降级），输出原样透传 —— 内容不丢，只是少了标题编号。
+   */
+  let carry = "";
+  let markersHit = 0;
+  function transform(text: string, flush = false): string {
+    carry += text;
+    let out = "";
+    for (;;) {
+      let idx = -1;
+      let mark = "";
+      for (const m of BLOCK_MARKERS) {
+        const i = carry.indexOf(m);
+        if (i >= 0 && (idx === -1 || i < idx)) {
+          idx = i;
+          mark = m;
+        }
+      }
+      if (idx === -1) break;
+      out += carry.slice(0, idx) + (blockReplacements[mark] ?? "");
+      markersHit += 1;
+      carry = carry.slice(idx + mark.length);
+    }
+    if (flush) {
+      out += carry;
+      carry = "";
+      return out;
+    }
+    // 尾部若是不完整标记的前缀，留到下一个 chunk 再判定
+    let keep = 0;
+    for (const m of BLOCK_MARKERS) {
+      const max = Math.min(m.length - 1, carry.length);
+      for (let n = max; n > 0; n--) {
+        if (carry.endsWith(m.slice(0, n))) {
+          if (n > keep) keep = n;
+          break;
+        }
+      }
+    }
+    if (keep > 0) {
+      out += carry.slice(0, carry.length - keep);
+      carry = carry.slice(carry.length - keep);
+    } else {
+      out += carry;
+      carry = "";
+    }
+    return out;
+  }
+
   const deepseek = new DeepSeekClient({
     apiKey,
     baseURL: process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com",
@@ -251,10 +330,18 @@ async function handlePost(req: Request) {
             if (maybeUsage) usage = maybeUsage;
             const text = chunk.choices?.[0]?.delta?.content || "";
             if (text) {
-              outputChars += text.length;
-              controller.enqueue(encoder.encode(text));
+              const rendered = transform(text);
+              if (rendered) {
+                outputChars += rendered.length;
+                controller.enqueue(encoder.encode(rendered));
+              }
             }
           }
+
+          // 收尾：吐出残留缓冲 + 追加模板化的第 7 部分
+          const tail = transform("", true) + REPORT_TAIL;
+          outputChars += tail.length;
+          controller.enqueue(encoder.encode(tail));
 
           logCall({
             event: "generate_done",
@@ -263,6 +350,8 @@ async function handlePost(req: Request) {
             model,
             inputChars,
             outputChars,
+            markersHit,
+            aiTokens: usage?.completion_tokens ?? null,
             promptTokens: usage?.prompt_tokens ?? null,
             completionTokens: usage?.completion_tokens ?? null,
             totalTokens: usage?.total_tokens ?? null,
