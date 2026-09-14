@@ -21,9 +21,9 @@ npm run build && npm run start
 
 | Variable | Required | Default | Notes |
 |---|---|---|---|
-| `DEEPSEEK_API_KEY` | yes | — | Your AI provider key. Server-side only, never exposed to the browser. |
+| `DEEPSEEK_API_KEY` | yes | — | Your DeepSeek key. Server-side only, never exposed to the browser. |
 | `DEEPSEEK_MODEL` | no | `deepseek-v4-flash` | Current model id. `deepseek-chat` / `deepseek-reasoner` were retired 2026-07-24 and now error out; use `deepseek-v4-pro` only for heavy reasoning (≈3x the price). |
-| `DEEPSEEK_BASE_URL` | no | `https://api.deepseek.com` | Override only if using an AI-provider-compatible proxy/endpoint. |
+| `DEEPSEEK_BASE_URL` | no | `https://api.deepseek.com` | Override only if using a DeepSeek-compatible proxy/endpoint. |
 | `MAX_INPUT_CHARS` | no | `6000` | Max characters accepted per request; longer input is rejected with 413. |
 | `MAX_OUTPUT_TOKENS` | no | `700` | Max output tokens per generation — the main cost cap. |
 | `DAILY_CALL_WARN_THRESHOLD` | no | `500` | Daily call count that triggers a `WARN` line in the logs. |
@@ -54,7 +54,7 @@ No database, no file writes, no disk cache — nothing the user types is persist
 ## Structure
 
 - `app/page.tsx` — single page: H1 + landing + SEO footer + footer
-- `app/api/generate/route.ts` — server-side AI streaming + in-memory rate limit + call logging
+- `app/api/generate/route.ts` — server-side DeepSeek streaming + in-memory rate limit + call logging
 - `components/Landing.tsx` — hero, output mockup, how-it-works, audience, FAQ, footer
 - `components/GeneratorModal.tsx` — 4-step guided flow + result + export
 - `lib/prompt.ts` — system prompt + request builder
