@@ -14,7 +14,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   },
   {
     q: "Is confidential company performance data kept private and secure?",
-    a: "Your text is sent to our AI provider (DeepSeek) via API to generate your review, and the result is streamed straight back to your browser. We don't store your review text on our servers, and we don't sell your data. What DeepSeek does with the data it receives is governed by DeepSeek's own privacy policy and terms, which we don't control — please review them before submitting anything you consider confidential.",
+    a: "Your text is sent to our AI provider via API to generate your review, and the result is streamed straight back to your browser. We don't store your review text on our servers, and we don't sell your data. What the AI provider does with the data it receives is governed by the AI provider's own privacy policy and terms, which we don't control — please review them before submitting anything you consider confidential.",
   },
   {
     q: "Does this work for both tech roles and non-technical business functions?",

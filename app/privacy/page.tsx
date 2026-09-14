@@ -28,7 +28,7 @@ export default function Privacy() {
           <p className="font-body-md text-body-md text-text-muted leading-relaxed mb-md">
             We do not store the review text you enter, or the drafts we
             generate, on our servers. When you click Generate, your text is sent
-            to our AI provider (DeepSeek) via API to generate your review, and
+            to our AI provider via API to generate your review, and
             the result is streamed straight back to your browser. We do not save
             those inputs or the generated output on our servers. To keep the
             service running and to spot abuse, we log operational metadata only
@@ -65,24 +65,24 @@ export default function Privacy() {
           </p>
 
           <h2 className="font-headline-sm text-headline-sm text-text-primary tracking-tight mt-xl mb-sm">
-            How DeepSeek is used
+            How our AI provider is used
           </h2>
           <p className="font-body-md text-body-md text-text-muted leading-relaxed mb-md">
-            Generation is performed by DeepSeek. Your inputs are transmitted to
-            DeepSeek for processing under{" "}
+            Generation is performed by our AI provider. Your inputs are
+            transmitted to the AI provider for processing under{" "}
             <a
               href="https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary-container hover:text-primary underline underline-offset-2"
             >
-              DeepSeek&apos;s Privacy Policy
+              the AI provider&apos;s Privacy Policy
             </a>
-            . We don&apos;t control how DeepSeek retains or uses the data it
-            receives, and we don&apos;t make any claim on DeepSeek&apos;s behalf
-            about whether that data is stored or used for model training. Please
-            read DeepSeek&apos;s own policy before submitting anything you
-            consider confidential.
+            . We don&apos;t control how the AI provider retains or uses the data
+            it receives, and we don&apos;t make any claim on the AI
+            provider&apos;s behalf about whether that data is stored or used for
+            model training. Please read the AI provider&apos;s own policy before
+            submitting anything you consider confidential.
           </p>
 
           <h2 className="font-headline-sm text-headline-sm text-text-primary tracking-tight mt-xl mb-sm">

@@ -1090,11 +1090,11 @@ export default function Landing() {
                 We don&apos;t sell your data
               </span>
               <span className="font-label-sm text-label-sm text-text-muted">
-                Powered by DeepSeek
+                Powered by an AI provider
               </span>
             </div>
             <p className="font-body-sm text-body-sm text-text-muted pt-sm max-w-3xl">
-              Your text is sent to our AI provider (DeepSeek) via API to generate
+              Your text is sent to our AI provider via API to generate
               your review. We don&apos;t store your reviews on our servers, and
               we don&apos;t sell your data. Drafts you save to History stay in
               your own browser&apos;s local storage, on your device. See our{" "}
@@ -1104,7 +1104,8 @@ export default function Landing() {
               >
                 Privacy Policy
               </a>{" "}
-              for details, including what DeepSeek&apos;s own policy covers.
+              for details, including what the AI provider&apos;s own policy
+              covers.
             </p>
             <p className="font-label-md text-label-md text-text-muted pt-sm max-w-3xl font-medium">
               AI-generated draft. Review and edit before use. Not a substitute

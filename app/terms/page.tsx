@@ -35,7 +35,7 @@ export default function Terms() {
             How your input is processed
           </h2>
           <p className="font-body-md text-body-md text-text-muted leading-relaxed mb-md">
-            Your text is sent to our AI provider (DeepSeek) via API to generate
+            Your text is sent to our AI provider via API to generate
             your review, as described in our{" "}
             <Link
               href="/privacy"
@@ -43,10 +43,10 @@ export default function Terms() {
             >
               Privacy Policy
             </Link>
-            . We do not store your review text on our servers. How DeepSeek
-            handles the data it receives is governed by DeepSeek&apos;s own
-            privacy policy and terms, which we do not control and make no
-            representations about.
+            . We do not store your review text on our servers. How the AI
+            provider handles the data it receives is governed by the AI
+            provider&apos;s own privacy policy and terms, which we do not control
+            and make no representations about.
           </p>
 
           <h2 className="font-headline-sm text-headline-sm text-text-primary tracking-tight mt-xl mb-sm">
