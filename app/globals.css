@@ -35,6 +35,28 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* ---------------------------------------------------------------------------
+ * 修：导出 PDF 里文字整体下沉 7px（评分方块里的数字被顶到底边）
+ *
+ * html2canvas 1.4.1 量「字体基线」的办法是：临时建一个 visibility:hidden 的 div，
+ * 塞进 <span>Hidden Text</span> 和一个 1×1 的 <img vertical-align:baseline>，
+ * 再用 `img.offsetTop - span.offsetTop + 2` 反推基线 —— 前提是这个探针 img 必须是
+ * inline 的、坐在文字基线上（见 html2canvas 的 render/font-metrics.ts）。
+ *
+ * 但 Tailwind Preflight 有一条 `img, svg, video, canvas { display: block }`，
+ * 把探针 img 变成了块级、挤到文字下一行，于是量出的 baseline 由 13px 变成 20px
+ * （Inter 12.5px）。html2canvas 把它当成「文字基线离行顶 20px」，**整份导出件里每
+ * 一个字都被多推下去 7px**：正文行高高，肉眼看不太出来；22px 的评分方块里就直接把
+ * 数字顶到方块底边（用户看到的就是"数字没居中"）。
+ *
+ * 这条规则只命中 html2canvas 在 body 下临时建的那个测量容器（它的 inline style 里
+ * 同时带 visibility:hidden 与 white-space:nowrap），不碰站内任何真实图片。
+ * 删掉它 = 导出件文字重新下沉 7px。
+ * --------------------------------------------------------------------------- */
+body > div[style*="visibility: hidden"][style*="white-space: nowrap"] > img {
+  display: inline !important;
+}
+
 /* Material Symbols Outlined (used for UI glyphs) */
 .material-symbols-outlined {
   font-family: "Material Symbols Outlined";
