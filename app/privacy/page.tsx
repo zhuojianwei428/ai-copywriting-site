@@ -69,20 +69,13 @@ export default function Privacy() {
           </h2>
           <p className="font-body-md text-body-md text-text-muted leading-relaxed mb-md">
             Generation is performed by our AI provider. Your inputs are
-            transmitted to the AI provider for processing under{" "}
-            <a
-              href="https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary-container hover:text-primary underline underline-offset-2"
-            >
-              the AI provider&apos;s Privacy Policy
-            </a>
-            . We don&apos;t control how the AI provider retains or uses the data
-            it receives, and we don&apos;t make any claim on the AI
-            provider&apos;s behalf about whether that data is stored or used for
-            model training. Please read the AI provider&apos;s own policy before
-            submitting anything you consider confidential.
+            transmitted to the AI provider for processing under the AI
+            provider&apos;s own privacy policy and terms. We don&apos;t control
+            how the AI provider retains or uses the data it receives, and we
+            don&apos;t make any claim on the AI provider&apos;s behalf about
+            whether that data is stored or used for model training. Please read
+            the AI provider&apos;s own policy before submitting anything you
+            consider confidential.
           </p>
 
           <h2 className="font-headline-sm text-headline-sm text-text-primary tracking-tight mt-xl mb-sm">
