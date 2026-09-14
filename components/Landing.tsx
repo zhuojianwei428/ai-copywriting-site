@@ -37,9 +37,9 @@ const FORMATS: {
   },
   {
     key: "360",
-    label: "360° Feedback",
+    label: "360-Degree Feedback",
     desc: "Holistic multi-perspective assessment synthesized from the context and goals you provide.",
-    badge: "360° view",
+    badge: "360-degree view",
   },
 ];
 
@@ -178,12 +178,12 @@ export default function Landing() {
           </h1>
           {/* SEO subtitle */}
           <p className="font-headline-md text-headline-md text-text-primary max-w-3xl mb-sm">
-            Write self, manager &amp; 360° performance reviews in minutes.
+            Write self, manager &amp; 360-degree performance reviews in minutes — cut performance review writing time by up to 90%.
           </p>
           {/* Brand tagline subtitle */}
           <p className="font-body-lg text-body-lg text-text-muted max-w-2xl">
             Reviews written with rigor, precision, and nuance — calibrated to
-            your rubric, role level, and documented impact. Free to start — 5
+            your rubric, role level, and documented impact. Completely free — 5
             drafts a day, no signup required.
           </p>
 
@@ -660,7 +660,7 @@ export default function Landing() {
               <div className="flex flex-col gap-md">
                 <div className="pb-2xs border-b border-border-subtle flex items-center justify-between">
                   <h3 className="font-headline-sm text-headline-sm text-text-primary tracking-tight">
-                    3. 360° Qualitative Synthesis
+                    3. 360-Degree Qualitative Synthesis
                   </h3>
                   <span className="font-label-sm text-label-sm text-text-muted">
                     Synthesized peer feedback themes
@@ -706,7 +706,7 @@ export default function Landing() {
               {
                 n: "01",
                 t: "Select format & rubric",
-                d: "Choose self, manager, peer, or 360° review, then rate competencies on a standard 1–5 scale.",
+                d: "Choose self, manager, peer, or 360-degree review, then rate competencies on a standard 1–5 scale.",
                 f: "Standard Rating Scales",
               },
               {
@@ -762,8 +762,8 @@ export default function Landing() {
               <p className="font-body-md text-body-md leading-relaxed text-text-muted">
                 Most AI tools hand you a block of text and stop there. Every
                 draft you generate opens on its own page, where you can rewrite
-                any sentence directly in the browser — then export it as Word or
-                PDF, ready for your review process.
+                any sentence directly in the browser — then export as PDF or
+                Word, ready for your review process.
               </p>
             </div>
             <div className="flex shrink-0 flex-col gap-2xs">

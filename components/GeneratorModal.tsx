@@ -69,7 +69,7 @@ const REVIEW_TYPES = [
   { id: "self", title: "Self Review", desc: "Reviewing my own performance" },
   { id: "manager", title: "Manager Review", desc: "Reviewing a direct report" },
   { id: "peer", title: "Peer Review", desc: "Reviewing a colleague" },
-  { id: "360", title: "360° Feedback", desc: "Collecting input from multiple people" },
+  { id: "360", title: "360-Degree Feedback", desc: "Collecting input from multiple people" },
 ] as const;
 
 const TENURES = ["Less than 6 months", "6–12 months", "1–2 years", "2+ years"];
@@ -689,7 +689,7 @@ export default function GeneratorModal({
           {step === 3 && (
             <div>
               <h2 className="font-headline-sm text-headline-sm text-text-primary mb-md" style={{ marginTop: 0 }}>
-                What went well?
+                Key achievements &amp; strengths
               </h2>
               <p className="font-body-md text-body-md text-text-muted mb-md" style={{ marginTop: "-4px" }}>
                 Select everything that applies. The more you pick, the better

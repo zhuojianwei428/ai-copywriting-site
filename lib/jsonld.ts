@@ -22,10 +22,10 @@ export const FAQ_ITEMS: FaqItem[] = [
   },
   {
     q: "Can I edit the review draft before exporting it?",
-    a: "Yes. Every draft opens on its own page where you can rewrite any sentence directly in the browser, then export the result as Word or PDF. You can also regenerate a complete draft as many times as you like, adjusting format, role, tone, and inputs between runs. Fine-grained, section-by-section regeneration is on our roadmap.",
+    a: "Yes. Every draft opens on its own page where you can rewrite any sentence directly in the browser, then export the result as PDF or Word. You can also regenerate a complete draft as many times as you like, adjusting format, role, tone, and inputs between runs. Fine-grained, section-by-section regeneration is on our roadmap.",
   },
   {
-    q: "How does the 360° feedback synthesis handle conflicting peer feedback?",
+    q: "How does the 360-degree feedback synthesis handle conflicting peer feedback?",
     a: "When you paste divergent peer input (e.g., praise for rapid execution alongside concern over documentation pace), you can ask the engine to surface both perspectives as a situational trade-off rather than flatten them into a single judgment. Review the synthesis carefully — conflicting feedback often signals a real tension worth discussing with the employee directly.",
   },
 ];
@@ -37,7 +37,7 @@ export function webApplicationLd() {
     name: "AI Performance Review Generator",
     url: "https://aiwritereview.com/",
     description:
-      "Generate balanced, evidence-based performance reviews in self, manager, peer & 360° formats — then edit the draft in your browser and export as Word or PDF. Free to use.",
+      "Generate balanced, evidence-based performance reviews in self, manager, peer & 360-degree formats — then edit the draft in your browser and export as PDF or Word. Free to use.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Any",
     offers: {

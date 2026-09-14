@@ -33,7 +33,7 @@ export const TYPE_LABEL: Record<ReviewTypeKey, string> = {
   self: "Self Review",
   manager: "Manager Review",
   peer: "Peer Review",
-  "360": "360° Feedback",
+  "360": "360-Degree Feedback",
 };
 
 export function isReviewType(v: string): v is ReviewTypeKey {

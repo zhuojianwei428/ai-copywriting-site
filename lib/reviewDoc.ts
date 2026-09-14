@@ -51,7 +51,7 @@ const TYPE_LABEL: Record<string, string> = {
   self: "Self Review",
   manager: "Manager Review",
   peer: "Peer Review",
-  "360": "360° Feedback",
+  "360": "360-Degree Feedback",
 };
 
 /**

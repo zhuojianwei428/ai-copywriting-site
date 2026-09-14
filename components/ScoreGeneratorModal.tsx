@@ -23,7 +23,7 @@ const REVIEW_TYPES: { id: ReviewType; title: string; desc: string }[] = [
   { id: "self", title: "Self Review", desc: "Scoring my own KRAs" },
   { id: "manager", title: "Manager Review", desc: "Scoring a direct report" },
   { id: "peer", title: "Peer Review", desc: "Scoring a colleague" },
-  { id: "360", title: "360° Feedback", desc: "Multi-source perspective" },
+  { id: "360", title: "360-Degree Feedback", desc: "Multi-source perspective" },
 ];
 const TONES: { id: Tone; desc: string }[] = [
   { id: "Formal", desc: "Neutral and professional" },
