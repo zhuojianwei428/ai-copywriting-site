@@ -8,7 +8,9 @@ export const metadata: Metadata = {
   description:
     "Generate balanced, evidence-based performance reviews in self, manager, peer & 360-degree formats — then edit the draft in your browser and export as PDF or Word.",
   robots: { index: true, follow: true },
-  metadataBase: new URL("https://aiwritereview.com"),
+  // 规范主机是 www（裸域 308 跳 www）。metadataBase 必须写 www，
+  // 否则 og:image 等绝对地址会落在裸域上多绕一次 308，部分抓取器不跟随重定向会取不到图。
+  metadataBase: new URL("https://www.aiwritereview.com"),
   openGraph: {
     title: "AI Review Writer — AI Performance Review Generator",
     description:
