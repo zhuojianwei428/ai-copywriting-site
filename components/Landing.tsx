@@ -429,8 +429,11 @@ export default function Landing() {
             <div className="flex items-center gap-md p-md bg-surface-card border border-border-subtle rounded-xl shadow-sm shrink-0">
               <div className="w-16 h-16 rounded-lg overflow-hidden border border-border-subtle shrink-0 bg-surface-canvas">
                 <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCL_uurcKAhOe8nPwzoAiqZOqF0VcWxNTU9He0rWz_uuc0xpa9KBuMCqbrlHylSpnX1v3AOf9TOpnDhwCdOEylBRldPjBEolrtrL4lpDPvffeHfnvYv58wW9SEG4M_kOb1_SbbxqomXF_w0O6BLzzS192QlSGdQ23vNnPjQigNk-stBlDo8SLKMbNrxGc44ueqkKey7QIeWzyh5Rl5cuZGZJn8bwgt9qtzJd1h1IKTESgGaFLCTrHcMw"
+                  src="/images/managers-and-ics.png"
                   alt="Managers and individual contributors"
+                  width={256}
+                  height={256}
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -805,8 +808,12 @@ export default function Landing() {
           <div className="w-full mb-xl bg-surface-card border border-border-subtle rounded-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 shadow-sm">
             <div className="lg:col-span-7 h-64 lg:h-auto min-h-[300px] overflow-hidden relative bg-surface-canvas">
               <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYjaoslJphmvAizrK5ixM3vB-E8vCaD8S5Riv3SnigAwB9lEwRm702Bg-FK5uTKIneaQF4zc2L7ZArhCoBtLzN2G_lcxXlmox0VjQwvTVCUGmhKPjotY0gJhDChjZwSbR0fnbCTSVj6NTt_2GQ3RfckcK7C5mY9IYI_52E5IOTWnDvKSUaIeZ5Ha_Zuq7Lf3UunPxvfUVYheBeBzP-0qDYzftR2iy_6tueORQx2xxxBtHRE7t9LnzsCA"
+                src="/images/performance-review-discussion.webp"
                 alt="Performance review discussion"
+                width={1280}
+                height={725}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover"
               />
             </div>
