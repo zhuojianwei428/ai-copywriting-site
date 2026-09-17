@@ -19,6 +19,6 @@ export default clerkConfigured ? clerkMiddleware() : noopMiddleware;
 // 静态资源不跑中间件，其余路径都走（体积小、开销可忽略）。
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|og.png|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|og.png|BingSiteAuth.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|xml|txt)$).*)",
   ],
 };
