@@ -24,7 +24,7 @@ import GenerationProgress from "./GenerationProgress";
 import A4EvaluationTable from "./A4EvaluationTable";
 import { useAuth } from "./auth/AuthContext";
 
-type ReviewType = "self" | "manager" | "peer" | "360";
+type ReviewType = "self" | "manager" | "peer" | "360" | "skip";
 type Tone = "Formal" | "Encouraging" | "Direct";
 
 /** 导出文件名用（与 ReviewEditor 的 slug 保持一致） */
@@ -69,6 +69,7 @@ const REVIEW_TYPES = [
   { id: "self", title: "Self Review", desc: "Reviewing my own performance" },
   { id: "manager", title: "Manager Review", desc: "Reviewing a direct report" },
   { id: "peer", title: "Peer Review", desc: "Reviewing a colleague" },
+  { id: "skip", title: "Skip-Level Review", desc: "Reviewing someone outside my direct reports" },
   { id: "360", title: "360-Degree Feedback", desc: "Collecting input from multiple people" },
 ] as const;
 

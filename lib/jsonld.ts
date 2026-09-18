@@ -49,7 +49,7 @@ export function webApplicationLd(overrides: WebApplicationLdOverrides = {}) {
     url: overrides.url ?? "https://www.aiwritereview.com/",
     description:
       overrides.description ??
-      "Generate balanced, evidence-based performance reviews in self, manager, peer & 360-degree formats — then edit the draft in your browser and export as PDF or Word. Free to use.",
+      "Generate balanced, evidence-based performance reviews in self, manager, peer, skip-level & 360-degree formats — then edit the draft in your browser and export as PDF or Word. Free to use.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Any",
     offers: {

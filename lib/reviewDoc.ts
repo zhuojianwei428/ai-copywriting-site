@@ -52,6 +52,7 @@ const TYPE_LABEL: Record<string, string> = {
   manager: "Manager Review",
   peer: "Peer Review",
   "360": "360-Degree Feedback",
+  skip: "Skip-Level Review",
 };
 
 /**

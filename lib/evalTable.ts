@@ -27,17 +27,18 @@ export const SCALE_LINE = RATING_SCALE.map(
 /** 三列固定列名（需求锁定，不得增删列） */
 export const COLUMNS = ["Evaluation Area", "Score", "Comments"] as const;
 
-export type ReviewTypeKey = "self" | "manager" | "peer" | "360";
+export type ReviewTypeKey = "self" | "manager" | "peer" | "360" | "skip";
 
 export const TYPE_LABEL: Record<ReviewTypeKey, string> = {
   self: "Self Review",
   manager: "Manager Review",
   peer: "Peer Review",
   "360": "360-Degree Feedback",
+  skip: "Skip-Level Review",
 };
 
 export function isReviewType(v: string): v is ReviewTypeKey {
-  return v === "self" || v === "manager" || v === "peer" || v === "360";
+  return v === "self" || v === "manager" || v === "peer" || v === "360" || v === "skip";
 }
 
 /**
@@ -76,6 +77,19 @@ export const EVAL_AREAS: Record<ReviewTypeKey, string[]> = {
     "Customer Orientation",
     "Learning & Development",
   ],
+  /**
+   * Skip-level：评者不是直接主管，而是上一级/更高层。
+   * 维度必须只涵盖「隔级视角真的看得见的东西」——跨团队影响、外部口碑、超出本职范围的担当，
+   * 而不是日常产出细节（那是直接主管的视角，模型不该假装看见）。
+   */
+  skip: [
+    "Impact Beyond Own Team",
+    "Cross-Team Collaboration",
+    "Reputation Across Functions",
+    "Ownership Beyond Assigned Scope",
+    "Clarity of Upward Communication",
+    "Readiness for Broader Scope",
+  ],
 };
 
 export function areasFor(reviewType: string): string[] {
@@ -84,7 +98,7 @@ export function areasFor(reviewType: string): string[] {
 
 /**
  * 每种评估类型「评语该由谁的口吻写」（需求指定的视角）。
- * 这一段直接进 user prompt —— 同一份维度清单，四种视角，评语完全不同。
+ * 这一段直接进 user prompt —— 同一份维度清单，五种视角，评语完全不同。
  */
 export const REVIEW_VOICE: Record<ReviewTypeKey, string> = {
   self:
@@ -100,6 +114,10 @@ export const REVIEW_VOICE: Record<ReviewTypeKey, string> = {
     `You synthesise feedback from the employee's manager, peers and direct reports into one balanced multi-perspective view. ` +
     `Write every comment as a synthesis: give more weight to patterns that several perspectives agree on, and stay even-handed — ` +
     `neither glowing nor harsh.`,
+  skip:
+    `You are a skip-level manager: you lead the wider function, but you are NOT this person's direct manager. ` +
+    `Write every comment from that vantage point — cross-team impact, reputation with partner teams, and how the person operates beyond their own scope. ` +
+    `Your view is indirect: use only the observations supplied, and never claim first-hand knowledge of daily work, private performance conversations, or details you were not given.`,
 };
 
 /**

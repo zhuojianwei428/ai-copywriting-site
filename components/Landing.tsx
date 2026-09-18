@@ -9,7 +9,7 @@ import AdSlot from "./ads/AdSlot";
 import { mergeGuestIntoUser } from "../lib/history";
 import { FAQ_ITEMS } from "../lib/jsonld";
 
-type FormatKey = "self" | "manager" | "peer" | "360";
+type FormatKey = "self" | "manager" | "peer" | "360" | "skip";
 
 const FORMATS: {
   key: FormatKey;
@@ -34,6 +34,12 @@ const FORMATS: {
     label: "Peer Review",
     desc: "Constructive feedback on collaboration, technical execution, and cross-team contributions.",
     badge: "Peer view",
+  },
+  {
+    key: "skip",
+    label: "Skip-Level Review",
+    desc: "The view from above the direct manager — cross-team impact, reputation with partner teams, and readiness for broader scope.",
+    badge: "Skip-level view",
   },
   {
     key: "360",
@@ -302,7 +308,7 @@ export default function Landing({
 
             {/* 4 Format Selectable Cards */}
             <div
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md pt-lg pb-xl"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-md pt-lg pb-xl"
               id="review-format-group"
             >
               {FORMATS.map((f) => {
@@ -742,7 +748,7 @@ export default function Landing({
               {
                 n: "01",
                 t: "Select format & rubric",
-                d: "Choose self, manager, peer, or 360-degree review, then rate competencies on a standard 1–5 scale.",
+                d: "Choose self, manager, peer, skip-level, or 360-degree review, then rate competencies on a standard 1–5 scale.",
                 f: "Standard Rating Scales",
               },
               {
@@ -1088,6 +1094,12 @@ export default function Landing({
                 href="/peer-review-generator"
               >
                 Peer review
+              </a>
+              <a
+                className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
+                href="/skip-level-review-generator"
+              >
+                Skip-level review
               </a>
               <a
                 className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
