@@ -65,12 +65,19 @@ const DEFAULT_CONTENT: LandingContent = {
 type LandingProps = {
   /** 本页默认选中的审阅格式。变体落地页用它让首屏直接对准该格式。 */
   defaultFormat?: FormatKey;
+  /**
+   * 本页默认的输出风格。默认 narrative（与首页一致）；
+   * /self-assessment-generator 传 "scored"，首屏直接落在 KRA 评分卡上——
+   * 这是产品里真实存在的另一种输出，不是换文案造出来的差异。
+   */
+  defaultMode?: "narrative" | "scored";
   /** 覆盖首屏文案。不传则完全等同首页原文案。 */
   content?: Partial<LandingContent>;
 };
 
 export default function Landing({
   defaultFormat = "self",
+  defaultMode = "narrative",
   content,
 }: LandingProps = {}) {
   const copy: LandingContent = { ...DEFAULT_CONTENT, ...content };
@@ -78,7 +85,7 @@ export default function Landing({
   const [modalOpen, setModalOpen] = useState(false);
   const [modalDefault, setModalDefault] = useState<FormatKey>(defaultFormat);
   const [scoreOpen, setScoreOpen] = useState(false);
-  const [scoredMode, setScoredMode] = useState(false);
+  const [scoredMode, setScoredMode] = useState(defaultMode === "scored");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
 
@@ -1063,6 +1070,12 @@ export default function Landing({
                 href="/self-review-generator"
               >
                 Self review
+              </a>
+              <a
+                className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
+                href="/self-assessment-generator"
+              >
+                Self assessment
               </a>
               <a
                 className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
