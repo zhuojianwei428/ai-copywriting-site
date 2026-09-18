@@ -45,10 +45,38 @@ const FORMATS: {
 
 const STEPS = ["Format", "Role & Level", "Inputs", "Draft"];
 
-export default function Landing() {
-  const [format, setFormat] = useState<FormatKey>("self");
+/** 首屏文案。首页用 DEFAULT_CONTENT；各格式变体落地页用自己的版本，让 H1/副标题对准该页目标词。 */
+type LandingContent = {
+  eyebrow: string;
+  h1: string;
+  subtitle: string;
+  tagline: string;
+};
+
+const DEFAULT_CONTENT: LandingContent = {
+  eyebrow: "AI Review Writer · Free Performance Review Tool",
+  h1: "AI Performance Review Generator",
+  subtitle:
+    "Write self, manager & 360-degree performance reviews in minutes — cut performance review writing time by up to 90%.",
+  tagline:
+    "Reviews written with rigor, precision, and nuance — calibrated to your rubric, role level, and documented impact. Completely free — 5 drafts a day, no signup required.",
+};
+
+type LandingProps = {
+  /** 本页默认选中的审阅格式。变体落地页用它让首屏直接对准该格式。 */
+  defaultFormat?: FormatKey;
+  /** 覆盖首屏文案。不传则完全等同首页原文案。 */
+  content?: Partial<LandingContent>;
+};
+
+export default function Landing({
+  defaultFormat = "self",
+  content,
+}: LandingProps = {}) {
+  const copy: LandingContent = { ...DEFAULT_CONTENT, ...content };
+  const [format, setFormat] = useState<FormatKey>(defaultFormat);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalDefault, setModalDefault] = useState<FormatKey>("self");
+  const [modalDefault, setModalDefault] = useState<FormatKey>(defaultFormat);
   const [scoreOpen, setScoreOpen] = useState(false);
   const [scoredMode, setScoredMode] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -169,22 +197,20 @@ export default function Landing() {
           <div className="inline-flex items-center gap-xs px-3 py-1 rounded-full border border-border-strong bg-surface-canvas mb-lg">
             <span className="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
             <span className="font-label-sm text-label-sm uppercase tracking-widest text-text-primary">
-              AI Review Writer · Free Performance Review Tool
+              {copy.eyebrow}
             </span>
           </div>
           {/* Headline */}
           <h1 className="font-display-lg text-display-lg-mobile lg:text-display-lg text-text-primary max-w-4xl tracking-tight mb-md">
-            AI Performance Review Generator
+            {copy.h1}
           </h1>
           {/* SEO subtitle */}
           <p className="font-headline-md text-headline-md text-text-primary max-w-3xl mb-sm">
-            Write self, manager &amp; 360-degree performance reviews in minutes — cut performance review writing time by up to 90%.
+            {copy.subtitle}
           </p>
           {/* Brand tagline subtitle */}
           <p className="font-body-lg text-body-lg text-text-muted max-w-2xl">
-            Reviews written with rigor, precision, and nuance — calibrated to
-            your rubric, role level, and documented impact. Completely free — 5
-            drafts a day, no signup required.
+            {copy.tagline}
           </p>
 
           {/* Interactive Generator Box */}
@@ -983,7 +1009,7 @@ export default function Landing() {
       {/* ===================== FOOTER ===================== */}
       <footer className="w-full bg-surface-card border-t border-border-subtle">
         <div className="max-w-[1280px] mx-auto px-gutter-mobile lg:px-gutter-desktop py-xl">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-xl pb-xl border-b border-border-subtle">
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-xl pb-xl border-b border-border-subtle">
             <div className="md:col-span-2 flex flex-col gap-sm">
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary-container text-[24px]">
@@ -1025,6 +1051,36 @@ export default function Landing() {
                 href="#faq"
               >
                 FAQ
+              </a>
+            </div>
+            {/* 格式变体落地页：每页对准一个功能型长尾词，靠这里的站内链接被爬取与传递权重 */}
+            <div className="flex flex-col gap-2xs">
+              <span className="font-label-sm text-label-sm uppercase text-text-muted tracking-wider mb-2xs">
+                Review types
+              </span>
+              <a
+                className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
+                href="/self-review-generator"
+              >
+                Self review
+              </a>
+              <a
+                className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
+                href="/manager-review-generator"
+              >
+                Manager review
+              </a>
+              <a
+                className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
+                href="/peer-review-generator"
+              >
+                Peer review
+              </a>
+              <a
+                className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
+                href="/360-feedback-generator"
+              >
+                360-degree feedback
               </a>
             </div>
             <div className="flex flex-col gap-2xs">

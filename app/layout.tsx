@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
-import { webApplicationLd, faqLd } from "../lib/jsonld";
 
 export const metadata: Metadata = {
   title: "AI Review Writer — AI Performance Review Generator",
@@ -71,14 +70,11 @@ export default function RootLayout({
             crossOrigin="anonymous"
           />
         )}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(webApplicationLd()) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd()) }}
-        />
+        {/*
+          结构化数据不在这里注入：首页与各格式变体落地页各自声明自己的
+          WebApplication url/name（见 app/page.tsx 与 app/*-generator/page.tsx），
+          避免所有页面都把自己标成首页那个 url。
+        */}
       </head>
       <body>{children}</body>
     </html>

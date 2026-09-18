@@ -30,13 +30,25 @@ export const FAQ_ITEMS: FaqItem[] = [
   },
 ];
 
-export function webApplicationLd() {
+export interface WebApplicationLdOverrides {
+  name?: string;
+  url?: string;
+  description?: string;
+}
+
+/**
+ * 首页与各格式变体落地页共用的 WebApplication 结构化数据。
+ * 每页应传自己的 name / url / description，避免所有页面都声明同一个 url。
+ */
+export function webApplicationLd(overrides: WebApplicationLdOverrides = {}) {
   return {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "AI Performance Review Generator",
-    url: "https://aiwritereview.com/",
+    name: overrides.name ?? "AI Performance Review Generator",
+    // 规范主机是 www（裸域 308 跳 www），结构化数据里的 url 必须与之一致。
+    url: overrides.url ?? "https://www.aiwritereview.com/",
     description:
+      overrides.description ??
       "Generate balanced, evidence-based performance reviews in self, manager, peer & 360-degree formats — then edit the draft in your browser and export as PDF or Word. Free to use.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Any",
