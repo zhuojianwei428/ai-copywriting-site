@@ -1120,6 +1120,12 @@ export default function Landing({
               </a>
               <a
                 className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
+                href="/software-engineer-performance-review-examples"
+              >
+                Engineer review examples
+              </a>
+              <a
+                className="font-body-sm text-body-sm text-text-muted hover:text-text-primary transition-colors"
                 href="mailto:support@aiwritereview.com"
               >
                 Email Support
