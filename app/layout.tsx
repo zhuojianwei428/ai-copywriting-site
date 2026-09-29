@@ -75,6 +75,32 @@ export default function RootLayout({
           WebApplication url/name（见 app/page.tsx 与 app/*-generator/page.tsx），
           避免所有页面都把自己标成首页那个 url。
         */}
+        {/* Mesure d'audience : Microsoft Clarity + Google Analytics (gtag.js)。
+            Placés en dur dans l'en-tête du layout racine : une seule source pour
+            tout le site. Les identifiants sont publics par nature (visibles dans
+            le source de la page), ce ne sont pas des secrets. */}
+        <script
+          type="text/javascript"
+          dangerouslySetInnerHTML={{
+            __html: `(function(c,l,a,r,i,t,y){
+c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+})(window, document, "clarity", "script", "yppho023ix");`,
+          }}
+        />
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-P6FTL4MWDB"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-P6FTL4MWDB');`,
+          }}
+        />
       </head>
       <body>{children}</body>
     </html>
